@@ -1,0 +1,232 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f7f2;
+    color: #222;
+}
+
+/* Top Header */
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    border-bottom: 1px solid #bbb;
+    background: #f8f7f2;
+}
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.header-actions {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+}
+
+.action-item {
+        text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Navbar */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 45px;
+    border-bottom: 1px solid #d3d3d3;
+}
+
+.logo h1 {
+    font-size: 42px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    font-size: 17px;
+}
+
+/* Hero */
+
+.hero-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 70px 100px;
+    min-height: 520px;
+}
+
+.hero-content {
+    width: 45%;
+}
+
+.hero-content h1 {
+    font-size: 82px;
+    font-family: Georgia, serif;
+    font-weight: 500;
+    line-height: 1.15;
+    margin-bottom: 30px;
+}
+
+.hero-content p {
+    width: 75%;
+    line-height: 2;
+    color: #777;
+    margin-bottom: 40px;
+}
+
+.read-more-btn {
+    border: 1px solid #d7c4b8;
+    background: transparent;
+    padding: 14px 24px;
+    color: #d7b8a2;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.read-more-btn i {
+    margin-left: 8px;
+}
+
+.hero-image {
+    width: 45%;
+    display: flex;
+    justify-content: center;
+}
+
+.hero-image img {
+    width: 370px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Bottom Icons */
+
+.bottom-icons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #f1efe9;
+    padding: 30px 0;
+}
+
+.icon-box {
+    font-size: 70px;
+    color: #b7b0a8;
+}
+/* ==========================
+   RESPONSIVE DESIGN
+========================== */
+
+@media screen and (max-width: 992px) {
+
+	.hero-section {
+		flex-direction: column;
+		text-align: center;
+		padding: 50px 30px;
+	}
+
+	.hero-content {
+		max-width: 100%;
+	}
+
+	.hero-image img {
+		width: 300px;
+		margin-top: 30px;
+	}
+
+	.bottom-icons {
+		flex-wrap: wrap;
+		gap: 20px;
+	}
+}
+
+@media screen and (max-width: 768px) {
+
+	.top-header,
+	.navbar {
+		flex-direction: column;
+		align-items: center;
+		padding: 15px;
+		gap: 15px;
+	}
+
+	.nav-links {
+		flex-wrap: wrap;
+		justify-content: center;
+		padding: 0;
+		gap: 15px;
+	}
+
+	.header-actions {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 15px;
+	}
+
+	.hero-content h1 {
+		font-size: 45px;
+	}
+
+	.hero-content p {
+		font-size: 14px;
+	}
+
+	.hero-image img {
+		width: 250px;
+	}
+
+	.icon-box {
+		font-size: 30px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+
+	.hero-content h1 {
+		font-size: 34px;
+		line-height: 45px;
+	}
+
+	.hero-image img {
+		width: 220px;
+	}
+
+	.read-more-btn,
+	.logout-btn {
+		padding: 10px 20px;
+		font-size: 12px;
+	}
+
+	.logo h1 {
+		font-size: 24px;
+		text-align: center;
+	}
+}
+

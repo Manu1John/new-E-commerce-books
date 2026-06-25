@@ -1,0 +1,23 @@
+    <!-- Bootstrap Scripts only if needed -->
+    <% if(
+        typeof useBootstrap !== 'undefined'
+        && useBootstrap
+    ){ %>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <% } %>
+
+    <!-- Page Specific JS -->
+    <% if(typeof jsFile !== 'undefined'){ %>
+
+        <script defer
+            src="/js/<%= jsFile %>"
+        ></script>
+
+    <% } %>
+
+</body>
+</html>

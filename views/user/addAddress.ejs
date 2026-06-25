@@ -1,0 +1,258 @@
+<%- include('../partials/header') %>
+
+<!-- HEADER -->
+<header class="top-header">
+
+    <div class="social-icons">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-pinterest"></i>
+        <i class="fab fa-instagram"></i>
+    </div>
+
+    <div class="header-right">
+        <a href="/user-profile">Account</a>
+        <i class="fa-solid fa-heart"></i>
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <div class="logo">
+        Lantern & Leaf
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="/home">Home</a></li>
+        <li><a href="#">Featured</a></li>
+        <li><a href="#">Popular</a></li>
+        <li><a href="#">Offer</a></li>
+        <li><a href="#">Articles</a></li>
+    </ul>
+
+</nav>
+
+<!-- PAGE -->
+<section class="add-address-page">
+
+    <div class="page-header">
+
+        <p class="breadcrumb">
+            HOME /
+            MY ACCOUNT /
+            <span>ADD ADDRESS</span>
+        </p>
+
+        <h1>
+            Add New Address
+        </h1>
+
+    </div>
+
+    <div class="form-container">
+<% if (error) { %>
+    <div class="alert alert-danger">
+        <%= error %>
+    </div>
+<% } %>
+        <form
+            action="/address"
+            method="POST"
+            class="address-form"
+            id="addressForm"
+        >
+        
+
+            <div class="form-group">
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    name="fullName"
+                    placeholder="Enter full name"
+                    id="fullName"
+                />
+                <small class="error" id="nameError"></small>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Phone Number
+                </label>
+
+                <input
+                    type="number"
+                    name="phone"
+                    maxlength="10"
+                    placeholder="Enter phone number"
+                    id="phone"
+                />
+                <small class="error" id="phoneError"></small>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    House / Flat / Building
+                </label>
+
+                <input
+                    type="text"
+                    name="house"
+                    placeholder="House no, apartment"
+                    id="house"
+
+                />
+                <small class="error" id="houseError"></small>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Area / Street
+                </label>
+
+                <input
+                    type="text"
+                    name="area"
+                    placeholder="Street, locality"
+                    id="area"
+                />
+                <small class="error" id="areaError"></small>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Landmark
+                </label>
+
+                <input
+                    type="text"
+                    name="landmark"
+                    placeholder="Nearby landmark"
+                />
+
+            </div>
+
+            <div class="two-col">
+
+                <div class="form-group">
+
+                    <label>
+                        City
+                    </label>
+
+                    <input
+                        type="text"
+                        name="city"
+                        placeholder="City"
+                        id="city"
+                    />
+                    <small class="error" id="cityError"></small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        State
+                    </label>
+
+                    <input
+                        type="text"
+                        name="state"
+                        placeholder="State"
+                        id="state"
+                    />
+                    <small class="error" id="stateError"></small>
+
+                </div>
+
+            </div>
+
+            <div class="two-col">
+
+                <div class="form-group">
+
+                    <label>
+                        Pincode
+                    </label>
+
+                    <input
+                        type="text"
+                        name="pincode"
+                        placeholder="Pincode"
+                        maxlength="6"
+                        id="pincode"
+                    />
+<small class="error" id="pincodeError"></small>
+                </div>
+                
+
+                <div class="form-group">
+
+                    <label>
+                        Address Type
+                    </label>
+
+                    <select
+                        name="addressType"
+                        id="addressType"
+                    >
+                        <option value="">
+                            Select
+                        </option>
+
+                        <option value="Home">
+                            Home
+                        </option>
+
+                        <option value="Office">
+                            Office
+                        </option>
+
+                    </select>
+<small class="error" id="typeError"></small>
+                </div>
+
+            </div>
+
+            <div class="btn-group">
+
+                <a
+                    href="/address"
+                    class="cancel-btn"
+                >
+                    Cancel
+                </a>
+
+                <button
+                
+                    type="submit"
+                    class="save-btn"
+                >
+                    Save Address
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+</section>
+
+<%- include('../partials/footer') %>

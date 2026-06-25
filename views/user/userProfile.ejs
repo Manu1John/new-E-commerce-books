@@ -1,0 +1,467 @@
+
+<%- include('../partials/header') %>
+
+<!-- HEADER -->
+<header class="top-header">
+
+    <div class="social-icons">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-pinterest"></i>
+        <i class="fab fa-instagram"></i>
+    </div>
+
+    <div class="header-right">
+        <a href="#">Account</a>
+
+        <i class="fa-solid fa-heart"></i>
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <div class="logo">
+        Lantern & Leaf
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="/home">Home</a></li>
+        <li><a href="#">Featured</a></li>
+        <li><a href="#">Popular</a></li>
+        <li><a href="#">Offer</a></li>
+        <li><a href="#">Articles</a></li>
+    </ul>
+
+</nav>
+
+<!-- PROFILE SECTION -->
+<section class="profile-section">
+
+    <h1 class="page-title">
+        MY PROFILE
+    </h1>
+
+    <div class="profile-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="profile-card">
+
+                <img
+                    src="<%= user.profileImage || 'https://i.pravatar.cc/150' %>"
+                    alt="profile"
+                />
+
+                <h3>
+                    <%= user.firstName %>
+                    <%= user.lastName %>
+                </h3>
+
+            </div>
+
+            <button>Profile Overview</button>
+            <button>My Orders</button> 
+            <button>Order Details</button>
+            <button>Wishlist</button>
+            <button>Wallet</button>
+            <a href="/address"><button>Address</button></a>
+            <form action="/logout" method="POST">
+            <button type="submit">Logout</button>
+            </form>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="profile-content">
+
+            <!-- STATS -->
+            <div class="stats-box">
+
+                <div class="stat">
+                    <h2>24</h2>
+                    <p>Books Ordered</p>
+                </div>
+
+                <div class="stat">
+                    <h2>08</h2>
+                    <p>Wishlist Items</p>
+                </div>
+
+                <div class="stat">
+                    <h2>04</h2>
+                    <p>Reviews Posted</p>
+                </div>
+
+            </div>
+
+            <!-- PERSONAL INFO -->
+            <form
+                action="/profile/update?_method=PUT"
+                method="POST"
+                enctype="multipart/form-data"
+                class="info-card"
+            >
+
+                <h2>
+                    Personal Information
+                </h2>
+
+                <!-- Profile Upload -->
+                <div class="profile-upload">
+
+                    <img
+                        id="previewImage"
+                        src="<%= user.profileImage || 'https://i.pravatar.cc/150' %>"
+                        alt="profile"
+                        class="profile-preview"
+                    />
+
+                    <input
+                        type="file"
+                        name="profileImage"
+                        id="profileImage"
+                        hidden
+                    />
+
+                    <button
+                        type="button"
+                        id="changePhotoBtn"
+                        class="change-photo-btn"
+                        disabled
+                    >
+                        Change Photo
+                    </button>
+
+                </div>
+
+                <div class="form-grid">
+
+                    <div>
+                        <label>
+                            First Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="firstName"
+                            value="<%= user.firstName %>"
+                            disabled
+                        />
+                    </div>
+
+                    <div>
+                        <label>
+                            Last Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="lastName"
+                            value="<%= user.lastName %>"
+                            disabled
+                        />
+                    </div>
+
+                    <div>
+                        <label>
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            value="<%= user.email %>"
+                            disabled
+                        />
+                    </div>
+
+                    <div>
+                        <label>
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            name="phone"
+                            value="<%= user.phone || '' %>"
+                            disabled
+                        />
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="save-btn"
+                    id="editBtn"
+                >
+                    Edit
+                </button>
+
+            </form>
+<!-- PASSWORD & EMAIL -->
+<div class="bottom-grid">
+
+    <!-- PASSWORD -->
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>
+                Change Password
+            </h2>
+
+            <button
+                type="button"
+                id="togglePasswordBtn"
+                class="toggle-btn"
+            >
+                Change Password
+            </button>
+
+        </div>
+
+        <!-- HIDDEN PASSWORD FORM -->
+        <div
+            id="passwordFormContainer"
+            style="display:none;"
+        >
+
+            <% if (typeof error !== "undefined" && error) { %>
+                <p class="error-msg">
+                    <%= error %>
+                </p>
+            <% } %>
+
+            <% if (typeof success !== "undefined" && success) { %>
+                <p class="success-msg">
+                    <%= success %>
+                </p>
+            <% } %>
+
+            <form
+                action="/change-password?_method=PATCH"
+                method="POST"
+                id="changePasswordForm"
+            >
+
+                <input
+                    type="password"
+                    name="currentPassword"
+                    id="currentPassword"
+                    placeholder="Current password"
+                    required
+                />
+
+                <div class="two-col">
+
+                    <div>
+
+                        <input
+                            type="password"
+                            name="newPassword"
+                            id="newPassword"
+                            placeholder="New password"
+                            required
+                        />
+
+                        <small
+                            class="text-danger"
+                            id="newPasswordError"
+                        ></small>
+
+                    </div>
+
+                    <div>
+
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            id="confirmPassword"
+                            placeholder="Confirm password"
+                            required
+                        />
+
+                        <small
+                            class="text-danger"
+                            id="confirmPasswordError"
+                        ></small>
+
+                    </div>
+
+                </div>
+
+                <!-- SHOW PASSWORD -->
+                <div
+                    class="show-password-container"
+                    style="margin:10px 0; display:flex; align-items:center; gap:8px;"
+                >
+
+                    <i
+                        class="fa-solid fa-eye-slash"
+                        id="passwordShow"
+                    ></i>
+
+                    <label>
+                        Show Passwords
+                    </label>
+
+                </div>
+
+                <!-- PASSWORD RULES -->
+                <div class="password-rules">
+
+                    <p>
+                        Password must contain:
+                    </p>
+
+                    <ul>
+
+                        <li
+                            id="lengthRule"
+                            class="invalid"
+                        >
+                            ❌ At least 8 characters
+                        </li>
+
+                        <li
+                            id="upperRule"
+                            class="invalid"
+                        >
+                            ❌ One uppercase letter
+                        </li>
+
+                        <li
+                            id="lowerRule"
+                            class="invalid"
+                        >
+                            ❌ One lowercase letter
+                        </li>
+
+                        <li
+                            id="numberRule"
+                            class="invalid"
+                        >
+                            ❌ One number
+                        </li>
+
+                        <li
+                            id="specialRule"
+                            class="invalid"
+                        >
+                            ❌ One special character
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="passwordBtn"
+                >
+                    UPDATE PASSWORD
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- EMAIL -->
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>
+                Change Email
+            </h2>
+
+            <button
+                type="button"
+                id="toggleEmailBtn"
+                class="toggle-btn"
+            >
+                Change Email
+            </button>
+
+        </div>
+
+        <!-- HIDDEN EMAIL FORM -->
+        <div
+            id="emailFormContainer"
+            style="display:none;"
+        >
+
+            <% if (typeof emailError !== "undefined" && emailError) { %>
+                <p class="error-msg">
+                    <%= emailError %>
+                </p>
+            <% } %>
+
+            <% if (typeof emailSuccess !== "undefined" && emailSuccess) { %>
+                <p class="success-msg">
+                    <%= emailSuccess %>
+                </p>
+            <% } %>
+
+            <!-- SEND OTP -->
+            <form
+                action="/email-verification"
+                method="POST"
+            >
+
+                <input
+                    type="email"
+                    value="<%= user.email %>"
+                    disabled
+                />
+
+                <input
+                    type="email"
+                    name="newEmail"
+                    placeholder="New email"
+                    required
+                />
+
+                <button type="submit">
+                    Send OTP
+                </button>
+
+            </form>
+
+            <!-- VERIFY OTP -->
+            <form
+                action="/email-verification?_method=PATCH"
+                method="POST"
+            >
+
+                <input
+                    type="text"
+                    name="otp"
+                    placeholder="Enter OTP"
+                    required
+                />
+
+                <button type="submit">
+                    Verify & Update Email
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+    </div>
+
+</section>
+
+<%- include('../partials/footer') %>
+

@@ -1,0 +1,96 @@
+<%- include('../partials/header') %>
+<div class="container">
+
+    <aside class="sidebar">
+        <h1 class="logo">Admin Panel</h1>
+        <ul class="menu">
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="#">Orders</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">Coupons</a></li>
+            <li><a href="/admin/category">Categories</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="top-bar">
+            <form action="/admin/users" method="GET" id="searchForm">
+                <div class="search-box">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="searchInput" name="search" placeholder="Search by email or name" value="<%= search || '' %>">
+                    <% if(search){ %>
+                        <button type="button" id="clearSearch" class="clear-btn">✖</button>
+                    <% } %>
+                </div>
+            </form>
+
+            <form action="/admin/logout" method="POST">
+                <button class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
+
+        <h2 class="page-title">Users</h2>
+        <h5 class="page-users-count">Total users: <%= totalUsers %></h5>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach((user, index)=> { %>
+                    <tr>
+                        <td><%= ((currentPage - 1) * 5) + index + 1 %></td>
+                        <td><%= user.firstName %></td>
+                        <td><%= user.lastName %></td>
+                        <td><%= user.email %></td>
+                        <td>
+                            <span class="status active">
+                                <%= user.isBlocked ? "Blocked" : "Active" %>
+                            </span>
+                        </td>
+                        <td>
+                            <% if(user.isBlocked){ %>
+                                <form action="/admin/user/<%= user.id %>/unblock?_method=PATCH" method="POST" style="display:inline;" class="status-form" data-message="Are you sure you want to unblock <%= user.firstName %>?">
+                                    <button type="submit" class="block-btn">Unblock</button>
+                                </form>
+                            <% } else { %>
+                                <form action="/admin/user/<%= user.id %>/block?_method=PATCH" method="POST" style="display:inline;" class="status-form" data-message="Are you sure you want to block <%= user.firstName %>?">
+                                    <button type="submit" class="block-btn">Block</button>
+                                </form>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <% if(currentPage > 1){ %>
+                    <a href="/admin/dashboard?page=<%= currentPage - 1 %>&search=<%= search %>">Previous</a>
+                <% } %>
+                <% for(let i = 1; i <= totalPages; i++){ %>
+                    <a href="/admin/dashboard?page=<%= i %>&search=<%= search %>"><%= i %></a>
+                <% } %>
+                <% if(currentPage < totalPages){ %>
+                    <a href="/admin/dashboard?page=<%= currentPage + 1 %>&search=<%= search %>">Next</a>
+                <% } %>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../partials/footer') %>

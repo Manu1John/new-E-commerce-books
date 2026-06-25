@@ -1,0 +1,238 @@
+<%- include('../partials/header') %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container">
+
+    <aside class="sidebar">
+        <h1 class="logo">Admin Panel</h1>
+
+        <ul class="menu">
+            <li><a href="/admin/users">Users</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="#">Orders</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">Coupons</a></li>
+            <li><a href="/admin/category">Categories</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="top-bar">
+
+            <form action="/admin/products" method="GET" id="searchForm">
+                <div class="search-box">
+                    <i class="fa fa-search"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        id="searchInput"
+                        placeholder="Search product..."
+                        value="<%= search || '' %>"
+                    >
+                    <button type="button" class="clear-btn" id="clearButton">
+                        ✖
+                    </button>
+                </div>
+            </form>
+
+            <form action="/admin/logout" method="POST">
+                <button class="logout-btn">
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+        <div class="page-header">
+            <h2 class="page-title">Products</h2>
+            <a href="/admin/product/add"><button class="add-btn">Add Product</button></a>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Author</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% if(pro.length > 0){ %>
+                        <% pro.forEach((product, index) => { %>
+                        <tr>
+                            <td>
+                                <%= (currentPage - 1) * 4 + index + 1 %>
+                            </td>
+
+                            <td>
+                                <% if (product.images && product.images.length > 0) { %>
+                                    <img
+                                        src="/uploads/<%= product.images[0] %>"
+                                        alt="<%= product.title %>"
+                                        style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
+                                    >
+                                <% } else { %>
+                                    <img
+                                        src="https://via.placeholder.com/60"
+                                        alt="No image available"
+                                        style="width: 60px; height: 60px; object-fit: cover; opacity: 0.5;"
+                                    >
+                                <% } %>
+                            </td>
+
+                            <td>
+                                <%= product.title %>
+                            </td>
+
+                            <td>
+                                <%= product.category?.name || "No Category" %>
+                            </td>
+
+                            <td>
+                                <%= product.author %>
+                            </td>
+
+                            <td>
+                                ₹<%= product.price %>
+                            </td>
+
+                            <td>
+                                <%= product.quantity %>
+                            </td>
+
+                            <td>
+                                <a style="text-decoration: none;" href="/admin/product/<%=product._id%>/edit">
+                                    <button class="edit">
+                                        Edit
+                                    </button>
+                                </a>
+                                
+                                <button type="button" class="delete-product-btn" data-id="<%= product._id %>">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8">
+                                No products found
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <% if(currentPage > 1){ %>
+                    <a href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>">
+                        Prev
+                    </a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++){ %>
+                    <a
+                        href="/admin/products?page=<%= i %>&search=<%= search %>"
+                        class="<%= currentPage === i ? 'active-page' : '' %>"
+                    >
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if(currentPage < totalPages){ %>
+                    <a href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>">
+                        Next
+                    </a>
+                <% } %>
+            </div>
+        </div>
+
+    </main> 
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', async function (e) {
+        const button = e.target.closest('.delete-product-btn');
+        if (!button) return; 
+
+        e.preventDefault();
+
+        const productId = button.getAttribute('data-id');
+        
+        // SweetAlert2 Confirmation Dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to soft-delete this product? It will be hidden from the storefront.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/product/${productId}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Modern Toast Pop-up Notification Configuration
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true
+                        });
+
+                        // Display the success toast
+                        await Toast.fire({
+                            icon: 'success',
+                            title: 'Product deleted successfully'
+                        });
+
+                        // Redirect after toast timeline ends
+                        window.location.href = data.redirectUrl || '/admin/products';
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to delete',
+                            text: data.error || "Unknown server error",
+                            confirmButtonColor: '#2563eb'
+                        });
+                    }
+
+                } catch (error) {
+                    console.error("Deletion Fetch Error:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Error',
+                        text: 'A network error occurred while trying to delete the product.',
+                        confirmButtonColor: '#2563eb'
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
+
+<%- include('../partials/footer') %>

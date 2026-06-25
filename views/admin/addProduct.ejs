@@ -1,0 +1,204 @@
+<%- include('../partials/header') %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
+<div class="page-wrapper">
+
+    <div class="product-layout">
+
+        <div class="product-card">
+
+            <h2>Product Information</h2>
+
+            <form
+                action="/admin/product/add"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+                <div class="form-group">
+                    <label>
+                        Product Name <span>*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="title"
+                        id="title"
+                        placeholder="Enter product name"
+                    >
+                    <span class="error-message" id="titleError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Category <span>*</span>
+                    </label>
+                    <select
+                        name="category"
+                        id="category"
+                    >
+                        <option value="">
+                            Select category
+                        </option>
+                        <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>">
+                                <%= category.name %>
+                            </option>
+                        <% }) %>
+                    </select>
+                    <span class="error-message" id="categoryError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Author <span>*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="author"
+                        id="author"
+                        placeholder="Enter author name"
+                    >
+                    <span class="error-message" id="authorError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Description <span>*</span>
+                    </label>
+                    <textarea
+                        name="description"
+                        id="description"
+                        rows="5"
+                        placeholder="Enter product description"
+                    ></textarea>
+                    <span class="error-message" id="descriptionError"></span>
+                </div>
+
+                <div class="row">
+
+                    <div class="form-group">
+                        <label>
+                            Price <span>*</span>
+                        </label>
+                        <div class="input-box">
+                            <span>₹</span>
+                            <input
+                                type="number"
+                                name="price"
+                                id="price"
+                                placeholder="Enter price"
+                            >
+                        </div>
+                        <span class="error-message" id="priceError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Stock <span>*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="quantity"
+                            id="quantity"
+                            placeholder="Enter stock"
+                        >
+                        <span class="error-message" id="quantityError"></span>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input
+                                type="radio"
+                                name="status"
+                                value="active"
+                                checked
+                            >
+                            Active
+                        </label>
+                        <label class="radio-option">
+                            <input
+                                type="radio"
+                                name="status"
+                                value="inactive"
+                            >
+                            Not Active
+                        </label>
+                    </div>
+                </div>
+
+                <div class="upload-card">
+                    <h3>Product Images</h3>
+                    <div
+                        class="upload-box"
+                        id="dropArea"
+                    >
+                        <input
+                            type="file"
+                            id="imageUpload"
+                            name="images"
+                            multiple
+                            accept="image/*"
+                            hidden
+                        >
+                        <div id="uploadContent">
+                            <div class="upload-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <h4>Click or Drag Images</h4>
+                            <p>Minimum 3 Images</p>
+                            <small>Maximum 5 Images</small>
+                        </div>
+                    </div>
+                    
+                    <span class="error-message" id="imageError" style="text-align: center; margin-top: 10px;"></span>
+
+                    <div
+                        id="previewContainer"
+                        class="preview-container"
+                    ></div>
+                </div>
+
+                <div class="button-group">
+                    <button
+                        type="submit"
+                        class="save-btn"
+                    >
+                        Save Product
+                    </button>
+                    <button
+                        type="button"
+                        class="reset-btn"
+                        onclick="window.location.href='/admin/products'"
+                    >
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="sidebar-card">
+            <div class="tips-card">
+                <h3>💡 Quick Tips</h3>
+                <ul>
+                    <li>Enter accurate product information</li>
+                    <li>Upload minimum 3 images</li>
+                    <li>Use high-quality images</li>
+                    <li>Set correct stock quantity</li>
+                    <li>Check category before saving</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

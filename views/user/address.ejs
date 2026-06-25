@@ -1,0 +1,215 @@
+<%- include('../partials/header') %>
+
+<!-- HEADER -->
+<header class="top-header">
+
+    <div class="social-icons">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-pinterest"></i>
+        <i class="fab fa-instagram"></i>
+    </div>
+
+    <div class="header-right">
+        <a href="/user-profile">Account</a>
+        <i class="fa-solid fa-heart"></i>
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <div class="logo">
+        Lantern & Leaf
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="/home">Home</a></li>
+        <li><a href="#">Featured</a></li>
+        <li><a href="#">Popular</a></li>
+        <li><a href="#">Offer</a></li>
+        <li><a href="#">Articles</a></li>
+    </ul>
+
+</nav>
+
+<!-- PAGE -->
+<section class="address-page">
+
+    <div class="address-header">
+
+        <div>
+            <p class="breadcrumb">
+                HOME /
+                <span>MY ACCOUNT</span>
+            </p>
+
+            <h1>
+                Saved Addresses
+            </h1>
+        </div>
+
+        <a
+            href="/address/new"
+            class="add-address-btn"
+        >
+            + Add New Address
+        </a>
+
+    </div>
+
+    <div class="address-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="profile-box">
+
+
+                <h3>
+                    <%= user.firstName %>
+                    <%= user.lastName %>
+                </h3>
+
+            </div>
+
+            <ul>
+
+                <li>
+                    <a href="/user-profile">
+                        Profile Overview
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/orders">
+                        My Orders
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/add-address">
+                         Address
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/wishlist">
+                        Wishlist
+                    </a>
+                </li>
+
+                <li>
+                    <form action="/logout" method="POST">
+                        <button type="submit">
+                            Logout
+                        </button>
+                    </form>
+                </li>
+
+            </ul>
+
+        </aside>
+
+        <!-- ADDRESS SECTION -->
+        <div class="address-content">
+
+            <% if(addresses.length === 0){ %>
+
+                <div class="empty-address">
+
+                    <h2>
+                        No Address Found
+                    </h2>
+
+                    <p>
+                        Add your first address
+                    </p>
+
+                </div>
+
+            <% } %>
+
+            <div class="address-grid">
+
+                <% addresses.forEach(address => { %>
+
+                    <div class="address-card">
+
+                        <div class="address-top">
+
+                            <span class="tag">
+                                <%= address.addressType %>
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            <%= address.fullName %>
+                        </h3>
+
+                        <p>
+                            <%= address.house %>,
+                            <%= address.area %>
+                        </p>
+
+                        <p>
+                            <%= address.city %>,
+                            <%= address.state %>
+                        </p>
+
+                        <p>
+                            PIN :
+                            <%= address.pincode %>
+                        </p>
+
+                        <% if(address.landmark){ %>
+                            <p>
+                                Landmark :
+                                <%= address.landmark %>
+                            </p>
+                        <% } %>
+
+                        <p class="phone">
+                            +91 <%= address.phone %>
+                        </p>
+
+                        <div class="card-buttons">
+
+                            <a
+                                href="/address/<%= address._id %>/edit"
+                                class="edit-btn"
+                            >
+                                Edit
+                            </a>
+
+                            <form
+                                action="/address/<%= address._id %>?_method=DELETE"
+                                method="POST"
+                            >
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                    onclick="return confirm('Delete this address?')"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<%- include('../partials/footer') %>

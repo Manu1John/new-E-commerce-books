@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title><%= product.title %> | BookStore</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+	<link rel="stylesheet" href="/css/home.css">
+	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+	<link rel="stylesheet" type="text/css" href="/css/index.css">
+	
+	<style>
+		.zoom-container {
+			overflow: hidden;
+			position: relative;
+			cursor: zoom-in;
+			border: 1px solid #eee;
+			background: #fcfcfc;
+			border-radius: 8px;
+		}
+		.zoom-image {
+			width: 100%;
+			height: auto;
+			transition: transform 0.1s ease-out;
+		}
+		.thumbnail-btn {
+			width: 60px;
+			height: 80px;
+			object-fit: cover;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			cursor: pointer;
+			opacity: 0.7;
+			transition: opacity 0.2s, border-color 0.2s;
+		}
+		.thumbnail-btn:hover, .thumbnail-btn.active {
+			opacity: 1;
+			border-color: #C5A992;
+		}
+		.breadcrumb-nav {
+			--bs-breadcrumb-divider: '>';
+			font-size: 0.9em;
+		}
+		.breadcrumb-item a {
+			text-decoration: none;
+			color: #C5A992;
+		}
+		.breadcrumb-item.active {
+			color: #757575;
+		}
+		.price-badge {
+			font-family: var(--secondary-font);
+			font-size: 1.8em;
+			font-weight: 700;
+			color: var(--dark-color);
+		}
+		.discount-badge {
+			background: #e2d2c2;
+			color: #634f40;
+			font-size: 0.85em;
+			font-weight: 600;
+			padding: 4px 8px;
+			border-radius: 4px;
+			display: inline-block;
+		}
+		.stock-in {
+			color: #2e7d32;
+			font-weight: 600;
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+		}
+		.stock-out {
+			color: #c62828;
+			font-weight: 600;
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+		}
+		.ratings {
+			color: #ffb300;
+			font-size: 1.1em;
+		}
+		.btn-action-custom {
+			padding: 12px 24px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			border-radius: 4px;
+			transition: all 0.3s;
+		}
+		.btn-action-cart {
+			background: var(--dark-color);
+			color: #fff;
+			border: none;
+		}
+		.btn-action-cart:hover {
+			background: #C5A992;
+			color: #fff;
+		}
+		.btn-action-wishlist {
+			border: 2px solid var(--dark-color);
+			background: transparent;
+			color: var(--dark-color);
+		}
+		.btn-action-wishlist:hover {
+			background: var(--dark-color);
+			color: #fff;
+		}
+	</style>
+
+	<script defer src="/js/jquery-1.11.0.min.js"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+		crossorigin="anonymous"></script>
+	<script defer src="/js/plugins.js"></script>
+	<script defer src="/js/script.js"></script>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
+
+	<div id="header-wrap" class="sticky-top bg-white shadow-sm">
+		<div class="top-content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="social-links">
+							<ul>
+								<li><a href="#"><i class="icon icon-facebook"></i></a></li>
+								<li><a href="#"><i class="icon icon-twitter"></i></a></li>
+								<li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
+								<li><a href="#"><i class="icon icon-behance-square"></i></a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="right-element d-flex align-items-center justify-content-end">
+							<% if (user) { %>
+								<form action="/logout" method="POST" class="d-inline m-0 p-0 me-3">
+									<button type="submit" class="user-login for-buy" style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-transform: inherit; letter-spacing: inherit; position: static;">
+										<i class="icon icon-login"></i><span>Logout</span>
+									</button>
+								</form>  
+								<a href="/profile/user" class="user-account for-buy me-3"><i class="icon icon-user"></i><span>Account</span></a>
+								<a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span></a>
+							<% } else { %>
+								<a href="/login" class="user-login for-buy me-3"><i class="icon icon-login"></i><span>Login</span></a>
+								<a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(0)</span></a>
+							<% } %>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<header id="header">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-md-2">
+						<div class="main-logo">
+							<a href="<%= user ? '/home' : '/' %>"><img src="/images/main-logo.png" alt="logo"></a>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<nav id="navbar">
+							<div class="main-menu stellarnav">
+								<ul class="menu-list">
+									<li class="menu-item"><a href="<%= user ? '/home' : '/' %>">Home</a></li>
+									<li class="menu-item"><a href="<%= user ? '/home#featured-books' : '/#featured-books' %>">Featured</a></li>
+									<li class="menu-item"><a href="<%= user ? '/home#popular-books' : '/#popular-books' %>">Popular</a></li>
+									<li class="menu-item"><a href="<%= user ? '/home#special-offer' : '/#special-offer' %>">Offer</a></li>
+									<li class="menu-item"><a href="<%= user ? '/home#latest-blog' : '/#latest-blog' %>">Articles</a></li>
+								</ul>
+								<div class="hamburger">
+									<span class="bar"></span>
+									<span class="bar"></span>
+									<span class="bar"></span>
+								</div>
+							</div>
+						</nav>
+					</div>
+
+					<div class="col-md-4 text-end">
+						<% if (user) { %>
+							<a href="/wishlist" class="btn btn-outline-secondary btn-sm" style="font-weight: 600;"><i class="icon icon-heart-o me-1"></i> Wishlist</a>
+						<% } %>
+					</div>
+				</div>
+			</div>
+		</header>
+	</div>
+
+	<main class="container my-5">
+		<!-- Alert Messages -->
+		<% if (success && success.length > 0) { %>
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+				<%= success %>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		<% } %>
+		<% if (error && error.length > 0) { %>
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+				<%= error %>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		<% } %>
+
+		<!-- Breadcrumb -->
+		<nav aria-label="breadcrumb" class="mb-4">
+			<ol class="breadcrumb breadcrumb-nav">
+				<li class="breadcrumb-item"><a href="<%= user ? '/home' : '/' %>">Home</a></li>
+				<li class="breadcrumb-item"><a href="<%= user ? '/home?category=' + product.category._id + '#popular-books' : '/?category=' + product.category._id + '#popular-books' %>"><%= product.category.name %></a></li>
+				<li class="breadcrumb-item active" aria-current="page"><%= product.title %></li>
+			</ol>
+		</nav>
+
+		<!-- Product Grid -->
+		<div class="row g-5">
+			<!-- Product Images -->
+			<div class="col-md-5">
+				<div class="zoom-container mb-3" id="mainZoom">
+					<% if(product.images && product.images.length > 0){ %>
+						<img src="/uploads/<%= product.images[0] %>" class="zoom-image" id="mainProductImg" alt="<%= product.title %>">
+					<% } else { %>
+						<img src="/images/product-item1.jpg" class="zoom-image" id="mainProductImg" alt="<%= product.title %>">
+					<% } %>
+				</div>
+				<!-- Image Thumbnails -->
+				<% if(product.images && product.images.length > 1){ %>
+					<div class="d-flex gap-2 justify-content-center">
+						<% product.images.forEach((img, index) => { %>
+							<img src="/uploads/<%= img %>" class="thumbnail-btn <%= index === 0 ? 'active' : '' %>" onclick="changeImage('/uploads/<%= img %>', this)">
+						<% }) %>
+					</div>
+				<% } %>
+			</div>
+
+			<!-- Product Details Info -->
+			<div class="col-md-7">
+				<h1 class="mb-2" style="font-family: var(--heading-font);"><%= product.title %></h1>
+				<p class="text-muted mb-3" style="font-size: 1.1em;">By <strong class="text-dark"><%= product.author %></strong></p>
+
+				<div class="d-flex align-items-center gap-3 mb-4">
+					<div class="ratings d-flex align-items-center gap-1">
+						<span>★</span><span>★</span><span>★</span><span>★</span><span class="text-secondary">★</span>
+						<span class="text-muted ms-1" style="font-size: 0.85em;">(4.2 / 5 Ratings)</span>
+					</div>
+					<div class="vr"></div>
+					<div>
+						<% if (product.quantity > 0) { %>
+							<span class="stock-in">✓ In Stock (<%= product.quantity %> left)</span>
+						<% } else { %>
+							<span class="stock-out">✗ Out of Stock</span>
+						<% } %>
+					</div>
+				</div>
+
+				<hr class="my-4">
+
+				<div class="d-flex align-items-center gap-3 mb-4">
+					<span class="price-badge">₹<%= product.price %></span>
+					<span class="discount-badge">10% OFF with code BOOK10</span>
+				</div>
+
+				<p class="mb-4 text-secondary" style="line-height: 1.8;"><%= product.description %></p>
+
+				<!-- Details Table -->
+				<div class="bg-light p-3 rounded mb-4">
+					<div class="row g-2" style="font-size: 0.9em;">
+						<div class="col-4 text-muted">Category:</div>
+						<div class="col-8"><strong><%= product.category.name %></strong></div>
+						<div class="col-4 text-muted">Author:</div>
+						<div class="col-8"><strong><%= product.author %></strong></div>
+						<div class="col-4 text-muted">Language:</div>
+						<div class="col-8">English</div>
+						<div class="col-4 text-muted">Format:</div>
+						<div class="col-8">Hardcover</div>
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div class="d-flex flex-wrap gap-3 align-items-center">
+					<% if (product.quantity > 0) { %>
+						<button class="btn btn-action-custom btn-action-cart flex-grow-1" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+					<% } else { %>
+						<button class="btn btn-action-custom btn-secondary flex-grow-1" disabled>Out of Stock</button>
+					<% } %>
+					
+					<button class="btn btn-action-custom btn-action-wishlist" onclick="addToWishlist('<%= product._id %>')">
+						<i class="icon icon-heart-o me-2"></i> Add to Wishlist
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Related Products Section -->
+		<% if (relatedProducts && relatedProducts.length > 0) { %>
+			<section class="mt-5 pt-5 border-top">
+				<h3 class="mb-4" style="font-family: var(--heading-font);">Related Books</h3>
+				<div class="row">
+					<% relatedProducts.forEach(rel => { %>
+						<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+							<div class="product-item">
+								<figure class="product-style">
+									<% if(rel.images && rel.images.length > 0){ %>
+										<a href="/product/<%= rel._id %>">
+											<img src="/uploads/<%= rel.images[0] %>" class="img-fluid" style="height: 300px; object-fit: cover; width:100%;">
+										</a>
+									<% } else { %>
+										<a href="/product/<%= rel._id %>">
+											<img src="/images/product-item1.jpg" class="img-fluid" style="height: 300px; object-fit: cover; width:100%;">
+										</a>
+									<% } %>
+									<% if (rel.quantity > 0) { %>
+										<button class="add-to-cart" onclick="addToCart('<%= rel._id %>')">Add To Cart</button>
+									<% } %>
+								</figure>
+								<figcaption>
+									<h3><%= rel.title %></h3>
+									<span><%= rel.author %></span>
+									<div class="item-price">₹<%= rel.price %></div>
+								</figcaption>
+							</div>
+						</div>
+					<% }) %>
+				</div>
+			</section>
+		<% } %>
+
+		<!-- Mock Reviews Section -->
+		<section class="mt-5 pt-5 border-top">
+			<h3 class="mb-4" style="font-family: var(--heading-font);">Customer Reviews</h3>
+			<div class="row g-4">
+				<div class="col-md-6">
+					<div class="card border-0 bg-light p-3">
+						<div class="d-flex justify-content-between mb-2">
+							<strong>Arun K.</strong>
+							<span class="text-warning">★★★★★</span>
+						</div>
+						<p class="mb-0 text-secondary" style="font-size: 0.95em;">"An excellent read! The binding is great and the delivery was fast. Highly recommended bookshelf addition."</p>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card border-0 bg-light p-3">
+						<div class="d-flex justify-content-between mb-2">
+							<strong>Sneha R.</strong>
+							<span class="text-warning">★★★★☆</span>
+						</div>
+						<p class="mb-0 text-secondary" style="font-size: 0.95em;">"Loved the storyline and character developments. Casing is decent. Would buy again!"</p>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Footer -->
+	<footer id="footer" class="bg-dark text-white py-5 mt-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="footer-item">
+						<div class="main-logo mb-3">
+							<a href="/home"><img src="/images/main-logo.png" alt="logo" style="filter: brightness(0) invert(1);"></a>
+						</div>
+						<p>Explore thousands of books directly from our modern bookstore repository.</p>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="footer-item">
+						<h4>Help & Info</h4>
+						<ul class="list-unstyled">
+							<li><a href="#" class="text-white text-decoration-none">Help center</a></li>
+							<li><a href="#" class="text-white text-decoration-none">Contact us</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="footer-item">
+						<h4>Legal</h4>
+						<p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		// Image Swapper Helper
+		function changeImage(src, btn) {
+			document.getElementById('mainProductImg').src = src;
+			document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('active'));
+			btn.classList.add('active');
+		}
+
+		// Premium Magnifying hover Zoom logic
+		const zoomBox = document.getElementById('mainZoom');
+		const zoomImg = document.getElementById('mainProductImg');
+
+		zoomBox.addEventListener('mousemove', (e) => {
+			const rect = zoomBox.getBoundingClientRect();
+			const x = ((e.clientX - rect.left) / rect.width) * 100;
+			const y = ((e.clientY - rect.top) / rect.height) * 100;
+			zoomImg.style.transformOrigin = `${x}% ${y}%`;
+			zoomImg.style.transform = 'scale(2.2)';
+		});
+
+		zoomBox.addEventListener('mouseleave', () => {
+			zoomImg.style.transform = 'scale(1)';
+		});
+
+		// Dynamic actions (AJAX Cart/Wishlist calls)
+		function addToCart(productId) {
+			fetch('/cart/add', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ productId, quantity: 1 })
+			})
+			.then(res => res.json())
+			.then(data => {
+				if (data.success) {
+					alert(data.message);
+					// Update badge count
+					document.querySelectorAll('.cart span').forEach(el => {
+						el.textContent = 'Cart:(' + data.cartCount + ')';
+					});
+				} else {
+					if (data.error === "Unauthorized" || !data.success && data.error && data.error.includes("log")) {
+						window.location.href = '/login';
+					} else {
+						alert(data.error || 'Failed to add item to cart.');
+					}
+				}
+			})
+			.catch(err => {
+				console.error(err);
+				// If server redirects due to auth middleware
+				window.location.href = '/login';
+			});
+		}
+
+		function addToWishlist(productId) {
+			fetch('/wishlist/add', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ productId })
+			})
+			.then(res => res.json())
+			.then(data => {
+				if (data.success) {
+					alert(data.message);
+				} else {
+					alert(data.error || 'Failed to add to wishlist.');
+				}
+			})
+			.catch(err => {
+				window.location.href = '/login';
+			});
+		}
+	</script>
+</body>
+</html>

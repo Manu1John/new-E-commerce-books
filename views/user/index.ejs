@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Books Store</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+	<link rel="stylesheet" type="text/css" href="/css/index.css">
+	
+	<script defer src="/js/jquery-1.11.0.min.js"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+		crossorigin="anonymous"></script>
+	<script defer src="/js/plugins.js"></script>
+	<script defer src="/js/script.js"></script>
+</head>
+
+<% 
+	function getPageUrl(paramName, paramValue, anchor, tabId) {
+		let params = new URLSearchParams(query || {});
+		params.set(paramName, paramValue);
+		if (tabId) {
+			params.set('activeTab', tabId);
+		}
+		return "?" + params.toString() + (anchor ? anchor : '');
+	}
+
+	let activeTabId = (typeof query !== 'undefined' && query.activeTab) ? query.activeTab : 'all-books';
+%>
+
+<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
+
+	<div id="header-wrap" class="sticky-top bg-white shadow-sm">
+		<div class="top-content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="social-links">
+							<ul>
+								<li><a href="#"><i class="icon icon-facebook"></i></a></li>
+								<li><a href="#"><i class="icon icon-twitter"></i></a></li>
+								<li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
+								<li><a href="#"><i class="icon icon-behance-square"></i></a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="right-element">
+							<a href="/login" class="user-login for-buy"><i class="icon icon-login"></i><span>Login</span></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<header id="header">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-md-2">
+						<div class="main-logo">
+							<a href="/"><img src="images/main-logo.png" alt="logo"></a>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<nav id="navbar">
+							<div class="main-menu stellarnav">
+								<ul class="menu-list">
+									<li class="menu-item active"><a href="#home">Home</a></li>
+									<li class="menu-item"><a href="#featured-books" class="nav-link">Featured</a></li>
+									<li class="menu-item"><a href="#popular-books" class="nav-link">Popular</a></li>
+									<li class="menu-item"><a href="#special-offer" class="nav-link">Offer</a></li>
+									<li class="menu-item"><a href="#latest-blog" class="nav-link">Articles</a></li>
+								</ul>
+								<div class="hamburger">
+									<span class="bar"></span>
+									<span class="bar"></span>
+									<span class="bar"></span>
+								</div>
+							</div>
+						</nav>
+					</div>
+
+					<div class="col-md-4">
+						<div class="d-flex justify-content-end">
+							<form role="search" method="get" action="/" id="searchFormIndex" class="navbar-search-form d-flex w-100 position-relative" style="max-width: 300px;">
+								
+								<% if (typeof query !== 'undefined' && query.sort) { %><input type="hidden" name="sort" value="<%= query.sort %>"><% } %>
+								<% if (typeof query !== 'undefined' && query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
+								<% if (typeof query !== 'undefined' && query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
+								<% if (typeof query !== 'undefined' && query.maxPrice) { %><input type="hidden" name="maxPrice" value="<%= query.maxPrice %>"><% } %>
+								<input type="hidden" name="activeTab" value="all-books">
+					
+								<input id="searchInputIndex" class="form-control search-input" placeholder="Search books..." type="text" name="search" value="<%= typeof query !== 'undefined' && query.search ? query.search : '' %>" style="padding-right: 35px; border-radius: 20px 0 0 20px;">
+								
+								<button type="button" id="clearBtnIndex" class="clear-search-btn" style="position: absolute; right: 65px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; color: #999; font-size: 20px; line-height: 1; z-index: 10; cursor: pointer; display: <%= typeof query !== 'undefined' && query.search ? 'block' : 'none' %>;">
+									&times;
+								</button>
+					
+								<button type="submit" class="search-btn">
+									<i class="icon icon-search"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</header>
+	</div>
+
+	<section id="billboard">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<button class="prev slick-arrow"><i class="icon icon-arrow-left"></i></button>
+					<div class="main-slider pattern-overlay">
+						<div class="slider-item">
+							<div class="banner-content">
+								<h2 class="banner-title">Life of the Wild</h2>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac.</p>
+								<div class="btn-wrap">
+									<a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i class="icon icon-ns-arrow-right"></i></a>
+								</div>
+							</div>
+							<img src="images/main-banner1.jpg" alt="banner" class="banner-image">
+						</div>
+						<div class="slider-item">
+							<div class="banner-content">
+								<h2 class="banner-title">Birds gonna be Happy</h2>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac.</p>
+								<div class="btn-wrap">
+									<a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i class="icon icon-ns-arrow-right"></i></a>
+								</div>
+							</div>
+							<img src="images/main-banner2.jpg" alt="banner" class="banner-image">
+						</div>
+					</div>
+					<button class="next slick-arrow"><i class="icon icon-arrow-right"></i></button>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="client-holder" data-aos="fade-up">
+		<div class="container">
+			<div class="row">
+				<div class="inner-content">
+					<div class="logo-wrap">
+						<div class="grid">
+							<a href="#"><img src="images/client-image1.png" alt="client"></a>
+							<a href="#"><img src="images/client-image2.png" alt="client"></a>
+							<a href="#"><img src="images/client-image3.png" alt="client"></a>
+							<a href="#"><img src="images/client-image4.png" alt="client"></a>
+							<a href="#"><img src="images/client-image5.png" alt="client"></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="featured-books" class="py-5 my-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-header align-center">
+						<div class="title"><span>Some quality items</span></div>
+						<h2 class="section-title">Featured Books</h2>
+					</div>
+				
+					<div class="product-list" data-aos="fade-up">
+						<div class="row">
+							<% products.forEach(product => { %>
+								<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+									<div class="product-item">
+										<figure class="product-style">
+											<% if (product.images && product.images.length > 0) { %>
+												<a href="/product/<%= product._id %>">
+													<img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" class="img-fluid">
+												</a>
+											<% } else { %>
+												<a href="/product/<%= product._id %>">
+													<img src="images/product-item1.jpg" alt="Books" class="img-fluid">
+												</a>
+											<% } %>
+											<button type="button" class="add-to-cart">Add to Cart</button>
+										</figure>
+										<figcaption>
+											<h3><%= product.title %></h3>
+											<span><%= product.author %></span>
+											<div class="item-price">₹<%= product.price %></div>
+										</figcaption>
+									</div>
+								</div>
+							<% }) %>
+						</div>
+
+						<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+							<% for(let i = 1; i <= featuredTotalPages; i++) { %>
+								<a href="<%= getPageUrl('page_featured', i, '#featured-books') %>"
+								   class="btn btn-sm <%= featuredPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+									<%= i %>
+								</a>
+							<% } %>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="best-selling" class="leaf-pattern-overlay">
+		<div class="corner-pattern-overlay"></div>
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8">
+					<div class="row">
+						<div class="col-md-6">
+							<figure class="products-thumb">
+								<img src="images/single-image.jpg" alt="book" class="single-image">
+							</figure>
+						</div>
+						<div class="col-md-6">
+							<div class="product-entry">
+								<h2 class="section-title divider">Best Selling Book</h2>
+								<div class="products-content">
+									<div class="author-name">By Timbur Hood</div>
+									<h3 class="item-title">Birds gonna be happy</h3>
+									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+									<div class="item-price">$ 45.00</div>
+									<div class="btn-wrap">
+										<a href="checkout.html" class="btn-accent-arrow">shop it now <i class="icon icon-ns-arrow-right"></i></a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="popular-books" class="bookshelf py-5 my-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-header align-center">
+						<div class="title"><span>Browse Books</span></div>
+						<h2 class="section-title">Popular Books</h2>
+					</div>
+
+					<div class="filter-sort-bar mb-4 p-3 bg-light rounded border" data-aos="fade-up">
+						<form method="get" action="/" class="row g-3 align-items-end">
+							<% if (typeof query !== 'undefined' && query.search) { %>
+								<input type="hidden" name="search" value="<%= query.search %>">
+							<% } %>
+							<input type="hidden" name="activeTab" value="all-books">
+
+							<div class="col-lg-3 col-md-6">
+								<label class="form-label mb-1" style="font-size: 0.85em; font-weight: 600;">Category</label>
+								<select name="category" class="form-select form-select-sm">
+									<option value="">All Categories</option>
+									<% categoryData.forEach(item => { %>
+										<option value="<%= item.category._id %>" <%= typeof query !== 'undefined' && query.category == item.category._id ? 'selected' : '' %>>
+											<%= item.category.name %>
+										</option>
+									<% }) %>
+								</select>
+							</div>
+
+							<div class="col-lg-4 col-md-6">
+								<label class="form-label mb-1" style="font-size: 0.85em; font-weight: 600;">Price Range (₹)</label>
+								<div class="d-flex gap-2 align-items-center">
+									<input type="number" name="minPrice" class="form-control form-control-sm" placeholder="Min" value="<%= typeof query !== 'undefined' ? query.minPrice : '' %>" min="0">
+									<span>-</span>
+									<input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="Max" value="<%= typeof query !== 'undefined' ? query.maxPrice : '' %>" min="0">
+								</div>
+							</div>
+
+							<div class="col-lg-3 col-md-6">
+								<label class="form-label mb-1" style="font-size: 0.85em; font-weight: 600;">Sort By</label>
+								<select name="sort" class="form-select form-select-sm">
+									<option value="">Default (Newest)</option>
+									<option value="price_asc" <%= typeof query !== 'undefined' && query.sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+									<option value="price_desc" <%= typeof query !== 'undefined' && query.sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+									<option value="az" <%= typeof query !== 'undefined' && query.sort === 'az' ? 'selected' : '' %>>Title: A - Z</option>
+									<option value="za" <%= typeof query !== 'undefined' && query.sort === 'za' ? 'selected' : '' %>>Title: Z - A</option>
+								</select>
+							</div>
+
+							<div class="col-lg-2 col-md-6 d-flex gap-2">
+								<button type="submit" class="btn btn-dark btn-sm flex-grow-1 m-0" style="height: 31px;">Apply</button>
+								<a href="/?activeTab=all-books#popular-books" class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center" style="height: 31px;">Clear</a>
+							</div>
+						</form>
+					</div>
+
+					<ul class="tabs">
+						<li class="tab <%= activeTabId === 'all-books' ? 'active' : '' %>" data-tab-target="#all-books">All</li>
+						<% categoryData.forEach(item => { %>
+							<li class="tab <%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>" data-tab-target="#cat-<%= item.category._id %>">
+								<%= item.category.name %>
+							</li>
+						<% }) %>
+					</ul>
+
+					<div class="tab-content">
+						<div id="all-books" data-tab-content class="<%= activeTabId === 'all-books' ? 'active' : '' %>">
+							<div class="row">
+								<% if (allProducts && allProducts.length === 0) { %>
+									<p class="text-muted p-3">No products matched your search or filters.</p>
+								<% } %>
+								<% if (allProducts) { allProducts.forEach(product => { %>
+									<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+										<div class="product-item">
+											<figure class="product-style">
+												<% if(product.images && product.images.length > 0){ %>
+													<a href="/product/<%= product._id %>">
+														<img src="/uploads/<%= product.images[0] %>" class="img-fluid">
+													</a>
+												<% } else { %>
+													<a href="/product/<%= product._id %>">
+														<img src="images/product-item1.jpg" class="img-fluid">
+													</a>
+												<% } %>
+												<button class="add-to-cart">Add To Cart</button>
+											</figure>
+											<figcaption>
+												<h3><%= product.title %></h3>
+												<span><%= product.author %></span>
+												<div class="item-price">₹<%= product.price %></div>
+											</figcaption>
+										</div>
+									</div>
+								<% }) } %>
+							</div>
+
+							<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+								<% for(let i = 1; i <= allTotalPages; i++) { %>
+									<a href="<%= getPageUrl('page_all', i, '#popular-books', 'all-books') %>"
+									   class="btn btn-sm <%= allPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+										<%= i %>
+									</a>
+								<% } %>
+							</div>
+						</div>
+
+						<% categoryData.forEach(item => { %>
+							<div id="cat-<%= item.category._id %>" data-tab-content class="<%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>">
+								<div class="row">
+									<% if (item.products.length === 0) { %>
+										<p class="text-muted p-3">No products in this category</p>
+									<% } %>
+
+									<% item.products.forEach(product => { %>
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<% if(product.images && product.images.length > 0){ %>
+														<a href="/product/<%= product._id %>">
+															<img src="/uploads/<%= product.images[0] %>" class="img-fluid">
+														</a>
+													<% } else { %>
+														<a href="/product/<%= product._id %>">
+															<img src="images/product-item2.jpg" class="img-fluid">
+														</a>
+													<% } %>
+													<button class="add-to-cart">Add To Cart</button>
+												</figure>
+												<figcaption>
+													<h3><%= product.title %></h3>
+													<span><%= product.author %></span>
+													<div class="item-price">₹<%= product.price %></div>
+												</figcaption>
+											</div>
+										</div>
+									<% }) %>
+								</div>
+
+								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+									<% for(let i = 1; i <= item.totalPages; i++){ %>
+										<a href="<%= getPageUrl('page_' + item.category._id, i, '#popular-books', 'cat-' + item.category._id) %>"
+										   class="btn btn-sm <%= item.page === i ? 'btn-dark' : 'btn-outline-dark' %>">
+											<%= i %>
+										</a>
+									<% } %>
+								</div>
+							</div>
+						<% }) %>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="quotation" class="align-center pb-5 mb-5">
+		<div class="inner-content">
+			<h2 class="section-title divider">Quote of the day</h2>
+			<blockquote data-aos="fade-up">
+				<q>“The more that you read, the more things you will know. The more that you learn, the more places you’ll go.”</q>
+				<div class="author-name">Dr. Seuss</div>
+			</blockquote>
+		</div>
+	</section>
+
+	<section id="special-offer" class="bookshelf pb-5 mb-5">
+		<div class="section-header align-center">
+			<div class="title"><span>Grab your opportunity</span></div>
+			<h2 class="section-title">Books with offer</h2>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="inner-content">
+					<div class="product-list" data-aos="fade-up">
+						<div class="row">
+							<% offerProducts.forEach(product => { %>
+								<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+									<div class="product-item">
+										<figure class="product-style">
+											<a href="/product/<%= product._id %>">
+												<% if (product.images && product.images.length > 0) { %>
+													<img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" class="img-fluid">
+												<% } else { %>
+													<img src="images/product-item5.jpg" alt="Books" class="img-fluid">
+												<% } %>
+											</a>
+											<button type="button" class="add-to-cart">Add to Cart</button>
+										</figure>
+										<figcaption>
+											<h3><%= product.title %></h3>
+											<span><%= product.author %></span>
+											<div class="item-price">
+												<% if (product.oldPrice) { %>
+													<span class="prev-price">₹<%= product.oldPrice %></span>
+												<% } %>
+												₹<%= product.price %>
+											</div>
+										</figcaption>
+									</div>
+								</div>
+							<% }) %>
+						</div>
+
+						<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+							<% for(let i = 1; i <= offerTotalPages; i++) { %>
+								<a href="<%= getPageUrl('page_offer', i, '#special-offer') %>"
+								   class="btn btn-sm <%= offerPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+									<%= i %>
+								</a>
+							<% } %>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="subscribe">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="title-element">
+								<h2 class="section-title divider">Subscribe to our newsletter</h2>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="subscribe-content" data-aos="fade-up">
+								<p>Sed eu feugiat amet, libero ipsum enim pharetra hac dolor sit amet.</p>
+								<form id="form">
+									<input type="text" name="email" placeholder="Enter your email addresss here">
+									<button class="btn-subscribe">
+										<span>send</span><i class="icon icon-send"></i>
+									</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="latest-blog" class="py-5 my-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-header align-center">
+						<div class="title"><span>Read our articles</span></div>
+						<h2 class="section-title">Latest Articles</h2>
+					</div>
+
+					<div class="row">
+						<div class="col-md-4">
+							<article class="column" data-aos="fade-up">
+								<figure>
+									<a href="#" class="image-hvr-effect"><img src="images/post-img1.jpg" alt="post" class="post-image"></a>
+								</figure>
+								<div class="post-item">
+									<div class="meta-date">Mar 30, 2021</div>
+									<h3><a href="#">Reading books always makes the moments happy</a></h3>
+									<div class="links-element">
+										<div class="categories">inspiration</div>
+									</div>
+								</div>
+							</article>
+						</div>
+						<div class="col-md-4">
+							<article class="column" data-aos="fade-up" data-aos-delay="200">
+								<figure>
+									<a href="#" class="image-hvr-effect"><img src="images/post-img2.jpg" alt="post" class="post-image"></a>
+								</figure>
+								<div class="post-item">
+									<div class="meta-date">Mar 29, 2021</div>
+									<h3><a href="#">Reading books always makes the moments happy</a></h3>
+									<div class="links-element">
+										<div class="categories">inspiration</div>
+									</div>
+								</div>
+							</article>
+						</div>
+						<div class="col-md-4">
+							<article class="column" data-aos="fade-up" data-aos-delay="400">
+								<figure>
+									<a href="#" class="image-hvr-effect"><img src="images/post-img3.jpg" alt="post" class="post-image"></a>
+								</figure>
+								<div class="post-item">
+									<div class="meta-date">Feb 27, 2021</div>
+									<h3><a href="#">Reading books always makes the moments happy</a></h3>
+									<div class="links-element">
+										<div class="categories">inspiration</div>
+									</div>
+								</div>
+							</article>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="download-app" class="leaf-pattern-overlay">
+		<div class="corner-pattern-overlay"></div>
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8">
+					<div class="row">
+						<div class="col-md-5">
+							<figure>
+								<img src="images/device.png" alt="phone" class="single-image">
+							</figure>
+						</div>
+						<div class="col-md-7">
+							<div class="app-info">
+								<h2 class="section-title divider">Download our app now !</h2>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus nonet psryroin.</p>
+								<div class="google-app">
+									<img src="images/google-play.jpg" alt="google play">
+									<img src="images/app-store.jpg" alt="app store">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<footer id="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="footer-item">
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus nonet psryroin.</p>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>About Us</h5>
+						<ul class="menu-list">
+							<li class="menu-item"><a href="#">vision</a></li>
+							<li class="menu-item"><a href="#">articles</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Discover</h5>
+						<ul class="menu-list">
+							<li class="menu-item"><a href="#">Home</a></li>
+							<li class="menu-item"><a href="#">Books</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>My account</h5>
+						<ul class="menu-list">
+							<li class="menu-item"><a href="#">Sign In</a></li>
+							<li class="menu-item"><a href="#">View Cart</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Help</h5>
+						<ul class="menu-list">
+							<li class="menu-item"><a href="#">Help center</a></li>
+							<li class="menu-item"><a href="#">Contact us</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<div id="footer-bottom">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="copyright">
+						<div class="row">
+							<div class="col-md-6">
+								<p>© 2022 All rights reserved. Free HTML Template by <a href="https://www.templatesjungle.com/" target="_blank">TemplatesJungle</a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const searchInput = document.getElementById('searchInputIndex');
+			const clearBtn = document.getElementById('clearBtnIndex');
+			const searchForm = document.getElementById('searchFormIndex');
+			let debounceTimer;
+
+			if (searchInput && clearBtn && searchForm) {
+				// Show clear button instantly when typing
+				searchInput.addEventListener('input', (e) => {
+					clearBtn.style.display = e.target.value.trim() ? 'block' : 'none';
+					
+					// Optional: Automatically submit after user stops typing for 500ms
+					clearTimeout(debounceTimer);
+					debounceTimer = setTimeout(() => {
+						searchForm.submit();
+					}, 600); 
+				});
+
+				// Clear the input and reload without the search parameter
+				clearBtn.addEventListener('click', () => {
+					searchInput.value = '';
+					clearBtn.style.display = 'none';
+					
+					// Submitting the form with an empty value clears the results
+					searchForm.submit(); 
+				});
+			}
+		});
+	</script>
+</body>
+</html>

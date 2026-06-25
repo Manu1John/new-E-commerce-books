@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+
+    <h1>Verify OTP</h1>
+
+    <p>
+        We sent a verification code to your email.
+        Enter the OTP below to continue.
+    </p>
+
+    <% if(error){ %>
+        <div class="alert alert-error">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if(success){ %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <form action="/verify-otp" method="POST">
+
+        <input
+            type="text"
+            name="otp"
+            class="otp-input"
+            placeholder="Enter OTP"
+            maxlength="6"
+            required
+        >
+
+        <button type="submit">
+            Verify OTP
+        </button>
+
+    </form>
+
+    <p id="timer">
+        Resend OTP in
+        <span id="countdown">30</span>
+        seconds
+    </p>
+
+    <form action="/signup/resend-otp" method="POST">
+
+        <button
+            type="submit"
+            class="resend-btn"
+            id="resendBtn"
+        >
+            Resend OTP
+        </button>
+
+    </form>
+
+</div>
+
+<%- include('../partials/footer') %>

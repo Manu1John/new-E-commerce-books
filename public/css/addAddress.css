@@ -1,0 +1,205 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:#f8f4ef;
+}
+
+/* HEADER */
+
+.top-header{
+    background:#1d2a38;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 8%;
+}
+
+.social-icons{
+    display:flex;
+    gap:18px;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.header-right a{
+    text-decoration:none;
+    color:white;
+}
+
+/* NAVBAR */
+
+.navbar{
+    position:sticky;
+    top:0;
+    z-index:999;
+    background:#f5eee5;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 8%;
+    border-bottom:1px solid #ddd;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:700;
+}
+
+.nav-links{
+    display:flex;
+    gap:30px;
+    list-style:none;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:#222;
+}
+
+/* PAGE */
+
+.add-address-page{
+    padding:50px 8%;
+}
+
+.page-header{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.breadcrumb{
+    color:#888;
+    font-size:14px;
+}
+
+.page-header h1{
+    margin-top:12px;
+    font-size:42px;
+    color:#222;
+}
+
+/* FORM */
+
+.form-container{
+    max-width:900px;
+    margin:auto;
+}
+
+.address-form{
+    background:white;
+    padding:40px;
+    border-radius:25px;
+    box-shadow:0 8px 20px rgba(0,0,0,.06);
+}
+
+.form-group{
+    margin-bottom:22px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:10px;
+    font-weight:500;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    padding:16px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    outline:none;
+    font-size:15px;
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:#1d2a38;
+}
+
+.two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.btn-group{
+    margin-top:30px;
+    display:flex;
+    justify-content:flex-end;
+    gap:15px;
+}
+
+.cancel-btn{
+    text-decoration:none;
+    background:#ddd;
+    color:#222;
+    padding:14px 28px;
+    border-radius:12px;
+}
+
+.save-btn{
+    border:none;
+    background:#1d2a38;
+    color:white;
+    padding:14px 28px;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+    .navbar{
+        flex-direction:column;
+        gap:20px;
+    }
+
+    .nav-links{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .page-header h1{
+        font-size:32px;
+    }
+
+    .address-form{
+        padding:25px;
+    }
+
+    .two-col{
+        grid-template-columns:1fr;
+    }
+
+    .btn-group{
+        flex-direction:column;
+    }
+
+    .cancel-btn,
+    .save-btn{
+        width:100%;
+        text-align:center;
+    }
+}
+
+.error {
+    color: red;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+}
+
+
+

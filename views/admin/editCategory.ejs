@@ -1,0 +1,78 @@
+
+<%- include('../partials/header') %>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<div class="container">
+    <div class="form-card">
+ <a href="/admin/category" class="close-popup-btn" aria-label="Close">&times;</a>
+        <div class="header">
+            <h1>Edit Category</h1>
+            <p>Create a new category for books</p>
+        </div>
+      
+
+        <form action="/admin/category/<%=category.id%>/edit?_method=PUT" method="POST"  id="categoryForm">
+
+            <div class="form-group">
+                <label for="name">Category Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter category name"  
+                    value="<%=category.name%>"                 
+                />
+                <small class="error-message" id="nameError"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="5"
+                    placeholder="Enter category description"
+                ><%=category.description%></textarea>
+                <small class="error-message" id="descriptionError"></small>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input
+                            type="radio"
+                            name="status"
+                            value="active"
+                            <%= category.status === 'active' ? 'checked' : '' %>
+                        />
+                        Active
+                    </label>
+
+                    <label class="radio-option">
+                        <input
+                            type="radio"
+                            name="status"
+                            value="inactive"
+                            <%= category.status === 'inactive' ? 'checked' : '' %>
+                        />
+                        
+                        Not Active
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Edit Category
+            </button>
+
+        </form>
+          <% if (typeof error !== 'undefined' && error) { %> <div class="server-error"> <%= error %> </div> <% } %>
+    </div>
+</div>
+<%- include('../partials/footer') %>
+
+
