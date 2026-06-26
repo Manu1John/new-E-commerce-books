@@ -1,219 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><%= title %> | BookStore</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BookStore</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-	<link rel="stylesheet" href="/css/home.css">
-	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
-	<link rel="stylesheet" type="text/css" href="/css/index.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
 
-	<style>
-		.address-card {
-			border: 1px solid #ddd;
-			border-radius: 6px;
-			padding: 15px;
-			margin-bottom: 15px;
-			cursor: pointer;
-			transition: border-color 0.2s, background-color 0.2s;
-			position: relative;
-		}
-		.address-card:hover {
-			border-color: #C5A992;
-		}
-		.address-card input[type="radio"] {
-			position: absolute;
-			right: 15px;
-			top: 15px;
-		}
-		.address-card.selected {
-			border-color: #C5A992;
-			background-color: #Fcfaf7;
-		}
-		.badge-type {
-			font-size: 0.75em;
-			background: #eee;
-			color: #555;
-			padding: 2px 6px;
-			border-radius: 4px;
-			text-transform: uppercase;
-		}
-	</style>
+    <style>
+        :root {
+            --brand-primary: #8C6239;
+            --brand-dark: #1A1A1A;
+            --brand-light: #FBF9F6;
+            --brand-muted: #7A7A7A;
+            --brand-border: #E5E0DA;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
 
-	<script defer src="/js/jquery-1.11.0.min.js"></script>
-	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-		crossorigin="anonymous"></script>
-	<script defer src="/js/plugins.js"></script>
-	<script defer src="/js/script.js"></script>
+        body {
+            font-family: var(--font-body);
+            background-color: #FAFAFA;
+            color: var(--brand-dark);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--brand-dark);
+        }
+
+        /* Navbar Customizations */
+        #header-wrap {
+            border-bottom: 1px solid var(--brand-border);
+        }
+        .top-content {
+            font-size: 0.85rem;
+            border-bottom: 1px solid #F0EDE9;
+            padding: 8px 0;
+        }
+        .right-element a, .right-element button {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--brand-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .right-element a:hover, .right-element button:hover {
+            color: var(--brand-primary);
+        }
+
+        /* Step Headers */
+        .checkout-step-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-number {
+            background: var(--brand-dark);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+
+        /* Address Cards Modernized */
+        .address-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .address-card {
+            border: 1px solid var(--brand-border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background-color: #FFFFFF;
+        }
+        .address-card:hover {
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(140, 98, 57, 0.06);
+        }
+        .address-card input[type="radio"] {
+            position: absolute;
+            right: 20px;
+            top: 22px;
+            accent-color: var(--brand-primary);
+            width: 18px;
+            height: 18px;
+        }
+        .address-card.selected {
+            border-color: var(--brand-primary);
+            background-color: var(--brand-light);
+            box-shadow: 0 4px 15px rgba(140, 98, 57, 0.04);
+        }
+        .badge-type {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #EFEBE6;
+            color: var(--brand-dark);
+            padding: 4px 10px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .address-text {
+            color: var(--brand-muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        /* Order Summary Sticky Panel */
+        .summary-card {
+            background-color: #FFFFFF;
+            border: 1px solid var(--brand-border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 110px;
+        }
+        .order-items-list {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        /* Custom Scrollbar */
+        .order-items-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .order-items-list::-webkit-scrollbar-track {
+            background: #F5F5F5;
+        }
+        .order-items-list::-webkit-scrollbar-thumb {
+            background: var(--brand-border);
+            border-radius: 10px;
+        }
+        .item-row {
+            padding: 14px 0;
+            border-bottom: 1px solid #F5F2EE;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Form Controls & Buttons */
+        .btn-brand-dark {
+            background-color: var(--brand-dark);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            padding: 14px 24px;
+            transition: all 0.2s ease;
+        }
+        .btn-brand-dark:hover:not(:disabled) {
+            background-color: var(--brand-primary);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+        .btn-brand-outline {
+            background-color: transparent;
+            color: var(--brand-dark);
+            border: 1px solid var(--brand-dark);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 10px 20px;
+            transition: all 0.2s ease;
+        }
+        .btn-brand-outline:hover {
+            background-color: var(--brand-dark);
+            color: #FFFFFF;
+        }
+    </style>
+
+    <script defer src="/js/jquery-1.11.0.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <script defer src="/js/plugins.js"></script>
+    <script defer src="/js/script.js"></script>
 </head>
 <body>
 
-	<div id="header-wrap" class="sticky-top bg-white shadow-sm">
-		<div class="top-content">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-md-6">
-						<div class="social-links">
-							<ul>
-								<li><a href="#"><i class="icon icon-facebook"></i></a></li>
-								<li><a href="#"><i class="icon icon-twitter"></i></a></li>
-								<li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
-								<li><a href="#"><i class="icon icon-behance-square"></i></a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="right-element d-flex align-items-center justify-content-end">
-							<form action="/logout" method="POST" class="d-inline m-0 p-0 me-3">
-								<button type="submit" class="user-login for-buy" style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-transform: inherit; letter-spacing: inherit; position: static;">
-									<i class="icon icon-login"></i><span>Logout</span>
-								</button>
-							</form>  
-							<a href="/profile/user" class="user-account for-buy me-3"><i class="icon icon-user"></i><span>Account</span></a>
-							<a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span></a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<header id="header">
-			<div class="container-fluid">
-				<div class="row align-items-center">
-					<div class="col-md-2">
-						<div class="main-logo">
-							<a href="/home"><img src="/images/main-logo.png" alt="logo"></a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</header>
-	</div>
+    <div id="header-wrap" class="sticky-top bg-white">
+        <div class="top-content">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <div class="social-links">
+                            <ul class="list-inline m-0 p-0">
+                                <li class="list-inline-item me-3"><a href="#"><i class="icon icon-facebook"></i></a></li>
+                                <li class="list-inline-item me-3"><a href="#"><i class="icon icon-twitter"></i></a></li>
+                                <li class="list-inline-item me-3"><a href="#"><i class="icon icon-youtube-play"></i></a></li>
+                                <li class="list-inline-item"><a href="#"><i class="icon icon-behance-square"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="right-element d-flex align-items-center justify-content-end gap-3">
+                            <form action="/logout" method="POST" class="d-inline m-0 p-0">
+                                <button type="submit" style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="icon icon-login"></i><span>Logout</span>
+                                </button>
+                            </form>  
+                            <span class="text-muted">|</span>
+                            <a href="/profile/user" class="d-flex align-items-center gap-1"><i class="icon icon-user"></i><span>Account</span></a>
+                            <span class="text-muted">|</span>
+                            <a href="/cart" class="d-flex align-items-center gap-1"><i class="icon icon-clipboard"></i><span>Cart (<%= cartCount %>)</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <header id="header" class="py-3">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <div class="main-logo">
+                            <a href="/home"><img src="/images/main-logo.png" alt="logo" height="35"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
 
-	<main class="container my-5 animate-fade-in">
-		<h2 class="mb-4" style="font-family: var(--heading-font);">Checkout</h2>
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-5 display-6 fs-2">Checkout Details</h2>
+            </div>
+        </div>
 
-		<div class="row g-5">
-			<!-- Delivery Address List -->
-			<div class="col-lg-7">
-				<h4 class="mb-3" style="font-family: var(--heading-font);">1. Select Delivery Address</h4>
-				
-				<% if (addresses.length === 0) { %>
-					<div class="alert alert-warning p-4 rounded text-center">
-						<p class="mb-3">You don't have any saved delivery addresses.</p>
-						<a href="/profile/address/add" class="btn btn-dark btn-sm px-3 py-2">Add New Address</a>
-					</div>
-				<% } else { %>
-					<div class="address-container">
-						<% addresses.forEach((addr, idx) => { %>
-							<div class="address-card <%= idx === 0 ? 'selected' : '' %>" onclick="selectAddress(this, '<%= addr._id %>')">
-								<input type="radio" name="selectedAddr" value="<%= addr._id %>" <%= idx === 0 ? 'checked' : '' %>>
-								<div class="d-flex align-items-center gap-2 mb-2">
-									<strong><%= addr.fullName %></strong>
-									<span class="badge-type"><%= addr.addressType %></span>
-								</div>
-								<p class="mb-1 text-secondary" style="font-size:0.9em;"><%= addr.house %>, <%= addr.area %></p>
-								<% if (addr.landmark) { %>
-									<p class="mb-1 text-secondary" style="font-size:0.9em;">Landmark: <%= addr.landmark %></p>
-								<% } %>
-								<p class="mb-1 text-secondary" style="font-size:0.9em;"><%= addr.city %>, <%= addr.state %> - <%= addr.pincode %></p>
-								<p class="mb-0 text-secondary" style="font-size:0.9em;"><i class="icon icon-phone"></i> Phone: <%= addr.phone %></p>
-							</div>
-						<% }) %>
-					</div>
-					<div class="mt-3">
-						<a href="/profile/address/add" class="btn btn-outline-dark btn-sm"><i class="icon icon-plus"></i> Add Another Address</a>
-					</div>
-				<% } %>
-			</div>
+        <div class="row g-4 g-lg-5">
+            <div class="col-lg-7">
+                <div class="checkout-step-title">
+                    <span class="step-number">01</span>
+                    <h4>Select Delivery Address</h4>
+                </div>
+                
+                <% if (addresses.length === 0) { %>
+                    <div class="text-center py-5 px-4 rounded-4 border" style="background-color: #fff; border-style: dashed !important;">
+                        <p class="text-muted mb-4">You don't have any saved delivery addresses yet.</p>
+                        <a href="/profile/address/add" class="btn btn-brand-dark btn-sm">Add New Address</a>
+                    </div>
+                <% } else { %>
+                    <div class="address-container">
+                        <% addresses.forEach((addr, idx) => { %>
+                            <div class="address-card <%= idx === 0 ? 'selected' : '' %>" onclick="selectAddress(this, '<%= addr._id %>')">
+                                <input type="radio" name="selectedAddr" value="<%= addr._id %>" <%= idx === 0 ? 'checked' : '' %>>
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <strong class="fs-6"><%= addr.fullName %></strong>
+                                    <span class="badge-type"><%= addr.addressType %></span>
+                                </div>
+                                <div class="address-text">
+                                    <p class="mb-1"><%= addr.house %>, <%= addr.area %></p>
+                                    <% if (addr.landmark) { %>
+                                        <p class="mb-1 text-dark-50">Landmark: <%= addr.landmark %></p>
+                                    <% } %>
+                                    <p class="mb-2"><%= addr.city %>, <%= addr.state %> - <%= addr.pincode %></p>
+                                    <p class="mb-0 text-dark fw-500" style="font-size: 0.88rem;"><i class="icon icon-phone me-1"></i> Phone: <%= addr.phone %></p>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <div class="mt-4">
+                        <a href="/address/new" class="btn btn-brand-outline"><i class="icon icon-plus me-1"></i> Add Another Address</a>
+                    </div>
+                <% } %>
+            </div>
 
-			<!-- Order Summary -->
-			<div class="col-lg-5">
-				<div class="card p-4 border-0 bg-light rounded shadow-sm">
-					<h4 class="mb-3" style="font-family: var(--heading-font);">2. Order Items</h4>
-					<div class="order-items-list mb-4" style="max-height: 250px; overflow-y: auto;">
-						<% items.forEach(item => { %>
-							<div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-								<div>
-									<h6 class="mb-0 text-truncate" style="max-width: 250px;"><%= item.product.title %></h6>
-									<small class="text-muted">Qty: <%= item.quantity %> x ₹<%= item.product.price %></small>
-								</div>
-								<strong>₹<%= item.product.price * item.quantity %></strong>
-							</div>
-						<% }) %>
-					</div>
+            <div class="col-lg-5">
+                <div class="summary-card">
+                    <div class="checkout-step-title mb-4">
+                        <span class="step-number">02</span>
+                        <h4>Order Summary</h4>
+                    </div>
+                    
+                    <div class="order-items-list mb-4">
+                        <% items.forEach(item => { %>
+                            <div class="d-flex justify-content-between align-items-center item-row">
+                                <div class="pe-3">
+                                    <h6 class="mb-1 text-truncate fw-semibold" style="max-width: 240px; font-family: var(--font-body); font-size: 0.95rem;"><%= item.product.title %></h6>
+                                    <small class="text-muted">Qty: <%= item.quantity %> &times; ₹<%= item.product.price %></small>
+                                </div>
+                                <span class="fw-semibold text-dark fs-6">₹<%= item.product.price * item.quantity %></span>
+                            </div>
+                        <% }) %>
+                    </div>
 
-					<div class="d-flex justify-content-between mb-2">
-						<span class="text-muted">Subtotal:</span>
-						<strong>₹<%= cartSubtotal %></strong>
-					</div>
-					<div class="d-flex justify-content-between mb-2">
-						<span class="text-muted">Shipping:</span>
-						<span class="text-success">FREE</span>
-					</div>
-					<hr>
-					<div class="d-flex justify-content-between mb-4">
-						<span class="fs-5">Grand Total:</span>
-						<strong class="fs-4 text-dark">₹<%= cartSubtotal %></strong>
-					</div>
+                    <div class="spacing-container" style="font-size: 0.95rem;">
+                        <div class="d-flex justify-content-between mb-2.5">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-medium">₹<%= cartSubtotal %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Shipping</span>
+                            <span class="text-success fw-medium">FREE</span>
+                        </div>
+                        <hr class="my-3" style="border-color: var(--brand-border);">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fs-5 fw-semibold" style="font-family: var(--font-heading);">Grand Total</span>
+                            <span class="fs-4 fw-bold" style="color: var(--brand-dark);">₹<%= cartSubtotal %></span>
+                        </div>
+                    </div>
 
-					<% if (addresses.length > 0) { %>
-						<button class="btn btn-dark w-100 py-3" style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px;" onclick="placeOrder()">
-							Place Order (COD)
-						</button>
-					<% } else { %>
-						<button class="btn btn-dark w-100 py-3 disabled" disabled>
-							Add address to checkout
-						</button>
-					<% } %>
-				</div>
-			</div>
-		</div>
-	</main>
+                    <% if (addresses.length > 0) { %>
+                        <button class="btn btn-brand-dark w-100 py-3 text-uppercase" onclick="placeOrder()">
+                            Place Order (COD)
+                        </button>
+                    <% } else { %>
+                        <button class="btn btn-brand-dark w-100 py-3 text-uppercase opacity-50" disabled>
+                            Add Address to Checkout
+                        </button>
+                    <% } %>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted"><i class="icon icon-shield-check"></i> Secure Checkout Experience</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-	<!-- Footer -->
-	<footer id="footer" class="bg-dark text-white py-5 mt-5">
-		<div class="container text-center text-muted">
-			<p>© 2026 Premium Booksaw Shop. All rights reserved.</p>
-		</div>
-	</footer>
+    <footer id="footer" class="bg-dark text-white py-5 mt-5">
+        <div class="container text-center text-white-50">
+            <p class="m-0" style="font-size: 0.9rem; letter-spacing: 0.5px;">&copy; 2026 Premium Booksaw Shop. All rights reserved.</p>
+        </div>
+    </footer>
 
-	<script>
-		let selectedAddressId = '<%= addresses.length > 0 ? addresses[0]._id : "" %>';
+    <script>
+        let selectedAddressId = '<%= addresses.length > 0 ? addresses[0]._id : "" %>';
 
-		function selectAddress(element, addressId) {
-			document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
-			element.classList.add('selected');
-			element.querySelector('input[type="radio"]').checked = true;
-			selectedAddressId = addressId;
-		}
+        function selectAddress(element, addressId) {
+            document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            element.querySelector('input[type="radio"]').checked = true;
+            selectedAddressId = addressId;
+        }
 
-		function placeOrder() {
-			if (!selectedAddressId) {
-				alert('Please select a delivery address.');
-				return;
-			}
+        function placeOrder() {
+            if (!selectedAddressId) {
+                alert('Please select a delivery address.');
+                return;
+            }
 
-			fetch('/checkout/place', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ addressId: selectedAddressId })
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					alert(data.message);
-					window.location.href = data.redirectUrl;
-				} else {
-					alert(data.error || 'Failed to place order.');
-				}
-			})
-			.catch(err => console.error(err));
-		}
-	</script>
+            fetch('/checkout/place', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ addressId: selectedAddressId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = data.redirectUrl;
+                } else {
+                    alert(data.error || 'Failed to place order.');
+                }
+            })
+            .catch(err => console.error(err));
+        }
+    </script>
 </body>
 </html>

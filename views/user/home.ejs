@@ -20,18 +20,9 @@
 </head>
 
 <% 
-	// Stateful URL helper: captures query parameters, the current target hash, and active tab identity
-	function getPageUrl(paramName, paramValue, anchor, tabId) {
-		let params = new URLSearchParams(query || {});
-		params.set(paramName, paramValue);
-		if (tabId) {
-			params.set('activeTab', tabId);
-		}
-		return "?" + params.toString() + (anchor ? anchor : '');
-	}
-
-	// Read state tracker to decide which active display layout classes to apply
+	// Robust URL handler normalization between template utilities and controller parameters
 	let activeTabId = (typeof query !== 'undefined' && query.activeTab) ? query.activeTab : 'all-genre';
+	if (activeTabId === 'all') { activeTabId = 'all-genre'; }
 %>
 
 <body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
@@ -95,7 +86,7 @@
 					</div>
 
 					<div class="col-md-4">
-						<div class="d-flex justify-content-end">
+						<div class="d-flex justify-nd-end">
 							<form role="search" method="get" action="/home" id="searchFormHome" class="navbar-search-form d-flex w-100 position-relative" style="max-width: 300px;">
 								
 								<% if (typeof query !== 'undefined' && query.sort) { %><input type="hidden" name="sort" value="<%= query.sort %>"><% } %>
@@ -210,12 +201,22 @@
 						</div>
 
 						<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+							<a href="<%= featuredPage > 1 ? getPageUrl('page_featured', featuredPage - 1, '#featured-books') : '#' %>"
+							   class="btn btn-sm btn-outline-dark <%= featuredPage <= 1 ? 'disabled' : '' %>">
+								&laquo; Prev
+							</a>
+							
 							<% for(let i = 1; i <= featuredTotalPages; i++) { %>
 								<a href="<%= getPageUrl('page_featured', i, '#featured-books') %>"
 								   class="btn btn-sm <%= featuredPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
 									<%= i %>
 								</a>
 							<% } %>
+						
+							<a href="<%= featuredPage < featuredTotalPages ? getPageUrl('page_featured', featuredPage + 1, '#featured-books') : '#' %>"
+							   class="btn btn-sm btn-outline-dark <%= featuredPage >= featuredTotalPages ? 'disabled' : '' %>">
+								Next &raquo;
+							</a>
 						</div>
 					</div>
 				</div>
@@ -243,7 +244,7 @@
 									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 									<div class="item-price">$ 45.00</div>
 									<div class="btn-wrap">
-										<a href="checkout.html" class="btn-accent-arrow">shop it now <i class="icon icon-ns-arrow-right"></i></a>
+										<a href="#" class="btn-accent-arrow">shop it now <i class="icon icon-ns-arrow-right"></i></a>
 									</div>
 								</div>
 							</div>
@@ -324,38 +325,50 @@
 								<% if (allProducts && allProducts.length === 0) { %>
 									<p class="text-muted p-3">No products matched your search or filters.</p>
 								<% } %>
-								<% if (allProducts) { allProducts.forEach(product => { %>
-									<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-										<div class="product-item">
-											<figure class="product-style">
-												<% if(product.images && product.images.length > 0){ %>
-													<a href="/product/<%= product._id %>">
-														<img src="/uploads/<%= product.images[0] %>" class="img-fluid">
-													</a>
-												<% } else { %>
-													<a href="/product/<%= product._id %>">
-														<img src="images/product-item1.jpg" class="img-fluid">
-													</a>
-												<% } %>
-												<button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add To Cart</button>
-											</figure>
-											<figcaption>
-												<h3><%= product.title %></h3>
-												<span><%= product.author %></span>
-												<div class="item-price">₹<%= product.price %></div>
-											</figcaption>
+								<% if (allProducts) { %>
+									<% allProducts.forEach(product => { %>
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<% if(product.images && product.images.length > 0){ %>
+														<a href="/product/<%= product._id %>">
+															<img src="/uploads/<%= product.images[0] %>" class="img-fluid">
+														</a>
+													<% } else { %>
+														<a href="/product/<%= product._id %>">
+															<img src="images/product-item1.jpg" class="img-fluid">
+														</a>
+													<% } %>
+													<button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add To Cart</button>
+												</figure>
+												<figcaption>
+													<h3><%= product.title %></h3>
+													<span><%= product.author %></span>
+													<div class="item-price">₹<%= product.price %></div>
+												</figcaption>
+											</div>
 										</div>
-									</div>
-								<% }) } %>
+									<% }) %>
+								<% } %>
 							</div>
-
+							
 							<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+								<a href="<%= allPage > 1 ? getPageUrl('page_all', allPage - 1, '#popular-books', activeTabId) : '#' %>"
+								   class="btn btn-sm btn-outline-dark <%= allPage <= 1 ? 'disabled' : '' %>">
+									&laquo; Prev
+								</a>
+								
 								<% for(let i = 1; i <= allTotalPages; i++) { %>
-									<a href="<%= getPageUrl('page_all', i, '#popular-books', 'all-genre') %>"
+									<a href="<%= getPageUrl('page_all', i, '#popular-books', activeTabId) %>"
 									   class="btn btn-sm <%= allPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
 										<%= i %>
 									</a>
 								<% } %>
+								
+								<a href="<%= allPage < allTotalPages ? getPageUrl('page_all', allPage + 1, '#popular-books', activeTabId) : '#' %>"
+								   class="btn btn-sm btn-outline-dark <%= allPage >= allTotalPages ? 'disabled' : '' %>">
+									Next &raquo;
+								</a>
 							</div>
 						</div>
 
@@ -365,7 +378,6 @@
 									<% if (item.products.length === 0) { %>
 										<p class="text-muted p-3">No products in this category</p>
 									<% } %>
-
 									<% item.products.forEach(product => { %>
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
 											<div class="product-item">
@@ -376,7 +388,7 @@
 														</a>
 													<% } else { %>
 														<a href="/product/<%= product._id %>">
-															<img src="images/product-item2.jpg" class="img-fluid">
+															<img src="images/product-item1.jpg" class="img-fluid">
 														</a>
 													<% } %>
 													<button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add To Cart</button>
@@ -390,18 +402,29 @@
 										</div>
 									<% }) %>
 								</div>
-
+								
 								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+									<a href="<%= item.page > 1 ? getPageUrl('page_' + item.category._id, item.page - 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
+									   class="btn btn-sm btn-outline-dark <%= item.page <= 1 ? 'disabled' : '' %>">
+										&laquo; Prev
+									</a>
+									
 									<% for(let i = 1; i <= item.totalPages; i++){ %>
 										<a href="<%= getPageUrl('page_' + item.category._id, i, '#popular-books', 'cat-' + item.category._id) %>"
 										   class="btn btn-sm <%= item.page === i ? 'btn-dark' : 'btn-outline-dark' %>">
 											<%= i %>
 										</a>
 									<% } %>
+									
+									<a href="<%= item.page < item.totalPages ? getPageUrl('page_' + item.category._id, item.page + 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
+									   class="btn btn-sm btn-outline-dark <%= item.page >= item.totalPages ? 'disabled' : '' %>">
+										Next &raquo;
+									</a>
 								</div>
 							</div>
 						<% }) %>
 					</div>
+
 				</div>
 			</div>
 		</div>
@@ -422,7 +445,6 @@
 			<div class="title"><span>Grab your opportunity</span></div>
 			<h2 class="section-title">Books with offer</h2>
 		</div>
-
 		<div class="container">
 			<div class="row">
 				<div class="inner-content">
@@ -439,7 +461,7 @@
 													<img src="images/product-item5.jpg" alt="Books" class="img-fluid">
 												<% } %>
 											</a>
-											<button type="button" class="add-to-cart">Add to Cart</button>
+											<button type="button" class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
 										</figure>
 										<figcaption>
 											<h3><%= product.title %></h3>
@@ -455,41 +477,23 @@
 								</div>
 							<% }) %>
 						</div>
-
+						
 						<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+							<a href="<%= offerPage > 1 ? getPageUrl('page_offer', offerPage - 1, '#special-offer') : '#' %>" 
+							   class="btn btn-sm btn-outline-dark <%= offerPage <= 1 ? 'disabled' : '' %>">
+								&laquo; Prev
+							</a>
+							
 							<% for(let i = 1; i <= offerTotalPages; i++) { %>
-								<a href="<%= getPageUrl('page_offer', i, '#special-offer') %>"
-								   class="btn btn-sm <%= offerPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+								<a href="<%= getPageUrl('page_offer', i, '#special-offer') %>" class="btn btn-sm <%= offerPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
 									<%= i %>
 								</a>
 							<% } %>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="subscribe">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-md-8">
-					<div class="row">
-						<div class="col-md-6">
-							<div class="title-element">
-								<h2 class="section-title divider">Subscribe to our newsletter</h2>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="subscribe-content" data-aos="fade-up">
-								<p>Sed eu feugiat amet, libero ipsum enim pharetra hac dolor sit amet.</p>
-								<form id="form">
-									<input type="text" name="email" placeholder="Enter your email addresss here">
-									<button class="btn-subscribe">
-										<span>send</span><i class="icon icon-send"></i>
-									</button>
-								</form>
-							</div>
+							
+							<a href="<%= offerPage < offerTotalPages ? getPageUrl('page_offer', offerPage + 1, '#special-offer') : '#' %>" 
+							   class="btn btn-sm btn-outline-dark <%= offerPage >= offerTotalPages ? 'disabled' : '' %>">
+								Next &raquo;
+							</a>
 						</div>
 					</div>
 				</div>
@@ -505,7 +509,6 @@
 						<div class="title"><span>Read our articles</span></div>
 						<h2 class="section-title">Latest Articles</h2>
 					</div>
-
 					<div class="row">
 						<div class="col-md-4">
 							<article class="column" data-aos="fade-up">
@@ -555,6 +558,31 @@
 		</div>
 	</section>
 
+	<section id="subscribe">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="title-element">
+								<h2 class="section-title divider">Subscribe to our newsletter</h2>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="subscribe-content" data-aos="fade-up">
+								<p>Sed eu feugiat amet, libero ipsum enim pharetra hac dolor sit amet.</p>
+								<form id="form">
+									<input type="text" name="email" placeholder="Enter your email addresss here">
+									<button class="btn-submit">submit</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<section id="download-app" class="leaf-pattern-overlay">
 		<div class="corner-pattern-overlay"></div>
 		<div class="container">
@@ -587,43 +615,46 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div class="footer-item">
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus nonet psryroin.</p>
+						<div class="main-logo">
+							<a href="/home"><img src="images/main-logo.png" alt="logo"></a>
+						</div>
+						<p>Lucius Annaeus Seneca, commonly known as Seneca the Younger, was a Roman Stoic philosopher, statesman, dramatist, and—in one work—humorist, of the Silver Age of Latin literature.</p>
+						<div class="social-links">
+							<ul>
+								<li><a href="#"><i class="icon icon-facebook"></i></a></li>
+								<li><a href="#"><i class="icon icon-twitter"></i></a></li>
+								<li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
+								<li><a href="#"><i class="icon icon-behance-square"></i></a></li>
+							</ul>
+						</div>
 					</div>
 				</div>
 				<div class="col-md-2">
-					<div class="footer-menu">
-						<h5>About Us</h5>
-						<ul class="menu-list">
-							<li class="menu-item"><a href="#">vision</a></li>
-							<li class="menu-item"><a href="#">articles</a></li>
+					<div class="footer-item">
+						<h3>About</h3>
+						<ul class="footer-menu">
+							<li><a href="#">About us</a></li>
+							<li><a href="#">Career</a></li>
+							<li><a href="#">Cookies</a></li>
+							<li><a href="#">Privacy Policy</a></li>
 						</ul>
 					</div>
 				</div>
 				<div class="col-md-2">
-					<div class="footer-menu">
-						<h5>Discover</h5>
-						<ul class="menu-list">
-							<li class="menu-item"><a href="#">Home</a></li>
-							<li class="menu-item"><a href="#">Books</a></li>
+					<div class="footer-item">
+						<h3>Discover</h3>
+						<ul class="footer-menu">
+							<li><a href="#">Home</a></li>
+							<li><a href="#">Books</a></li>
+							<li><a href="#">Authors</a></li>
+							<li><a href="#">Subjects</a></li>
 						</ul>
 					</div>
 				</div>
-				<div class="col-md-2">
-					<div class="footer-menu">
-						<h5>My account</h5>
-						<ul class="menu-list">
-							<li class="menu-item"><a href="#">Sign In</a></li>
-							<li class="menu-item"><a href="#">View Cart</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md-2">
-					<div class="footer-menu">
-						<h5>Help</h5>
-						<ul class="menu-list">
-							<li class="menu-item"><a href="#">Help center</a></li>
-							<li class="menu-item"><a href="#">Contact us</a></li>
-						</ul>
+				<div class="col-md-4">
+					<div class="footer-item">
+						<h3>Contact Info</h3>
+						<p>Any questions or complaints? Email us at <a href="mailto:support@bookstore.com">support@bookstore.com</a></p>
 					</div>
 				</div>
 			</div>
@@ -654,27 +685,74 @@
 			let debounceTimer;
 
 			if (searchInput && clearBtn && searchForm) {
-				// Show clear button instantly when typing
 				searchInput.addEventListener('input', (e) => {
 					clearBtn.style.display = e.target.value.trim() ? 'block' : 'none';
-					
-					// Optional: Automatically submit after user stops typing for 500ms
 					clearTimeout(debounceTimer);
 					debounceTimer = setTimeout(() => {
 						searchForm.submit();
 					}, 600); 
 				});
 
-				// Clear the input and reload without the search parameter
 				clearBtn.addEventListener('click', () => {
 					searchInput.value = '';
 					clearBtn.style.display = 'none';
-					
-					// Submitting the form with an empty value clears the results
-					searchForm.submit(); 
+					const url = new URL(window.location.href);
+					url.searchParams.delete('search');
+					window.location.href = url.pathname + url.search;
 				});
 			}
+
+			// Auto-scroll to results immediately after searching or filtering
+			const urlParams = new URLSearchParams(window.location.search);
+			const hasFilters = urlParams.has('search') || urlParams.has('category') || urlParams.has('minPrice') || urlParams.has('sort');
+			
+			if (hasFilters && !window.location.hash) {
+				const popularBooksSection = document.getElementById('popular-books');
+				if (popularBooksSection) {
+					setTimeout(() => {
+						popularBooksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					}, 100);
+				}
+			}
 		});
+
+		const tabs = document.querySelectorAll('[data-tab-target]');
+		const tabContents = document.querySelectorAll('[data-tab-content]');
+		tabs.forEach(tab => {
+			tab.addEventListener('click', () => {
+				const target = document.querySelector(tab.dataset.tabTarget);
+				tabContents.forEach(tabContent => {
+					tabContent.classList.remove('active');
+				});
+				tabs.forEach(t => {
+					t.classList.remove('active');
+				});
+				tab.classList.add('active');
+				target.classList.add('active');
+				
+				const url = new URL(window.location.href);
+				const targetId = tab.getAttribute('data-tab-target').replace('#', '');
+				url.searchParams.set('activeTab', targetId);
+				window.history.replaceState({}, '', url.pathname + url.search);
+			});
+		});
+
+		function addToCart(productId) {
+			fetch('/cart/add', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ productId, quantity: 1 })
+			})
+			.then(res => res.json())
+			.then(data => {
+				if(data.success) {
+					location.reload();
+				} else {
+					alert(data.message || 'Failed to add to cart');
+				}
+			})
+			.catch(err => console.error(err));
+		}
 	</script>
 </body>
 </html>

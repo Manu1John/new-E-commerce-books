@@ -166,6 +166,15 @@ const getuserIndex = async (req, res) => {
       offerPage,
       offerTotalPages,
       query: req.query,
+      activeTabId: req.query.activeTab || "all",
+      getPageUrl: (paramName, paramValue, hash = "", activeTab = "") => {
+        const urlParams = new URLSearchParams(req.query);
+        urlParams.set(paramName, paramValue);
+        if (activeTab) {
+          urlParams.set("activeTab", activeTab);
+        }
+        return `?${urlParams.toString()}${hash}`;
+      }
     });
   } catch (error) {
     console.error("GET USER INDEX ERROR:", error);
@@ -284,7 +293,16 @@ const getHome = async (req, res, next) => {
       offerPage,
       offerTotalPages,
       query: req.query,
-      cartCount
+      cartCount,
+      activeTabId: req.query.activeTab || "all",
+      getPageUrl: (paramName, paramValue, hash = "", activeTab = "") => {
+        const urlParams = new URLSearchParams(req.query);
+        urlParams.set(paramName, paramValue);
+        if (activeTab) {
+          urlParams.set("activeTab", activeTab);
+        }
+        return `?${urlParams.toString()}${hash}`;
+      }
     });
   } catch (error) {
     console.error("Error in getHome controller:", error);
