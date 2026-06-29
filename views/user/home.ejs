@@ -737,7 +737,8 @@
 			});
 		});
 
-		function addToCart(productId) {
+				// Dynamic actions (AJAX Cart/Wishlist calls)
+/* 		function addToCart(productId) {
 			fetch('/cart/add', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -745,14 +746,26 @@
 			})
 			.then(res => res.json())
 			.then(data => {
-				if(data.success) {
-					location.reload();
+				if (data.success) {
+					alert(data.message);
+					// Update badge count
+					document.querySelectorAll('.cart span').forEach(el => {
+						el.textContent = 'Cart:(' + data.cartCount + ')';
+					});
 				} else {
-					alert(data.message || 'Failed to add to cart');
+					if (data.error === "Unauthorized" || !data.success && data.error && data.error.includes("log")) {
+						window.location.href = '/login';
+					} else {
+						alert(data.error || 'Failed to add item to cart.');
+					}
 				}
 			})
-			.catch(err => console.error(err));
-		}
+			.catch(err => {
+				console.error(err);
+				// If server redirects due to auth middleware
+				window.location.href = '/login';
+			});
+		} */
 	</script>
 </body>
 </html>

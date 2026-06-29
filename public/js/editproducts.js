@@ -5,45 +5,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageUpload = document.getElementById('imageUpload');
     const previewContainer = document.getElementById('previewContainer');
     
-    // Core data structure to manage newly added images
+    // Create a hidden input dynamically to handle individual slot replacements
+    const replaceImageUpload = document.createElement('input');
+    replaceImageUpload.type = 'file';
+    replaceImageUpload.accept = 'image/*';
+    replaceImageUpload.style.display = 'none';
+    document.body.appendChild(replaceImageUpload);
+
+    let replacementIndex = null; // Tracks which index is being swapped
     let imageArray = []; 
 
-    if (!dropArea || !imageUpload || !form) {
+    if (!dropArea || !imageUpload || !form || !previewContainer) {
         console.error("Critical DOM elements missing. Check your HTML IDs!");
         return;
     }
 
-    // --- 📸 IMAGE SELECTION & CROPPER MODAL LOGIC ---
+    // --- 💾 INITIALIZE EXISTING IMAGES ---
+    const existingData = JSON.parse(previewContainer.getAttribute('data-existing') || '[]');
+    imageArray = existingData.map(img => ({
+        type: 'existing',
+        name: img,
+        src: `/uploads/${img}`
+    }));
+    renderThumbnails();
+
+    // --- 📸 IMAGE SELECTION & INTERACTION ---
     dropArea.addEventListener('click', () => imageUpload.click());
 
+    // Bulk append from the primary drop zone
     imageUpload.addEventListener('change', function(e) {
         const files = e.target.files;
-        
-        // Enforce limits ONLY if they choose to pick new files
-        if (files.length > 0 && (files.length < 3 || files.length > 5)) {
-            alert('If uploading new images, please select between 3 and 5 files.');
+        if (!files.length) return;
+
+        if (imageArray.length + files.length > 5) {
+            alert('Maximum limit reached! A product cannot have more than 5 images.');
             this.value = '';
-            previewContainer.innerHTML = '';
-            imageArray = [];
             return;
         }
 
-        previewContainer.innerHTML = '';
-        imageArray = [];
-
-        Array.from(files).forEach((file, index) => {
+        Array.from(files).forEach((file) => {
             if (!file.type.startsWith('image/')) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 imageArray.push({
+                    type: 'new',
                     originalSrc: event.target.result,
                     croppedBlob: null,
-                    filename: file.name
+                    filename: file.name,
+                    fileObject: file
                 });
                 renderThumbnails();
             };
             reader.readAsDataURL(file);
         });
+        this.value = ''; // Reset slot
+    });
+
+    // Single replacement handler
+    replaceImageUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            // Hot-swap the specific index item with a new uncropped instance
+            imageArray[replacementIndex] = {
+                type: 'new',
+                originalSrc: event.target.result,
+                croppedBlob: null,
+                filename: file.name,
+                fileObject: file
+            };
+            renderThumbnails();
+        };
+        reader.readAsDataURL(file);
+        this.value = ''; // Reset slot
     });
 
     function renderThumbnails() {
@@ -53,23 +89,58 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.cssText = 'position:relative; display:inline-block; margin:15px; width:150px; text-align:center; border:1px solid #ddd; padding:5px; border-radius:6px; background:#fff;';
 
             const img = document.createElement('img');
-            img.src = item.croppedBlob ? URL.createObjectURL(item.croppedBlob) : item.originalSrc;
+            if (item.type === 'existing') {
+                img.src = item.src;
+            } else {
+                img.src = item.croppedBlob ? URL.createObjectURL(item.croppedBlob) : item.originalSrc;
+            }
             img.style.cssText = 'width:100%; height:150px; object-fit:cover; border-radius:4px;';
-            
-            const cropBtn = document.createElement('button');
-            cropBtn.type = 'button';
-            cropBtn.innerText = item.croppedBlob ? '📊 Re-Crop' : '✂️ Crop Image';
-            cropBtn.style.cssText = 'margin-top:8px; width:100%; padding:6px; background:#4f46e5; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px;';
-            cropBtn.addEventListener('click', () => openCropModal(index));
-
             card.appendChild(img);
-            card.appendChild(cropBtn);
+
+            // Action Button Wrappers
+            const btnContainer = document.createElement('div');
+            btnContainer.style.cssText = 'margin-top:8px; display:flex; flex-direction:column; gap:5px;';
+
+            if (item.type === 'existing') {
+                const replaceBtn = document.createElement('button');
+                replaceBtn.type = 'button';
+                replaceBtn.innerText = '🔄 Replace';
+                replaceBtn.style.cssText = 'width:100%; padding:6px; background:#f59e0b; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px;';
+                replaceBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    replacementIndex = index;
+                    replaceImageUpload.click();
+                });
+                btnContainer.appendChild(replaceBtn);
+            } else {
+                const cropBtn = document.createElement('button');
+                cropBtn.type = 'button';
+                cropBtn.innerText = item.croppedBlob ? '📊 Re-Crop' : '✂️ Crop Image';
+                cropBtn.style.cssText = 'width:100%; padding:6px; background:#4f46e5; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px;';
+                cropBtn.addEventListener('click', (e) => { e.stopPropagation(); openCropModal(index); });
+                btnContainer.appendChild(cropBtn);
+            }
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.innerText = '🗑️ Remove';
+            deleteBtn.style.cssText = 'width:100%; padding:6px; background:#ef4444; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px;';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                imageArray.splice(index, 1);
+                renderThumbnails();
+            });
+            btnContainer.appendChild(deleteBtn);
+
+            card.appendChild(btnContainer);
             previewContainer.appendChild(card);
         });
     }
 
     function openCropModal(index) {
         const item = imageArray[index];
+        if (item.type !== 'new') return;
+
         const modalOverlay = document.createElement('div');
         modalOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center;';
 
@@ -141,9 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showError('quantityError', 'Stock quantity cannot be negative'); isValid = false; 
         }
 
-        // Only throw image errors if they actively tried to change them
-        if (imageUpload.files.length > 0 && imageArray.length < 3) {
-            showError('imageError', 'You must upload between 3 and 5 images if changing them.');
+        // Total count validation check
+        if (imageArray.length < 3 || imageArray.length > 5) {
+            showError('imageError', 'The product must have between 3 and 5 total images.');
             isValid = false;
         }
 
@@ -158,8 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function clearIntervals() {} // Placeholder if needed
-
     function clearErrors() {
         document.querySelectorAll('.error-message').forEach(span => {
             span.innerText = '';
@@ -171,26 +240,30 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async function(e) {
         e.preventDefault(); 
 
-        const isFormValid = validateFormInputs();
-        if (!isFormValid) {
+        if (!validateFormInputs()) {
             console.log("❌ Submit blocked: Client-side validation failed.");
             return; 
         }
 
-        console.log("✅ Validation passed! Compiling FormData payloads...");
+        console.log("✅ Validation passed! Compiling mapped payload data...");
         const formData = new FormData(this);
-        formData.delete('images'); // Discard uncropped baseline files
+        formData.delete('images'); // Discard baseline input payload elements
 
-        // Only append images if new ones were picked
-        if (imageArray.length > 0) {
-            imageArray.forEach((item, index) => {
+        // Map order sequence arrays so the backend knows where old files remain or new files inject
+        let fileCounter = 0;
+        imageArray.forEach((item) => {
+            if (item.type === 'existing') {
+                formData.append('imageOrder', item.name);
+            } else if (item.type === 'new') {
+                formData.append('imageOrder', `NEW_FILE_${fileCounter}`);
+                fileCounter++;
                 if (item.croppedBlob) {
-                    formData.append('images', item.croppedBlob, `cropped-${Date.now()}-${index}.png`);
+                    formData.append('images', item.croppedBlob, `cropped-${Date.now()}-${fileCounter}.png`);
                 } else {
-                    formData.append('images', imageUpload.files[index]);
+                    formData.append('images', item.fileObject);
                 }
-            });
-        }
+            }
+        });
 
         try {
             const response = await fetch(this.action, {
@@ -198,17 +271,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            // Read the raw response as plain text first to safely inspect it
             const textData = await response.text();
-            
             let data;
             try {
                 data = JSON.parse(textData);
             } catch (jsonError) {
-                // If parsing fails, the backend returned an HTML error page or an unexpected redirect string
-                console.error("🚨 CRITICAL: The backend sent HTML formatting instead of JSON.");
-                console.error("Raw Server Output follows:\n", textData);
-                alert("The backend sent back an HTML payload instead of JSON. Press F12 and look at your browser console to read the server error!");
+                console.error("🚨 CRITICAL: Unexpected backend output parsing error.", textData);
+                alert("The server returned a bad payload response. Review your dev tools console.");
                 return;
             }
 

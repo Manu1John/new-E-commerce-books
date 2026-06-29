@@ -230,3 +230,89 @@ toggleEmailBtn?.addEventListener(
                 : "none";
     }
 );
+
+
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const phone = document.getElementById("phone");
+
+const firstNameError = document.getElementById("firstNameError");
+const lastNameError = document.getElementById("lastNameError");
+const phoneError = document.getElementById("phoneError");
+
+const nameRegex = /^[A-Za-z\s'-]+$/;
+const phoneRegex = /^[6-9]\d{9}$/;
+
+function validateFirstName() {
+    const value = firstName.value.trim();
+
+    if (value === "") {
+        firstNameError.textContent = "First name is required.";
+        return false;
+    }
+
+    if (value.length < 2) {
+        firstNameError.textContent = "Minimum 2 characters required.";
+        return false;
+    }
+
+    if (!nameRegex.test(value)) {
+        firstNameError.textContent =
+            "Only letters, spaces, apostrophes and hyphens are allowed.";
+        return false;
+    }
+
+    firstNameError.textContent = "";
+    return true;
+}
+
+function validateLastName() {
+    const value = lastName.value.trim();
+
+    if (value === "") {
+        lastNameError.textContent = "Last name is required.";
+        return false;
+    }
+
+    if (!nameRegex.test(value)) {
+        lastNameError.textContent =
+            "Only letters, spaces, apostrophes and hyphens are allowed.";
+        return false;
+    }
+
+    lastNameError.textContent = "";
+    return true;
+}
+
+function validatePhone() {
+    const value = phone.value.trim();
+
+    if (value === "") {
+        phoneError.textContent = "Phone number is required.";
+        return false;
+    }
+
+    if (!phoneRegex.test(value)) {
+        phoneError.textContent =
+            "Enter a valid 10-digit Indian mobile number.";
+        return false;
+    }
+
+    phoneError.textContent = "";
+    return true;
+}
+
+firstName.addEventListener("input", validateFirstName);
+lastName.addEventListener("input", validateLastName);
+phone.addEventListener("input", validatePhone);
+
+document.querySelector(".info-card").addEventListener("submit", function (e) {
+    const valid =
+        validateFirstName() &&
+        validateLastName() &&
+        validatePhone();
+
+    if (!valid) {
+        e.preventDefault();
+    }
+});

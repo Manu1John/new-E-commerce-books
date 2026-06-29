@@ -138,60 +138,75 @@
 
                 </div>
 
-                <div class="form-grid">
+<div class="form-grid">
 
-                    <div>
-                        <label>
-                            First Name
-                        </label>
+    <!-- First Name -->
+    <div>
+        <label for="firstName">First Name</label>
 
-                        <input
-                            type="text"
-                            name="firstName"
-                            value="<%= user.firstName %>"
-                            disabled
-                        />
-                    </div>
+        <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value="<%= user.firstName %>"
+            maxlength="30"
+            autocomplete="given-name"
+            disabled
+        />
 
-                    <div>
-                        <label>
-                            Last Name
-                        </label>
+        <small id="firstNameError" class="text-danger"></small>
+    </div>
 
-                        <input
-                            type="text"
-                            name="lastName"
-                            value="<%= user.lastName %>"
-                            disabled
-                        />
-                    </div>
+    <!-- Last Name -->
+    <div>
+        <label for="lastName">Last Name</label>
 
-                    <div>
-                        <label>
-                            Email Address
-                        </label>
+        <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value="<%= user.lastName %>"
+            maxlength="30"
+            autocomplete="family-name"
+            disabled
+        />
 
-                        <input
-                            type="email"
-                            value="<%= user.email %>"
-                            disabled
-                        />
-                    </div>
+        <small id="lastNameError" class="text-danger"></small>
+    </div>
 
-                    <div>
-                        <label>
-                            Phone Number
-                        </label>
+    <!-- Email -->
+    <div>
+        <label for="email">Email Address</label>
 
-                        <input
-                            type="text"
-                            name="phone"
-                            value="<%= user.phone || '' %>"
-                            disabled
-                        />
-                    </div>
+        <input
+            type="email"
+            id="email"
+            name="email"
+            value="<%= user.email %>"
+            disabled
+        />
 
-                </div>
+        <small id="emailError" class="text-danger"></small>
+    </div>
+
+    <!-- Phone -->
+    <div>
+        <label for="phone">Phone Number</label>
+
+        <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value="<%= user.phone || '' %>"
+            maxlength="10"
+            autocomplete="tel"
+            disabled
+        />
+
+        <small id="phoneError" class="text-danger"></small>
+    </div>
+
+</div>
 
                 <button
                     type="button"

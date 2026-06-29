@@ -198,7 +198,7 @@ const updateQuantity = async (req, res) => {
           error: `Cannot increment. Max limit is ${maxLimit} units.`
         });
       }
-    } else if (action === "decrement") {
+    } else if (action === "decrement") { 
       currentQty -= 1;
       if (currentQty < 1) {
         return res.status(400).json({ success: false, error: "Minimum quantity is 1." });

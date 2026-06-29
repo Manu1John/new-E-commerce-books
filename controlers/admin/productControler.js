@@ -220,10 +220,38 @@ const postEditProduct = async (req, res) => {
             return res.status(404).json({ error: "Product not found" });
         }
 
-        // 2. Decide on images: use new ones if uploaded, otherwise keep old ones
-        let finalImages = currentProduct.images; 
-        if (req.files && req.files.length > 0) {
-            finalImages = req.files.map(file => file.filename);
+        // 2. Map and stitch together retained files vs newly uploaded binaries
+        let finalImages = [];
+        let imageOrder = req.body.imageOrder;
+
+        if (!imageOrder) {
+            imageOrder = [];
+        } else if (!Array.isArray(imageOrder)) {
+            // Handle scenario where single item string sent instead of multi-field array
+            imageOrder = [imageOrder];
+        }
+
+        let fileIndex = 0;
+        imageOrder.forEach(item => {
+            if (item.startsWith('NEW_FILE_')) {
+                // If placeholder is found, pluck corresponding sequential upload out of Multer's pipeline array
+                if (req.files && req.files[fileIndex]) {
+                    finalImages.push(req.files[fileIndex].filename);
+                    fileIndex++;
+                }
+            } else {
+                // Keep the existing validated file name string asset intact
+                finalImages.push(item);
+            }
+        });
+
+        // Fail-safe protection fallback in case imageOrder structure array failed communication
+        if (finalImages.length === 0) {
+            if (req.files && req.files.length > 0) {
+                finalImages = req.files.map(file => file.filename);
+            } else {
+                finalImages = currentProduct.images;
+            }
         }
 
         // 3. Update the database record cleanly
@@ -238,7 +266,6 @@ const postEditProduct = async (req, res) => {
             images: finalImages
         });
 
-        // 🎉 FIXED: Send a success JSON packet back to the fetch request!
         return res.json({ redirectUrl: "/admin/products" });
 
     } catch (error) {
@@ -246,7 +273,6 @@ const postEditProduct = async (req, res) => {
         return res.status(500).json({ error: "Failed to update product details." });
     }
 };
-
 const softDeleteProduct = async (req, res) => {
     try {
         const productId = req.params.id;

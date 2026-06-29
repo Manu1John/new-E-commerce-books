@@ -90,35 +90,64 @@ const getAddCategory = async(req,res)=>{
        return res.status(400).json({error:"Cant access category page "})
     }
 }
-
-const addCategory = async (req,res)=>{
+const addCategory = async (req, res) => {
     try {
-        const {name,description,status} = req.body
-        const existingCategory = await Category.findOne({name:name.trim()})
-        if(existingCategory){
-            return res.render('admin/addCategory',{
-             title:"category management",
-            cssFile:"addCategory.css",
-            jsFile:"addCategory.js",
-            error:"category already exitst"
-            })
+        const { name, description, status } = req.body;
+
+        // Validate category name
+        if (!name || !name.trim()) {
+            return res.render("admin/addCategory", {
+                title: "Category Management",
+                cssFile: "addCategory.css",
+                jsFile: "addCategory.js",
+                error: "Category name is required"
+            });
         }
 
-        const newCategory = new Category({
-            name:name.trim(),
-            description,
-            status,
-        })
+        // Remove extra spaces
+        const categoryName = name.trim().replace(/\s+/g, " ");
 
-       await newCategory.save()
-       return res.redirect("/admin/category");
-    
+        // Escape regex special characters
+        const escapedName = categoryName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        // Case-insensitive duplicate check
+        const existingCategory = await Category.findOne({
+            name: {
+                $regex: new RegExp(`^${escapedName}$`, "i")
+            }
+        });
+
+        if (existingCategory) {
+            return res.render("admin/addCategory", {
+                title: "Category Management",
+                cssFile: "addCategory.css",
+                jsFile: "addCategory.js",
+                error: "Category already exists"
+            });
+        }
+
+        // Save new category
+        const newCategory = new Category({
+            name: categoryName,
+            description: description?.trim(),
+            status
+        });
+
+        await newCategory.save();
+
+        return res.redirect("/admin/category");
 
     } catch (error) {
-        return res.status(500).json({error:"Internal server error"})
-    }
-}
+        console.error("Add Category Error:", error);
 
+        return res.render("admin/addCategory", {
+            title: "Category Management",
+            cssFile: "addCategory.css",
+            jsFile: "addCategory.js",
+            error: "Internal server error"
+        });
+    }
+};
 const getEditCategory = async (req, res) => {
     try {
 
