@@ -1,0 +1,180 @@
+
+        :root {
+            --brand-primary: #8C6239;
+            --brand-dark: #1A1A1A;
+            --brand-light: #FBF9F6;
+            --brand-muted: #7A7A7A;
+            --brand-border: #E5E0DA;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: #FAFAFA;
+            color: var(--brand-dark);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--brand-dark);
+        }
+
+        /* Navbar Customizations */
+        #header-wrap {
+            border-bottom: 1px solid var(--brand-border);
+        }
+        .top-content {
+            font-size: 0.85rem;
+            border-bottom: 1px solid #F0EDE9;
+            padding: 8px 0;
+        }
+        .right-element a, .right-element button {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--brand-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .right-element a:hover, .right-element button:hover {
+            color: var(--brand-primary);
+        }
+
+        /* Step Headers */
+        .checkout-step-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-number {
+            background: var(--brand-dark);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+
+        /* Address Cards Modernized */
+        .address-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .address-card {
+            border: 1px solid var(--brand-border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background-color: #FFFFFF;
+        }
+        .address-card:hover {
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(140, 98, 57, 0.06);
+        }
+        .address-card input[type="radio"] {
+            position: absolute;
+            right: 20px;
+            top: 22px;
+            accent-color: var(--brand-primary);
+            width: 18px;
+            height: 18px;
+        }
+        .address-card.selected {
+            border-color: var(--brand-primary);
+            background-color: var(--brand-light);
+            box-shadow: 0 4px 15px rgba(140, 98, 57, 0.04);
+        }
+        .badge-type {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #EFEBE6;
+            color: var(--brand-dark);
+            padding: 4px 10px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .address-text {
+            color: var(--brand-muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        /* Order Summary Sticky Panel */
+        .summary-card {
+            background-color: #FFFFFF;
+            border: 1px solid var(--brand-border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 110px;
+        }
+        .order-items-list {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        /* Custom Scrollbar */
+        .order-items-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .order-items-list::-webkit-scrollbar-track {
+            background: #F5F5F5;
+        }
+        .order-items-list::-webkit-scrollbar-thumb {
+            background: var(--brand-border);
+            border-radius: 10px;
+        }
+        .item-row {
+            padding: 14px 0;
+            border-bottom: 1px solid #F5F2EE;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Form Controls & Buttons */
+        .btn-brand-dark {
+            background-color: var(--brand-dark);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            padding: 14px 24px;
+            transition: all 0.2s ease;
+        }
+        .btn-brand-dark:hover:not(:disabled) {
+            background-color: var(--brand-primary);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+        .btn-brand-outline {
+            background-color: transparent;
+            color: var(--brand-dark);
+            border: 1px solid var(--brand-dark);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 10px 20px;
+            transition: all 0.2s ease;
+        }
+        .btn-brand-outline:hover {
+            background-color: var(--brand-dark);
+            color: #FFFFFF;
+        }

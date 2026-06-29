@@ -1,0 +1,22 @@
+
+		.wishlist-item {
+			border: 1px solid #eee;
+			border-radius: 8px;
+			transition: box-shadow 0.3s;
+			background: #fff;
+			overflow: hidden;
+		}
+		.wishlist-item:hover {
+			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+		}
+		.wishlist-img {
+			width: 100%;
+			height: 260px;
+			object-fit: cover;
+		}
+		.btn-wishlist-action {
+			font-size: 0.85em;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}

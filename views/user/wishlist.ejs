@@ -1,40 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<title><%= title %> | BookStore</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<link rel="stylesheet" href="/css/home.css">
 	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
 	<link rel="stylesheet" type="text/css" href="/css/index.css">
+	<link rel="stylesheet" type="text/css" href="/css/wishlist.css">
+	<script defer src="/js/wishlist.js"></script>
 
-	<style>
-		.wishlist-item {
-			border: 1px solid #eee;
-			border-radius: 8px;
-			transition: box-shadow 0.3s;
-			background: #fff;
-			overflow: hidden;
-		}
-		.wishlist-item:hover {
-			box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-		}
-		.wishlist-img {
-			width: 100%;
-			height: 260px;
-			object-fit: cover;
-		}
-		.btn-wishlist-action {
-			font-size: 0.85em;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-		}
-	</style>
-
+	
 	<script defer src="/js/jquery-1.11.0.min.js"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
@@ -177,66 +152,5 @@
 		</div>
 	</footer>
 
-	<script>
-		// Move item to cart (triggers cart add, which pulls it from wishlist automatically on the backend)
-		function moveToCart(productId) {
-			fetch('/cart/add', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ productId, quantity: 1 })
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					alert('Item moved to cart!');
-					// Remove the product card from wishlist view
-					const card = document.getElementById('product-card-' + productId);
-					if (card) card.remove();
-
-					// Update navbar badge count
-					document.querySelectorAll('.cart span').forEach(el => {
-						el.textContent = 'Cart:(' + data.cartCount + ')';
-					});
-
-					// If no cards left, reload to show empty state
-					const container = document.getElementById('wishlist-container');
-					if (container && container.children.length === 0) {
-						window.location.reload();
-					}
-				} else {
-					alert(data.error || 'Failed to move item to cart.');
-				}
-			})
-			.catch(err => console.error(err));
-		}
-
-		// Remove item from wishlist
-		function removeFromWishlist(productId) {
-			if (!confirm('Are you sure you want to remove this item from your wishlist?')) return;
-
-			fetch('/wishlist/remove', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ productId })
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					// Remove product card from view
-					const card = document.getElementById('product-card-' + productId);
-					if (card) card.remove();
-
-					// If no cards left, reload to show empty state
-					const container = document.getElementById('wishlist-container');
-					if (container && container.children.length === 0) {
-						window.location.reload();
-					}
-				} else {
-					alert(data.error || 'Failed to remove from wishlist.');
-				}
-			})
-			.catch(err => console.error(err));
-		}
-	</script>
 </body>
-</html>
+

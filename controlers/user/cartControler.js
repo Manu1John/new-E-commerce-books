@@ -67,7 +67,8 @@ const getCart = async (req, res, next) => {
       });
     }
 
-    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    // FIX: Changed from quantity sum to array length (unique items)
+    const cartCount = cart.items.length;
 
     return res.render("user/cart", {
       title: "My Shopping Cart",
@@ -149,8 +150,8 @@ const addToCart = async (req, res) => {
     // 4. Wishlist integration: Automatically remove the item from the wishlist
     await Wishlist.updateOne({ user: userId }, { $pull: { products: productId } });
 
-    // Return totals
-    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    // FIX: Changed from quantity sum to array length (unique items)
+    const cartCount = cart.items.length;
 
     return res.status(200).json({
       success: true,
@@ -212,7 +213,10 @@ const updateQuantity = async (req, res) => {
 
     // Recalculate totals
     const updatedCart = await Cart.findOne({ user: userId }).populate("items.product");
-    const cartCount = updatedCart.items.reduce((sum, item) => sum + item.quantity, 0);
+    
+    // FIX: Changed from quantity sum to array length (unique items)
+    const cartCount = updatedCart.items.length;
+    
     let cartSubtotal = 0;
     for (let item of updatedCart.items) {
       if (item.product && !item.product.isDeleted && item.product.status === "active") {
@@ -253,7 +257,10 @@ const removeFromCart = async (req, res) => {
 
     // Recalculate
     const updatedCart = await Cart.findOne({ user: userId }).populate("items.product");
-    const cartCount = updatedCart.items.reduce((sum, item) => sum + item.quantity, 0);
+    
+    // FIX: Changed from quantity sum to array length (unique items)
+    const cartCount = updatedCart.items.length;
+    
     let cartSubtotal = 0;
     for (let item of updatedCart.items) {
       if (item.product && !item.product.isDeleted && item.product.status === "active") {
@@ -328,7 +335,8 @@ const getCheckout = async (req, res, next) => {
       cartSubtotal,
       addresses,
       user: req.session.user,
-      cartCount: cart.items.reduce((sum, item) => sum + item.quantity, 0)
+      // FIX: Changed from quantity sum to array length (unique items)
+      cartCount: cart.items.length
     });
   } catch (error) {
     console.error("GET CHECKOUT ERROR:", error);
@@ -384,7 +392,7 @@ const placeOrder = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Order placed successfully!",
-      redirectUrl: "/profile/user" // Redirect to profile where address/orders are displayed
+      redirectUrl: "/profile/user" 
     });
   } catch (error) {
     console.error("PLACE ORDER ERROR:", error);

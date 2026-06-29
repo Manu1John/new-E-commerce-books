@@ -1,115 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<title><%= product.title %> | BookStore</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<link rel="stylesheet" href="/css/home.css">
 	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
 	<link rel="stylesheet" type="text/css" href="/css/index.css">
+	<script defer src="/js/productDetails.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/productDetails.css">
 	
-	<style>
-		.zoom-container {
-			overflow: hidden;
-			position: relative;
-			cursor: zoom-in;
-			border: 1px solid #eee;
-			background: #fcfcfc;
-			border-radius: 8px;
-		}
-		.zoom-image {
-			width: 100%;
-			height: auto;
-			transition: transform 0.1s ease-out;
-		}
-		.thumbnail-btn {
-			width: 60px;
-			height: 80px;
-			object-fit: cover;
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			cursor: pointer;
-			opacity: 0.7;
-			transition: opacity 0.2s, border-color 0.2s;
-		}
-		.thumbnail-btn:hover, .thumbnail-btn.active {
-			opacity: 1;
-			border-color: #C5A992;
-		}
-		.breadcrumb-nav {
-			--bs-breadcrumb-divider: '>';
-			font-size: 0.9em;
-		}
-		.breadcrumb-item a {
-			text-decoration: none;
-			color: #C5A992;
-		}
-		.breadcrumb-item.active {
-			color: #757575;
-		}
-		.price-badge {
-			font-family: var(--secondary-font);
-			font-size: 1.8em;
-			font-weight: 700;
-			color: var(--dark-color);
-		}
-		.discount-badge {
-			background: #e2d2c2;
-			color: #634f40;
-			font-size: 0.85em;
-			font-weight: 600;
-			padding: 4px 8px;
-			border-radius: 4px;
-			display: inline-block;
-		}
-		.stock-in {
-			color: #2e7d32;
-			font-weight: 600;
-			display: inline-flex;
-			align-items: center;
-			gap: 5px;
-		}
-		.stock-out {
-			color: #c62828;
-			font-weight: 600;
-			display: inline-flex;
-			align-items: center;
-			gap: 5px;
-		}
-		.ratings {
-			color: #ffb300;
-			font-size: 1.1em;
-		}
-		.btn-action-custom {
-			padding: 12px 24px;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 1px;
-			border-radius: 4px;
-			transition: all 0.3s;
-		}
-		.btn-action-cart {
-			background: var(--dark-color);
-			color: #fff;
-			border: none;
-		}
-		.btn-action-cart:hover {
-			background: #C5A992;
-			color: #fff;
-		}
-		.btn-action-wishlist {
-			border: 2px solid var(--dark-color);
-			background: transparent;
-			color: var(--dark-color);
-		}
-		.btn-action-wishlist:hover {
-			background: var(--dark-color);
-			color: #fff;
-		}
-	</style>
 
 	<script defer src="/js/jquery-1.11.0.min.js"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
@@ -143,6 +42,7 @@
 									</button>
 								</form>  
 								<a href="/profile/user" class="user-account for-buy me-3"><i class="icon icon-user"></i><span>Account</span></a>
+								<a href="/wishlist" class="user-account for-buy me-3"><i class="icon icon-heart-o"></i><span>Wishlist</span></a>
 								<a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span></a>
 							<% } else { %>
 								<a href="/login" class="user-login for-buy me-3"><i class="icon icon-login"></i><span>Login</span></a>
@@ -386,78 +286,5 @@
 		</div>
 	</footer>
 
-	<script>
-		// Image Swapper Helper
-		function changeImage(src, btn) {
-			document.getElementById('mainProductImg').src = src;
-			document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('active'));
-			btn.classList.add('active');
-		}
 
-		// Premium Magnifying hover Zoom logic
-		const zoomBox = document.getElementById('mainZoom');
-		const zoomImg = document.getElementById('mainProductImg');
-
-		zoomBox.addEventListener('mousemove', (e) => {
-			const rect = zoomBox.getBoundingClientRect();
-			const x = ((e.clientX - rect.left) / rect.width) * 100;
-			const y = ((e.clientY - rect.top) / rect.height) * 100;
-			zoomImg.style.transformOrigin = `${x}% ${y}%`;
-			zoomImg.style.transform = 'scale(2.2)';
-		});
-
-		zoomBox.addEventListener('mouseleave', () => {
-			zoomImg.style.transform = 'scale(1)';
-		});
-
-		// Dynamic actions (AJAX Cart/Wishlist calls)
-		function addToCart(productId) {
-			fetch('/cart/add', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ productId, quantity: 1 })
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					alert(data.message);
-					// Update badge count
-					document.querySelectorAll('.cart span').forEach(el => {
-						el.textContent = 'Cart:(' + data.cartCount + ')';
-					});
-				} else {
-					if (data.error === "Unauthorized" || !data.success && data.error && data.error.includes("log")) {
-						window.location.href = '/login';
-					} else {
-						alert(data.error || 'Failed to add item to cart.');
-					}
-				}
-			})
-			.catch(err => {
-				console.error(err);
-				// If server redirects due to auth middleware
-				window.location.href = '/login';
-			});
-		}
-
-		function addToWishlist(productId) {
-			fetch('/wishlist/add', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ productId })
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					alert(data.message);
-				} else {
-					alert(data.error || 'Failed to add to wishlist.');
-				}
-			})
-			.catch(err => {
-				window.location.href = '/login';
-			});
-		}
-	</script>
 </body>
-</html>

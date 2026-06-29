@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<title>Home</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-
+		<script defer src="/js/home.js"></script>
 	<link rel="stylesheet" href="/css/home.css">
 	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
 	<link rel="stylesheet" type="text/css" href="/css/index.css">
-	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script defer src="/js/jquery-1.11.0.min.js"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
@@ -677,95 +673,4 @@
 		</div>
 	</div>
 
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			const searchInput = document.getElementById('searchInputHome');
-			const clearBtn = document.getElementById('clearBtnHome');
-			const searchForm = document.getElementById('searchFormHome');
-			let debounceTimer;
-
-			if (searchInput && clearBtn && searchForm) {
-				searchInput.addEventListener('input', (e) => {
-					clearBtn.style.display = e.target.value.trim() ? 'block' : 'none';
-					clearTimeout(debounceTimer);
-					debounceTimer = setTimeout(() => {
-						searchForm.submit();
-					}, 600); 
-				});
-
-				clearBtn.addEventListener('click', () => {
-					searchInput.value = '';
-					clearBtn.style.display = 'none';
-					const url = new URL(window.location.href);
-					url.searchParams.delete('search');
-					window.location.href = url.pathname + url.search;
-				});
-			}
-
-			// Auto-scroll to results immediately after searching or filtering
-			const urlParams = new URLSearchParams(window.location.search);
-			const hasFilters = urlParams.has('search') || urlParams.has('category') || urlParams.has('minPrice') || urlParams.has('sort');
-			
-			if (hasFilters && !window.location.hash) {
-				const popularBooksSection = document.getElementById('popular-books');
-				if (popularBooksSection) {
-					setTimeout(() => {
-						popularBooksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-					}, 100);
-				}
-			}
-		});
-
-		const tabs = document.querySelectorAll('[data-tab-target]');
-		const tabContents = document.querySelectorAll('[data-tab-content]');
-		tabs.forEach(tab => {
-			tab.addEventListener('click', () => {
-				const target = document.querySelector(tab.dataset.tabTarget);
-				tabContents.forEach(tabContent => {
-					tabContent.classList.remove('active');
-				});
-				tabs.forEach(t => {
-					t.classList.remove('active');
-				});
-				tab.classList.add('active');
-				target.classList.add('active');
-				
-				const url = new URL(window.location.href);
-				const targetId = tab.getAttribute('data-tab-target').replace('#', '');
-				url.searchParams.set('activeTab', targetId);
-				window.history.replaceState({}, '', url.pathname + url.search);
-			});
-		});
-
-				// Dynamic actions (AJAX Cart/Wishlist calls)
-/* 		function addToCart(productId) {
-			fetch('/cart/add', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ productId, quantity: 1 })
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					alert(data.message);
-					// Update badge count
-					document.querySelectorAll('.cart span').forEach(el => {
-						el.textContent = 'Cart:(' + data.cartCount + ')';
-					});
-				} else {
-					if (data.error === "Unauthorized" || !data.success && data.error && data.error.includes("log")) {
-						window.location.href = '/login';
-					} else {
-						alert(data.error || 'Failed to add item to cart.');
-					}
-				}
-			})
-			.catch(err => {
-				console.error(err);
-				// If server redirects due to auth middleware
-				window.location.href = '/login';
-			});
-		} */
-	</script>
 </body>
-</html>

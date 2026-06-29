@@ -1,69 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title><%= title %> | BookStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
     <link rel="stylesheet" type="text/css" href="/css/index.css">
-
-    <style>
-        .cart-table th {
-            background-color: var(--light-color);
-            font-family: var(--heading-font);
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .cart-product-img {
-            width: 60px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .qty-btn {
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #ccc;
-            background: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-radius: 4px;
-        }
-        .qty-btn:hover {
-            background: var(--light-color);
-        }
-        .qty-display {
-            width: 45px;
-            text-align: center;
-            font-weight: 600;
-            border: none;
-            background: transparent;
-        }
-        .unavailable-row {
-            background-color: #ffebee;
-            opacity: 0.8;
-        }
-        .warning-text {
-            color: #c62828;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        .checkout-card {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            background: #fafafa;
-        }
-    </style>
-
+    <script defer src="/js/cart.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/cart.css">
     <script defer src="/js/jquery-1.11.0.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
@@ -90,11 +34,13 @@
                     <div class="col-md-6">
                         <div class="right-element d-flex align-items-center justify-content-end">
                             <form action="/logout" method="POST" class="d-inline m-0 p-0 me-3">
-                                <button type="submit" class="user-login for-buy" style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-transform: inherit; letter-spacing: inherit; position: static;">
+                                <button type="submit" class="user-login for-buy" 
+                                    style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-transform: inherit; letter-spacing: inherit; position: static;">
                                     <i class="icon icon-login"></i><span>Logout</span>
                                 </button>
                             </form>  
                             <a href="/profile/user" class="user-account for-buy me-3"><i class="icon icon-user"></i><span>Account</span></a>
+                            <a href="/wishlist" class="user-account for-buy me-3"><i class="icon icon-heart-o"></i><span>Wishlist</span></a>
                             <a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span></a>
                         </div>
                     </div>
@@ -268,75 +214,4 @@
         </div>
     </footer>
 
-    <script>
-        // AJAX quantity increment/decrement helper
-        function updateQty(productId, action) {
-            fetch('/cart/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId, action })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Update display
-                    document.getElementById('qty-' + productId).value = data.quantity;
-                    document.getElementById('total-' + productId).textContent = '₹' + data.itemTotal;
-                    document.getElementById('summary-subtotal').textContent = '₹' + data.cartSubtotal;
-                    document.getElementById('summary-total').textContent = '₹' + data.cartSubtotal;
-                    
-                    // Update navbar count
-                    document.querySelectorAll('.cart span').forEach(el => {
-                        el.textContent = 'Cart:(' + data.cartCount + ')';
-                    });
-                } else {
-                    alert(data.error || 'Failed to update quantity.');
-                }
-            })
-            .catch(err => console.error(err));
-        }
-
-        // AJAX remove item helper
-        function removeItem(productId) {
-            if (!productId) {
-                // If this happens, it means the product was deleted from the backend but is still in the user's cart session.
-                // Usually your backend route needs to support removing by a cart Item ID instead of product ID for this scenario.
-                alert('Cannot remove an already deleted product using this method. Please clear your cart.');
-                return;
-            }
-            if (!confirm('Are you sure you want to remove this item from your cart?')) return;
-
-            fetch('/cart/remove', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove row
-                    const row = document.getElementById('row-' + productId);
-                    if (row) row.remove();
-                    
-                    // Update totals
-                    document.getElementById('summary-subtotal').textContent = '₹' + data.cartSubtotal;
-                    document.getElementById('summary-total').textContent = '₹' + data.cartSubtotal;
-
-                    // Update navbar count
-                    document.querySelectorAll('.cart span').forEach(el => {
-                        el.textContent = 'Cart:(' + data.cartCount + ')';
-                    });
-
-                    // Reload page if empty to show the empty message
-                    if (data.cartCount === 0) {
-                        window.location.reload();
-                    }
-                } else {
-                    alert(data.error || 'Failed to remove item.');
-                }
-            })
-            .catch(err => console.error(err));
-        }
-    </script>
-</body>
-</html>
+    
