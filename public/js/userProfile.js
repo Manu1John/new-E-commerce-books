@@ -1,90 +1,45 @@
+const editBtn = document.getElementById("editBtn");
+const changePhotoBtn = document.getElementById("changePhotoBtn");
+const profileImage = document.getElementById("profileImage");
+const previewImage = document.getElementById("previewImage");
 
-    const editBtn =
-        document.getElementById("editBtn");
+// ALL editable fields
+const fields = document.querySelectorAll(
+    'input[name="firstName"], input[name="lastName"], input[name="phone"], textarea[name="address"]'
+);
 
-    const changePhotoBtn =
-        document.getElementById(
-            "changePhotoBtn"
-        );
+let editMode = false;
 
-    const profileImage =
-        document.getElementById(
-            "profileImage"
-        );
+editBtn.addEventListener("click", function () {
+    // SAVE MODE
+    if (editMode) {
+        // FIX: Use requestSubmit() instead of submit() to trigger the form's submit event listener
+        document.querySelector(".info-card").requestSubmit();
+        return;
+    }
 
-    const previewImage =
-        document.getElementById(
-            "previewImage"
-        );
+    // EDIT MODE
+    fields.forEach(field => {
+        field.disabled = false;
+    });
 
-    // ALL editable fields
-    const fields =
-        document.querySelectorAll(
-            'input[name="firstName"], input[name="lastName"], input[name="phone"], textarea[name="address"]'
-        );
+    changePhotoBtn.disabled = false;
+    editBtn.textContent = "Save";
+    editMode = true;
+});
 
-    let editMode = false;
+// Open image picker
+changePhotoBtn.addEventListener("click", () => {
+    profileImage.click();
+});
 
-    editBtn.addEventListener(
-        "click",
-        function () {
-
-            // SAVE MODE
-            if (editMode) {
-
-                document
-                    .querySelector(
-                        ".info-card"
-                    )
-                    .submit();
-
-                return;
-            }
-
-            // EDIT MODE
-            fields.forEach(
-                field => {
-                    field.disabled = false;
-                }
-            );
-
-            changePhotoBtn.disabled =
-                false;
-
-            editBtn.textContent =
-                "Save";
-
-            editMode = true;
-        }
-    );
-
-    // Open image picker
-    changePhotoBtn
-        .addEventListener(
-            "click",
-            () => {
-                profileImage.click();
-            }
-        );
-
-    // Preview selected image
-    profileImage
-        .addEventListener(
-            "change",
-            function () {
-
-                const file =
-                    this.files[0];
-
-                if (file) {
-
-                    previewImage.src =
-                        URL.createObjectURL(
-                            file
-                        );
-                }
-            }
-        );
+// Preview selected image
+profileImage.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        previewImage.src = URL.createObjectURL(file);
+    }
+});
 
 
 // CHANGE PASSWORD LIVE VALIDATION
@@ -109,7 +64,6 @@ if (passwordInput && confirmPasswordInput && submitBtn) {
 }
 
 function validatePassword() {
-    // FIXED: Removed .trim() so frontend evaluation mirrors exactly what the form transmits
     const password = passwordInput.value;
     const confirmPassword = confirmPasswordInput.value;
 
@@ -120,7 +74,7 @@ function validatePassword() {
     const hasNumber = /[0-9]/.test(password);
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-    // Update UI Rules (Safe execution via updated function)
+    // Update UI Rules
     updateRule(lengthRule, hasLength);
     updateRule(upperRule, hasUpper);
     updateRule(lowerRule, hasLower);
@@ -147,7 +101,6 @@ function validatePassword() {
 }
 
 function updateRule(element, isValid) {
-    // FIXED: Guard clause prevents script crashes if an element is missing from the DOM
     if (!element) return; 
 
     const icon = element.querySelector(".icon");
@@ -163,75 +116,42 @@ function updateRule(element, isValid) {
     }
 }
 
-//password visiblity
-document.getElementById("passwordShow").addEventListener("click",toggleVissiblity)
-const currentPassword = document.getElementById("currentPassword")
-const newPassword = document.getElementById("newPassword")
-const confirmPassword = document.getElementById("confirmPassword")
+// Password visibility
+document.getElementById("passwordShow").addEventListener("click", toggleVissiblity);
+const currentPassword = document.getElementById("currentPassword");
+const newPassword = document.getElementById("newPassword");
+const confirmPassword = document.getElementById("confirmPassword");
+
 function toggleVissiblity(){
-    if(currentPassword.type === "password" && newPassword.type==="password" 
-        &&confirmPassword.type === "password"){
-            currentPassword.type ="text"
-            newPassword.type = "text"
-            confirmPassword.type ="text"
-    }else{
-         currentPassword.type ="password"
-            newPassword.type = "password"
-            confirmPassword.type ="password"
+    if(currentPassword.type === "password" && newPassword.type === "password" && confirmPassword.type === "password"){
+        currentPassword.type ="text";
+        newPassword.type = "text";
+        confirmPassword.type ="text";
+    } else {
+        currentPassword.type ="password";
+        newPassword.type = "password";
+        confirmPassword.type ="password";
     } 
 }
 
 // PASSWORD TOGGLE
-const togglePasswordBtn =
-    document.getElementById(
-        "togglePasswordBtn"
-    );
+const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+const passwordFormContainer = document.getElementById("passwordFormContainer");
 
-const passwordFormContainer =
-    document.getElementById(
-        "passwordFormContainer"
-    );
-
-togglePasswordBtn?.addEventListener(
-    "click",
-    () => {
-
-        passwordFormContainer
-            .style.display =
-            passwordFormContainer
-                .style.display ===
-            "none"
-                ? "block"
-                : "none";
-    }
-);
+togglePasswordBtn?.addEventListener("click", () => {
+    passwordFormContainer.style.display = passwordFormContainer.style.display === "none" ? "block" : "none";
+});
 
 // EMAIL TOGGLE
-const toggleEmailBtn =
-    document.getElementById(
-        "toggleEmailBtn"
-    );
+const toggleEmailBtn = document.getElementById("toggleEmailBtn");
+const emailFormContainer = document.getElementById("emailFormContainer");
 
-const emailFormContainer =
-    document.getElementById(
-        "emailFormContainer"
-    );
-
-toggleEmailBtn?.addEventListener(
-    "click",
-    () => {
-
-        emailFormContainer
-            .style.display =
-            emailFormContainer
-                .style.display ===
-            "none"
-                ? "block"
-                : "none";
-    }
-);
+toggleEmailBtn?.addEventListener("click", () => {
+    emailFormContainer.style.display = emailFormContainer.style.display === "none" ? "block" : "none";
+});
 
 
+// PROFILE LIVE VALIDATION
 const firstName = document.getElementById("firstName");
 const lastName = document.getElementById("lastName");
 const phone = document.getElementById("phone");
@@ -257,8 +177,7 @@ function validateFirstName() {
     }
 
     if (!nameRegex.test(value)) {
-        firstNameError.textContent =
-            "Only letters, spaces, apostrophes and hyphens are allowed.";
+        firstNameError.textContent = "Only letters, spaces, apostrophes and hyphens are allowed.";
         return false;
     }
 
@@ -275,8 +194,7 @@ function validateLastName() {
     }
 
     if (!nameRegex.test(value)) {
-        lastNameError.textContent =
-            "Only letters, spaces, apostrophes and hyphens are allowed.";
+        lastNameError.textContent = "Only letters, spaces, apostrophes and hyphens are allowed.";
         return false;
     }
 
@@ -293,8 +211,7 @@ function validatePhone() {
     }
 
     if (!phoneRegex.test(value)) {
-        phoneError.textContent =
-            "Enter a valid 10-digit Indian mobile number.";
+        phoneError.textContent = "Enter a valid 10-digit Indian mobile number.";
         return false;
     }
 

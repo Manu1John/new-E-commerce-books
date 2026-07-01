@@ -38,7 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!files.length) return;
 
         if (imageArray.length + files.length > 5) {
-            alert('Maximum limit reached! A product cannot have more than 5 images.');
+                Swal.fire({
+                icon: "info",
+                title: "Oops...",
+                text: 'Maximum limit reached! A product cannot have more than 5 images.',
+
+                });
             this.value = '';
             return;
         }
@@ -284,11 +289,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 window.location.href = data.redirectUrl || '/admin/products'; 
             } else {
-                alert("Backend Rejection: " + (data.error || 'Failed to update product.'));
+                Swal.fire({
+                icon: "info",
+                title: "Oops...",
+                text: "Product name already exists!",
+
+                });
             }
         } catch (error) {
             console.error('Network Upload Exception:', error);
-            alert('A network error occurred while updating the server.');
+                Swal.fire({
+            title: "The Internet?",
+            text: "Network error is occured?",
+            icon: "question"
+            });
         }
     });
 });

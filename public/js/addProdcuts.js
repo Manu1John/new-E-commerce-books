@@ -19,7 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
     imageUpload.addEventListener('change', function(e) {
         const files = e.target.files;
         if (files.length < 3 || files.length > 5) {
-            alert('Please select between 3 and 5 images.');
+
+                Swal.fire({
+                icon: "info",
+                title: "Oops...",
+                text: 'Please select between 3 and 5 images !',
+
+                });
             this.value = '';
             previewContainer.innerHTML = '';
             imageArray = [];
@@ -205,7 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 window.location.href = data.redirectUrl || '/admin/products'; 
             } else {
-                alert("Backend Rejection: " + (data.error || 'Failed to process request.'));
+
+                Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Product name already exists!",
+
+                });
             }
         } catch (error) {
             console.error('Network Upload Exception:', error);
