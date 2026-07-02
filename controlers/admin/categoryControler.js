@@ -4,9 +4,9 @@ const getCategoryDashboard = async (req, res) => {
     try {
 
         const page =
-            parseInt(req.query.page) || 1;
+            Number(req.query.page) || 1;
 
-        const limit = 4;
+        const limit = Number(req.query.limit)||5;
 
         const skip =
             (page - 1) * limit;
@@ -20,22 +20,23 @@ const getCategoryDashboard = async (req, res) => {
         };
 
         // Add search only if user typed
-        if (search) {
-            query.name = {
-                $regex: search,
-                $options: "i"
-            };
-        }
+   const filter = {
+    category:{
+        $regex:search,
+        $options:"i"
+    }
+
+   }
 
         const categoryData =
-            await Category.find(query)
+            await Category.find(filter)
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
 
         const totalCategories =
             await Category.countDocuments(
-                query
+                filter
             );
 
         const totalPages =

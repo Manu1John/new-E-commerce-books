@@ -3,6 +3,7 @@
 // =========================
 
 const searchInput = document.getElementById("searchInput");
+const clearInput  = document.getElementById("clearInput")
 
 let timer;
 
@@ -13,14 +14,19 @@ if (searchInput) {
 
         timer = setTimeout(() => {
 
-            const value = searchInput.value.trim();
+            const searchValue = searchInput.value.trim();
 
             window.location.href =
-                `/admin/category?search=${encodeURIComponent(value)}`;
+                `/admin/category?search=${searchValue}`;
 
         }, 500);
 
     });
+}
+if(clearInput){
+    clearInput.addEventListener("click",function(){
+        window.location.href = "/admin/category"
+    })
 }
 
 

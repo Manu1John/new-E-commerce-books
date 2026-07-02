@@ -15,7 +15,7 @@ async (req, res) => {
         const search =
             req.query.search || "";
 
-        const limit = 5;
+        const limit = Number(req.query.limit)||5;
 
         const skip =
             (page - 1) * limit;
@@ -75,7 +75,8 @@ async (req, res) => {
                     page,
                 totalPages,
                 totalUsers,
-                search
+                search,
+                limit:limit
             }
         );
 

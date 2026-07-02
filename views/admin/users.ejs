@@ -11,6 +11,12 @@
             <li><a href="#">Offers</a></li>
             <li><a href="#">Coupons</a></li>
             <li><a href="/admin/category">Categories</a></li>
+            <li>            <form action="/admin/logout" method="POST">
+                <button class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </button>
+            </form></li>
         </ul>
     </aside>
 
@@ -27,12 +33,7 @@
                 </div>
             </form>
 
-            <form action="/admin/logout" method="POST">
-                <button class="logout-btn">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    Logout
-                </button>
-            </form>
+
         </div>
 
         <h2 class="page-title">Users</h2>
@@ -53,7 +54,7 @@
                 <tbody>
                     <% users.forEach((user, index)=> { %>
                     <tr>
-                        <td><%= ((currentPage - 1) * 5) + index + 1 %></td>
+                        <td><%= ((currentPage - 1) * limit) + index + 1 %></td>
                         <td><%= user.firstName %></td>
                         <td><%= user.lastName %></td>
                         <td><%= user.email %></td>
