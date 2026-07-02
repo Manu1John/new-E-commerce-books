@@ -1,11 +1,10 @@
 // =========================
 // SEARCH (CATEGORY ONLY)
 // =========================
-
+let timer;
 const searchInput = document.getElementById("searchInput");
 const clearInput  = document.getElementById("clearInput")
 
-let timer;
 
 if (searchInput) {
     searchInput.addEventListener("keyup", function () {
@@ -27,8 +26,8 @@ if(clearInput){
     clearInput.addEventListener("click",function(){
         window.location.href = "/admin/category"
     })
-}
 
+}
 
 // =========================
 // DELETE MODAL LOGIC

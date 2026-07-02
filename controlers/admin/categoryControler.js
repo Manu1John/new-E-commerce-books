@@ -21,10 +21,11 @@ const getCategoryDashboard = async (req, res) => {
 
         // Add search only if user typed
    const filter = {
-    category:{
+    name:{
         $regex:search,
         $options:"i"
-    }
+    },
+    isDeleted: false
 
    }
 
