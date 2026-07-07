@@ -22,6 +22,7 @@
                     id="name"
                     name="name"
                     placeholder="Enter category name"
+                    value="<%= typeof name !== 'undefined' ? name : '' %>"
                 />
             </div>
 
@@ -32,7 +33,7 @@
                     name="description"
                     rows="5"
                     placeholder="Enter category description"
-                ></textarea>
+                ><%= typeof description !== 'undefined' ? description : '' %></textarea>
             </div>
 
             <div class="form-group">
@@ -40,12 +41,22 @@
 
                 <div class="radio-group">
                     <label class="radio-option">
-                        <input type="radio" name="status" value="active" checked />
+                        <input 
+                            type="radio" 
+                            name="status" 
+                            value="active" 
+                            <%= (typeof status === 'undefined' || status === 'active') ? 'checked' : '' %> 
+                        />
                         Active
                     </label>
 
                     <label class="radio-option">
-                        <input type="radio" name="status" value="inactive" />
+                        <input 
+                            type="radio" 
+                            name="status" 
+                            value="inactive" 
+                            <%= (typeof status !== 'undefined' && status === 'inactive') ? 'checked' : '' %> 
+                        />
                         Not Active
                     </label>
                 </div>

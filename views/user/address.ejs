@@ -1,5 +1,6 @@
 <%- include('../partials/header') %>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- HEADER -->
 <header class="top-header">
 
@@ -192,10 +193,30 @@
                                 <button
                                     type="submit"
                                     class="delete-btn"
-                                    onclick="return confirm('Delete this address?')"
+                                    onclick="return confirmDelete(event)"
                                 >
                                     Delete
                                 </button>
+                                <script>
+                    function confirmDelete(event) {
+                        event.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This address will be permanently deleted.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        event.target.closest('form').submit();
+                    }
+                });
+            }
+            </script>
                             </form>
 
                         </div>

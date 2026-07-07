@@ -5,7 +5,7 @@ const createProduct = async (productData, files) => {
     const { title, category, author, description, price, quantity, status } = productData;
 
     // Check if product exists
-    const existProduct = await Product.findOne({title:title.toLowerCase() });
+    const existProduct = await Product.findOne({title:title.toLowerCase().trim() });
 
     if (existProduct) {
         // Cleanup orphaned files

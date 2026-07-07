@@ -1,18 +1,12 @@
 import Category from "../../models/category.js"
 import { softDelete } from '../../services/categoryService.js'
+
 const getCategoryDashboard = async (req, res) => {
     try {
-
-        const page =
-            Number(req.query.page) || 1;
-
+        const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit)||5;
-
-        const skip =
-            (page - 1) * limit;
-
-        const search =
-            req.query.search?.trim() || "";
+        const skip = (page - 1) * limit;
+        const search = req.query.search?.trim() || "";
 
         // Base query
         const query = {
@@ -20,66 +14,38 @@ const getCategoryDashboard = async (req, res) => {
         };
 
         // Add search only if user typed
-   const filter = {
-    name:{
-        $regex:search,
-        $options:"i"
-    },
-    isDeleted: false
+        const filter = {
+            name: {
+                $regex: search,
+                $options: "i"
+            },
+            isDeleted: false
+        }
 
-   }
+        const categoryData = await Category.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
-        const categoryData =
-            await Category.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit);
+        const totalCategories = await Category.countDocuments(filter);
+        const totalPages = Math.ceil(totalCategories / limit);
 
-        const totalCategories =
-            await Category.countDocuments(
-                filter
-            );
-
-        const totalPages =
-            Math.ceil(
-                totalCategories / limit
-            );
-
-        return res.render(
-            "admin/category",
-            {
-                title:
-                    "category management",
-
-                cssFile:
-                    "category.css",
-
-                jsFile:
-                    "category.js",
-
-                cat: categoryData,
-                currentPage: page,
-                totalPages,
-                totalCategories,
-                search
-            }
-        );
+        return res.render("admin/category", {
+            title: "category management",
+            cssFile: "category.css",
+            jsFile: "category.js",
+            cat: categoryData,
+            currentPage: page,
+            totalPages,
+            totalCategories,
+            search
+        });
 
     } catch (error) {
-
-        console.log(
-            "get category dashboard error",
-            error
-        );
-
-        return res
-            .status(500)
-            .send(
-                "something went wrong"
-            );
+        console.log("get category dashboard error", error);
+        return res.status(500).send("something went wrong");
     }
 };
-
 
 const getAddCategory = async(req,res)=>{
     try {
@@ -92,6 +58,7 @@ const getAddCategory = async(req,res)=>{
        return res.status(400).json({error:"Cant access category page "})
     }
 }
+
 const addCategory = async (req, res) => {
     try {
         const { name, description, status } = req.body;
@@ -102,7 +69,10 @@ const addCategory = async (req, res) => {
                 title: "Category Management",
                 cssFile: "addCategory.css",
                 jsFile: "addCategory.js",
-                error: "Category name is required"
+                error: "Category name is required",
+                name,             
+                description,      
+                status            
             });
         }
 
@@ -124,7 +94,10 @@ const addCategory = async (req, res) => {
                 title: "Category Management",
                 cssFile: "addCategory.css",
                 jsFile: "addCategory.js",
-                error: "Category already exists"
+                error: "Category already exists",
+                name,             
+                description,      
+                status            
             });
         }
 
@@ -141,20 +114,24 @@ const addCategory = async (req, res) => {
 
     } catch (error) {
         console.error("Add Category Error:", error);
+        
+        const { name = '', description = '', status = 'active' } = req.body || {};
 
         return res.render("admin/addCategory", {
             title: "Category Management",
             cssFile: "addCategory.css",
             jsFile: "addCategory.js",
-            error: "Internal server error"
+            error: "Internal server error",
+            name,
+            description,
+            status
         });
     }
 };
+
 const getEditCategory = async (req, res) => {
     try {
-
         const { id } = req.params;
-
         const category = await Category.findById(id);
 
         if (!category) {
@@ -170,15 +147,12 @@ const getEditCategory = async (req, res) => {
 
     } catch (error) {
         console.log("GET EDIT CATEGORY ERROR:", error);
-
         return res.status(500).send("Internal server error");
     }
 };
 
-
 const postEditCategory = async (req, res) => {
     try {
-
         const { id } = req.params;
         const { name, description, status } = req.body;
 
@@ -213,15 +187,13 @@ const postEditCategory = async (req, res) => {
 
     } catch (error) {
         console.log("POST EDIT CATEGORY ERROR:", error);
-
         return res.status(500).send("Internal server error");
     }
 };
+
 const softDeleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
-
-        // FIX: Called the imported function directly instead of using categoryService.softDelete
         const category = await softDelete(id);
 
         if (!category) {
@@ -234,7 +206,6 @@ const softDeleteCategory = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Deleted successfully"
-            
         });
 
     } catch (error) {
@@ -246,7 +217,7 @@ const softDeleteCategory = async (req, res) => {
     }
 };
 
-export default{
+export default {
     getCategoryDashboard,
     getAddCategory,
     addCategory,

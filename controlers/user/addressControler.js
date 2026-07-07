@@ -21,7 +21,6 @@ const getAddressPage = async (req, res) => {
     }
 };
 
-
 // GET ADD ADDRESS PAGE
 const getAddAddressPage = (req, res) => {
     try {
@@ -39,11 +38,9 @@ const getAddAddressPage = (req, res) => {
     }
 };
 
-
 // ADD ADDRESS
 const addAddress = async (req, res) => {
     try {
-        // Fix 1: Ensure we grab the valid database identifier
         const userId = req.session?.user?._id || req.session?.user?.id;
 
         const {
@@ -64,11 +61,11 @@ const addAddress = async (req, res) => {
         const pincodeNorm = pincode.trim();
         const phoneNorm = phone.toString().trim();
 
-        // Fix 2: Reliable Duplicate Check 
-        // Checks if this specific user has already saved this exact physical location
+        // Reliable Duplicate Check (Includes City)
         const existing = await Address.findOne({
             userId,
             addressLine,
+            city: cityNorm,
             pincode: pincodeNorm
         });
 
@@ -78,7 +75,7 @@ const addAddress = async (req, res) => {
                 cssFile: "addAddress.css",
                 jsFile: "addAddress.js",
                 user: req.session?.user,
-                error: "Address already exists"
+                error: "This address already exists in your saved addresses."
             });
         }
 
@@ -95,16 +92,14 @@ const addAddress = async (req, res) => {
             addressType
         });
 
-        req.flash("success", "Address added successfully");
+        if (req.flash) req.flash("success", "Address added successfully");
         return res.redirect("/address");
 
     } catch (error) {
         console.log("ADD ADDRESS ERROR:", error);
-        // Fix 3: Corrected fallback redirect to match your addressRoutes.js configuration
         return res.redirect("/address/new");
     }
 };
-
 
 // GET EDIT ADDRESS PAGE
 const getEditAddress = async (req, res) => {
@@ -129,10 +124,11 @@ const getEditAddress = async (req, res) => {
     }
 };
 
-
 // UPDATE ADDRESS
 const updateAddress = async (req, res) => {
     try {
+        const userId = req.session?.user?._id || req.session?.user?.id;
+
         const {
             fullName,
             phone,
@@ -145,28 +141,51 @@ const updateAddress = async (req, res) => {
             addressType
         } = req.body;
 
+        // NORMALIZATION
         const addressLine = `${house.trim().toLowerCase()}, ${area.trim().toLowerCase()}`;
         const cityNorm = city.trim().toLowerCase();
+        const pincodeNorm = pincode.trim();
+        const phoneNorm = phone.toString().trim();
+
+        // Duplicate check that excludes the CURRENT address ID
+        const existing = await Address.findOne({
+            userId,
+            _id: { $ne: req.params.id }, 
+            addressLine,
+            city: cityNorm,
+            pincode: pincodeNorm
+        });
+
+        if (existing) {
+            // Re-render the edit page with an error, maintaining the user's input
+            return res.render("user/editAddress", {
+                title: "Edit Address",
+                cssFile: "addAddress.css",
+                jsFile: "editAddress.js",
+                user: req.session?.user,
+                address: { ...req.body, _id: req.params.id }, 
+                error: "Another saved address already has these details."
+            });
+        }
 
         await Address.findByIdAndUpdate(req.params.id, {
             fullName: fullName.trim(),
-            phone: phone.toString().trim(),
+            phone: phoneNorm,
             addressLine,
             landmark: landmark?.trim() || "",
             city: cityNorm,
             state: state.trim(),
-            pincode: pincode.trim(),
+            pincode: pincodeNorm,
             addressType
         });
 
         return res.redirect("/address");
 
     } catch (error) {
-        console.log(error);
+        console.log("UPDATE ADDRESS ERROR:", error);
         return res.redirect("/address");
     }
 };
-
 
 // DELETE ADDRESS
 const deleteAddress = async (req, res) => {
@@ -179,7 +198,6 @@ const deleteAddress = async (req, res) => {
         return res.redirect("/address");
     }
 };
-
 
 export default {
     getAddAddressPage,

@@ -27,6 +27,7 @@
                         name="title"
                         id="title"
                         placeholder="Enter product name"
+                        value="<%= typeof product !== 'undefined' ? product.title : '' %>"
                     >
                     <span class="error-message" id="titleError"></span>
                 </div>
@@ -43,7 +44,10 @@
                             Select category
                         </option>
                         <% categories.forEach(category => { %>
-                            <option value="<%= category._id %>">
+                            <option 
+                                value="<%= category._id %>"
+                                <%= typeof product !== 'undefined' && product.category === category._id.toString() ? 'selected' : '' %>
+                            >
                                 <%= category.name %>
                             </option>
                         <% }) %>
@@ -60,6 +64,7 @@
                         name="author"
                         id="author"
                         placeholder="Enter author name"
+                        value="<%= typeof product !== 'undefined' ? product.author : '' %>"
                     >
                     <span class="error-message" id="authorError"></span>
                 </div>
@@ -73,7 +78,7 @@
                         id="description"
                         rows="5"
                         placeholder="Enter product description"
-                    ></textarea>
+                    ><%= typeof product !== 'undefined' ? product.description : '' %></textarea>
                     <span class="error-message" id="descriptionError"></span>
                 </div>
 
@@ -90,6 +95,7 @@
                                 name="price"
                                 id="price"
                                 placeholder="Enter price"
+                                value="<%= typeof product !== 'undefined' ? product.price : '' %>"
                             >
                         </div>
                         <span class="error-message" id="priceError"></span>
@@ -104,6 +110,7 @@
                             name="quantity"
                             id="quantity"
                             placeholder="Enter stock"
+                            value="<%= typeof product !== 'undefined' ? product.quantity : '' %>"
                         >
                         <span class="error-message" id="quantityError"></span>
                     </div>
@@ -118,7 +125,7 @@
                                 type="radio"
                                 name="status"
                                 value="active"
-                                checked
+                                <%= (typeof product === 'undefined' || product.status === 'active') ? 'checked' : '' %>
                             >
                             Active
                         </label>
@@ -127,6 +134,7 @@
                                 type="radio"
                                 name="status"
                                 value="inactive"
+                                <%= (typeof product !== 'undefined' && product.status === 'inactive') ? 'checked' : '' %>
                             >
                             Not Active
                         </label>

@@ -1,180 +1,90 @@
 import Product from '../../models/products.js';
-import Category
-from "../../models/category.js";
+import Category from "../../models/category.js";
 import productService from '../../services/productService.js';
 import fs from 'fs'
-const getProductDashboard =
-async (req, res) => {
 
+const getProductDashboard = async (req, res) => {
     try {
-
-        const page =
-            parseInt(req.query.page) || 1;
-
-        const limit = Number(req.query.limit)||5
-
-        const skip =
-            (page - 1) * limit;
-
-        const search =
-            req.query.search?.trim() || "";
+        const page = parseInt(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 5;
+        const skip = (page - 1) * limit;
+        const search = req.query.search?.trim() || "";
 
         // BASE QUERY
-        const query = {
-            isDeleted: false
-        };
+        const query = { isDeleted: false };
 
         // SEARCH
-if (search) {
+        if (search) {
+            const categories = await Category.find({
+                name: { $regex: search, $options: "i" }
+            }).select("_id");
 
-    const categories = await Category.find({
-        name: {
-            $regex: search,
-            $options: "i"
+            const categoryIds = categories.map(cat => cat._id);
+
+            query.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { author: { $regex: search, $options: "i" } },
+                { category: { $in: categoryIds } }
+            ];
         }
-    }).select("_id");
-
-    const categoryIds = categories.map(cat => cat._id);
-
-    query.$or = [
-        {
-            title: {
-                $regex: search,
-                $options: "i"
-            }
-        },
-        {
-            author: {
-                $regex: search,
-                $options: "i"
-            }
-        },
-        {
-            category: {
-                $in: categoryIds
-            }
-        }
-    ];
-}
-
 
         // GET PRODUCTS
-        const productData =
-            await Product.find(query)
-
-                // POPULATE CATEGORY
-                .populate("category")
-
-                .sort({
-                    createdAt: -1
-                })
-
-                .skip(skip)
-
-                .limit(limit);
-
+        const productData = await Product.find(query)
+            .populate("category")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
         // COUNT PRODUCTS
-        const totalProducts =
-            await Product.countDocuments(
-                query
-            );
-
+        const totalProducts = await Product.countDocuments(query);
 
         // TOTAL PAGES
-        const totalPages =
-            Math.ceil(
-                totalProducts / limit
-            );
-
+        const totalPages = Math.ceil(totalProducts / limit);
 
         // RENDER PAGE
-        return res.render(
-            "admin/products",
-            {
-                title:
-                    "Product Page",
-
-                cssFile:
-                    "products.css",
-
-                jsFile:
-                    "products.js",
-
-                pro:
-                    productData,
-
-                totalProducts,
-
-                totalPages,
-
-                currentPage:
-                    page,
-
-                search  
-            }
-        );
+        return res.render("admin/products", {
+            title: "Product Page",
+            cssFile: "products.css",
+            jsFile: "products.js",
+            pro: productData,
+            totalProducts,
+            totalPages,
+            currentPage: page,
+            search  
+        });
 
     } catch (error) {
-
         console.log(error);
-
-        return res.status(500).json({
-            error:
-                error.message
-        });
+        return res.status(500).json({ error: error.message });
     }
 };
 
-const getaddProductPage =
-async (req,res)=>{
-
+const getaddProductPage = async (req,res)=>{
     try{
-
-        const categories =
-            await Category.find({
-                isDeleted:false
-            });
-
-        return res.render(
-            "admin/addProduct",
-            {
-                title:
-                    "add products",
-                cssFile:
-                    "addProducts.css",
-                jsFile:
-                    "addProdcuts.js",
-                categories
-            }
-        );
-
-    }catch(error){
-
-        console.log(error);
-
-        res.status(500).json({
-            error:error.message
+        const categories = await Category.find({ isDeleted:false });
+        return res.render("admin/addProduct", {
+            title: "add products",
+            cssFile: "addProducts.css",
+            jsFile: "addProdcuts.js",
+            categories
         });
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ error:error.message });
     }
 }
+
 const postAddProductPage = async (req, res) => {
     try {
-        // 1. Pass the form body data and Multer files to your service layer
         await productService.createProduct(req.body, req.files);
-        
         console.log("Product Saved Successfully!");
 
-        // 2. Since frontend always uses fetch(), ALWAYS reply with clean JSON
-        return res.status(200).json({ 
-            success: true, 
-            redirectUrl: "/admin/products" 
-        });
+        // Assuming frontend fetch is used:
+        return res.status(200).json({ success: true, redirectUrl: "/admin/products" });
 
     } catch (error) {
         console.error("Backend Error caught in controller:", error.message);
         
-        // 3. File Cleanup: Delete files Multer just saved so they don't clutter your disk
         if (req.files && req.files.length > 0) {
             req.files.forEach(file => {
                 fs.unlink(file.path, (err) => {
@@ -183,10 +93,26 @@ const postAddProductPage = async (req, res) => {
             });
         }
 
-        // 4. Send the clean error message directly back to the frontend fetch script
+        // ====== SSR FALLBACK ======
+        // If you stop using fetch() and switch to standard form action submissions, 
+        // uncomment the code below to repopulate the form:
+        /*
+        const categories = await Category.find({ isDeleted: false });
+        return res.render("admin/addProduct", {
+            title: "add products",
+            cssFile: "addProducts.css",
+            jsFile: "addProdcuts.js",
+            categories,
+            product: req.body,
+            error: error.message
+        });
+        */
+
+        // Current JSON return for fetch:
         return res.status(400).json({ error: error.message });
     }
 };
+
 const getEditProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -197,55 +123,50 @@ const getEditProduct = async (req, res) => {
             return res.redirect('/admin/products');
         }
 
-        // Render your new edit view, passing the existing data
         res.render('admin/editProduct',{
-            title:"edit product",
-            cssFile:'editProduct.css',
-            jsFile:'editProducts.js',
-             product, 
-             categories });
+            title: "edit product",
+            cssFile: 'editProduct.css',
+            jsFile: 'editProducts.js',
+            product, 
+            categories 
+        });
     } catch (error) {
         console.error("Error loading edit page:", error);
         res.status(500).send("Internal Server Error");
     }
 };
+
 const postEditProduct = async (req, res) => {
     try {
         const productId = req.params.id;
         const { title, category, author, description, price, quantity, status } = req.body;
 
-        // 1. Find the current book data first
         const currentProduct = await Product.findById(productId);
         if (!currentProduct) {
             return res.status(404).json({ error: "Product not found" });
         }
 
-        // 2. Map and stitch together retained files vs newly uploaded binaries
         let finalImages = [];
         let imageOrder = req.body.imageOrder;
 
         if (!imageOrder) {
             imageOrder = [];
         } else if (!Array.isArray(imageOrder)) {
-            // Handle scenario where single item string sent instead of multi-field array
             imageOrder = [imageOrder];
         }
 
         let fileIndex = 0;
         imageOrder.forEach(item => {
             if (item.startsWith('NEW_FILE_')) {
-                // If placeholder is found, pluck corresponding sequential upload out of Multer's pipeline array
                 if (req.files && req.files[fileIndex]) {
                     finalImages.push(req.files[fileIndex].filename);
                     fileIndex++;
                 }
             } else {
-                // Keep the existing validated file name string asset intact
                 finalImages.push(item);
             }
         });
 
-        // Fail-safe protection fallback in case imageOrder structure array failed communication
         if (finalImages.length === 0) {
             if (req.files && req.files.length > 0) {
                 finalImages = req.files.map(file => file.filename);
@@ -254,7 +175,6 @@ const postEditProduct = async (req, res) => {
             }
         }
 
-        // 3. Update the database record cleanly
         await Product.findByIdAndUpdate(productId, {
             title,
             category,
@@ -270,9 +190,26 @@ const postEditProduct = async (req, res) => {
 
     } catch (error) {
         console.error("Backend Edit Error:", error);
+        
+        // ====== SSR FALLBACK ======
+        // Uncomment to use standard form submission repopulation:
+        /*
+        const productId = req.params.id;
+        const categories = await Category.find({});
+        return res.status(500).render("admin/editProduct", {
+            title: "edit product",
+            cssFile: 'editProduct.css',
+            jsFile: 'editProducts.js',
+            categories,
+            product: { _id: productId, ...req.body },
+            error: "Failed to update product details."
+        });
+        */
+
         return res.status(500).json({ error: "Failed to update product details." });
     }
 };
+
 const softDeleteProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -282,13 +219,11 @@ const softDeleteProduct = async (req, res) => {
             return res.status(404).json({ error: "Product not found" });
         }
 
-        // Apply soft delete flags
         await Product.findByIdAndUpdate(productId, {
             isDeleted: true,
             deletedAt: new Date()
         });
 
-        //  Return clean JSON to the frontend fetch execution sequence
         return res.json({ 
             success: true, 
             message: "Product soft-deleted successfully.",

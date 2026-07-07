@@ -1,6 +1,6 @@
 
 <%- include('../partials/header') %>
-
+<% if (!user.googleId) { %>
 <!-- HEADER -->
 <header class="top-header">
 
@@ -426,7 +426,7 @@
 
             <!-- SEND OTP -->
             <form
-                action="/email-verification"
+                action="/send-email-otp"
                 method="POST"
             >
 
@@ -451,7 +451,7 @@
 
             <!-- VERIFY OTP -->
             <form
-                action="/email-verification?_method=PATCH"
+                action="/verify-email-otp?_method=PATCH"
                 method="POST"
             >
 
@@ -478,5 +478,225 @@
 
 </section>
 
+
+<%}else{%>
+<!-- HEADER -->
+<header class="top-header">
+
+    <div class="social-icons">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-pinterest"></i>
+        <i class="fab fa-instagram"></i>
+    </div>
+
+    <div class="header-right">
+        <a href="#">Account</a>
+
+        <i class="fa-solid fa-heart"></i>
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <div class="logo">
+        Lantern & Leaf
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="/home">Home</a></li>
+        <li><a href="#">Featured</a></li>
+        <li><a href="#">Popular</a></li>
+        <li><a href="#">Offer</a></li>
+        <li><a href="#">Articles</a></li>
+    </ul>
+
+</nav>
+
+<!-- PROFILE SECTION -->
+<section class="profile-section">
+
+    <h1 class="page-title">
+        MY PROFILE
+    </h1>
+
+    <div class="profile-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="profile-card">
+
+                <img
+                    src="<%= user.profileImage || 'https://i.pravatar.cc/150' %>"
+                    alt="profile"
+                />
+
+                <h3>
+                    <%= user.firstName %>
+                    <%= user.lastName %>
+                </h3>
+
+            </div>
+
+            <button>Profile Overview</button>
+            <button>My Orders</button> 
+            <button>Order Details</button>
+            <button>Wishlist</button>
+            <button>Wallet</button>
+            <a href="/address"><button>Address</button></a>
+            <form action="/logout" method="POST">
+            <button type="submit">Logout</button>
+            </form>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="profile-content">
+
+            <!-- STATS -->
+            <div class="stats-box">
+
+                <div class="stat">
+                    <h2>24</h2>
+                    <p>Books Ordered</p>
+                </div>
+
+                <div class="stat">
+                    <h2>08</h2>
+                    <p>Wishlist Items</p>
+                </div>
+
+                <div class="stat">
+                    <h2>04</h2>
+                    <p>Reviews Posted</p>
+                </div>
+
+            </div>
+
+            <!-- PERSONAL INFO -->
+            <form
+                action="/profile/update?_method=PUT"
+                method="POST"
+                enctype="multipart/form-data"
+                class="info-card"
+            >
+
+                <h2>
+                    Personal Information
+                </h2>
+
+                <!-- Profile Upload -->
+                <div class="profile-upload">
+
+                    <img
+                        id="previewImage"
+                        src="<%= user.profileImage || 'https://i.pravatar.cc/150' %>"
+                        alt="profile"
+                        class="profile-preview"
+                    />
+
+                    <input
+                        type="file"
+                        name="profileImage"
+                        id="profileImage"
+                        hidden
+                    />
+
+                    <button
+                        type="button"
+                        id="changePhotoBtn"
+                        class="change-photo-btn"
+                        disabled
+                    >
+                        Change Photo
+                    </button>
+
+                </div>
+
+<div class="form-grid">
+
+    <!-- First Name -->
+    <div>
+        <label for="firstName">First Name</label>
+
+        <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value="<%= user.firstName %>"
+            maxlength="30"
+            autocomplete="given-name"
+            disabled
+        />
+
+        <small id="firstNameError" class="text-danger"></small>
+    </div>
+
+    <!-- Last Name -->
+    <div>
+        <label for="lastName">Last Name</label>
+
+        <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value="<%= user.lastName %>"
+            maxlength="30"
+            autocomplete="family-name"
+            disabled
+        />
+
+        <small id="lastNameError" class="text-danger"></small>
+    </div>
+
+    <!-- Email -->
+    <div>
+        <label for="email">Email Address</label>
+
+        <input
+            type="email"
+            id="email"
+            name="email"
+            value="<%= user.email %>"
+            disabled
+        />
+
+        <small id="emailError" class="text-danger"></small>
+    </div>
+
+    <!-- Phone -->
+    <div>
+        <label for="phone">Phone Number</label>
+
+        <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value="<%= user.phone || '' %>"
+            maxlength="10"
+            autocomplete="tel"
+            disabled
+        />
+
+        <small id="phoneError" class="text-danger"></small>
+    </div>
+
+</div>
+
+                <button
+                    type="button"
+                    class="save-btn"
+                    id="editBtn"
+                >
+                    Edit
+                </button>
+
+            </form>
+</div></div></section>
+<%}%>
 <%- include('../partials/footer') %>
 
