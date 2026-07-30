@@ -1,4 +1,4 @@
-
+<head>
     <title><%= title %> | BookStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
@@ -17,65 +17,52 @@
 </head>
 <body>
 
-    <div id="header-wrap" class="sticky-top bg-white shadow-sm">
-        <div class="top-content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="social-links">
-                            <ul>
-                                <li><a href="#"><i class="icon icon-facebook"></i></a></li>
-                                <li><a href="#"><i class="icon icon-twitter"></i></a></li>
-                                <li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
-                                <li><a href="#"><i class="icon icon-behance-square"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="right-element d-flex align-items-center justify-content-end">
-                            <form action="/logout" method="POST" class="d-inline m-0 p-0 me-3">
-                                <button type="submit" class="user-login for-buy" 
-                                    style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-transform: inherit; letter-spacing: inherit; position: static;">
-                                    <i class="icon icon-login"></i><span>Logout</span>
-                                </button>
-                            </form>  
-                            <a href="/profile/user" class="user-account for-buy me-3"><i class="icon icon-user"></i><span>Account</span></a>
-                            <a href="/wishlist" class="user-account for-buy me-3"><i class="icon icon-heart-o"></i><span>Wishlist</span></a>
-                            <a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span></a>
-                        </div>
-                    </div>
+    <!-- Unified Responsive Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm py-3" id="header-wrap">
+        <div class="container-fluid">
+            
+            <!-- Logo -->
+            <a class="navbar-brand" href="/home">
+                <img src="/images/main-logo.png" alt="logo" style="max-height: 40px;">
+            </a>
+
+            <!-- Hamburger Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapsible Navbar Content -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                
+<ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+    <li class="nav-item"><a class="nav-link px-3" href="/">Home</a></li>
+    <li class="nav-item"><a class="nav-link px-3" href="/#featured-books">Featured</a></li>
+    <li class="nav-item"><a class="nav-link px-3" href="/#popular-books">Popular</a></li>
+    <li class="nav-item"><a class="nav-link px-3" href="/#special-offer">Offer</a></li>
+    <li class="nav-item"><a class="nav-link px-3" href="/#latest-blog">Articles</a></li>
+</ul>
+
+                <!-- User Actions (Right Aligned) -->
+                <div class="d-flex align-items-center gap-4 mt-3 mt-lg-0">
+                    <a href="/profile/user" class="text-decoration-none text-dark d-flex align-items-center gap-1 hover-opacity">
+                        <i class="icon icon-user"></i><span>Account</span>
+                    </a>
+                    <a href="/wishlist" class="text-decoration-none text-dark d-flex align-items-center gap-1 hover-opacity">
+                        <i class="icon icon-heart-o"></i><span>Wishlist</span>
+                    </a>
+                    <a href="/cart" class="text-decoration-none text-dark d-flex align-items-center gap-1 hover-opacity">
+                        <i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span>
+                    </a>
+                    <form action="/logout" method="POST" class="m-0 p-0">
+                        <button type="submit" class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1">
+                            <i class="icon icon-login"></i><span>Logout</span>
+                        </button>
+                    </form>  
                 </div>
+
             </div>
         </div>
-        
-        <header id="header">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-md-2">
-                        <div class="main-logo">
-                            <a href="/home"><img src="/images/main-logo.png" alt="logo"></a>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <nav id="navbar">
-                            <div class="main-menu stellarnav">
-                                <ul class="menu-list">
-                                    <li class="menu-item"><a href="/home">Home</a></li>
-                                    <li class="menu-item"><a href="/home#featured-books">Featured</a></li>
-                                    <li class="menu-item"><a href="/home#popular-books">Popular</a></li>
-                                    <li class="menu-item"><a href="/home#special-offer">Offer</a></li>
-                                    <li class="menu-item"><a href="/home#latest-blog">Articles</a></li>
-                                </ul>
-                            </div>
-                        </nav>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <a href="/wishlist" class="btn btn-outline-secondary btn-sm" style="font-weight: 600;"><i class="icon icon-heart-o me-1"></i> Wishlist</a>
-                    </div>
-                </div>
-            </div>
-        </header>
-    </div>
+    </nav>
 
     <main class="container my-5">
         <h2 class="mb-4" style="font-family: var(--heading-font);">Shopping Cart</h2>
@@ -209,35 +196,33 @@
     </main>
 
 <!-- Footer -->
-	<footer id="footer" class="bg-dark text-white py-5 mt-5">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-4">
-					<div class="footer-item">
-						<div class="main-logo mb-3">
-							<a href="/home"><img src="/images/main-logo.png" alt="logo" style="filter: brightness(0) invert(1);"></a>
-						</div>
-						<p>Explore thousands of books directly from our modern bookstore repository.</p>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="footer-item">
-						<h4>Help & Info</h4>
-						<ul class="list-unstyled">
-							<li><a href="#" class="text-white text-decoration-none">Help center</a></li>
-							<li><a href="#" class="text-white text-decoration-none">Contact us</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="footer-item">
-						<h4>Legal</h4>
-						<p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</footer>
-
-
-    
+    <footer id="footer" class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="footer-item">
+                        <div class="main-logo mb-3">
+                            <a href="/home"><img src="/images/main-logo.png" alt="logo" style="filter: brightness(0) invert(1);"></a>
+                        </div>
+                        <p>Explore thousands of books directly from our modern bookstore repository.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="footer-item">
+                        <h4>Help & Info</h4>
+                        <ul class="list-unstyled">
+                            <li><a href="#" class="text-white text-decoration-none">Help center</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">Contact us</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="footer-item">
+                        <h4>Legal</h4>
+                        <p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>

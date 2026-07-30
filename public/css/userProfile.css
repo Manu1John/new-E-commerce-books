@@ -362,3 +362,38 @@ textarea{
     border-radius:6px;
     cursor:pointer;
 }
+
+.navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap; /* Allows links to drop below on mobile */
+    }
+
+    .hamburger {
+        display: none; /* Hidden on desktop */
+        cursor: pointer;
+        font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .hamburger {
+            display: block; /* Show on mobile */
+        }
+        
+        .nav-links {
+            display: none; /* Hide links by default on mobile */
+            flex-direction: column;
+            width: 100%;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links.active {
+            display: flex; /* Toggle class for JavaScript */
+        }
+        
+        .nav-links li {
+            margin: 10px 0;
+        }
+    }

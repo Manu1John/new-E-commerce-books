@@ -233,3 +233,4 @@ document.querySelector(".info-card").addEventListener("submit", function (e) {
         e.preventDefault();
     }
 });
+
