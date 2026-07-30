@@ -11,7 +11,6 @@ body {
 }
 
 /* Top Header */
-
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -35,7 +34,7 @@ body {
 }
 
 .action-item {
-        text-decoration: none;
+    text-decoration: none;
     color: black;
     display: flex;
     align-items: center;
@@ -45,7 +44,6 @@ body {
 }
 
 /* Navbar */
-
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -73,7 +71,6 @@ body {
 }
 
 /* Hero */
-
 .hero-section {
     display: flex;
     justify-content: space-between;
@@ -127,7 +124,6 @@ body {
 }
 
 /* Bottom Icons */
-
 .bottom-icons {
     display: flex;
     justify-content: space-around;
@@ -140,93 +136,76 @@ body {
     font-size: 70px;
     color: #b7b0a8;
 }
+
 /* ==========================
    RESPONSIVE DESIGN
 ========================== */
 
 @media screen and (max-width: 992px) {
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+        padding: 50px 30px;
+    }
 
-	.hero-section {
-		flex-direction: column;
-		text-align: center;
-		padding: 50px 30px;
-	}
+    .hero-content {
+        max-width: 100%;
+    }
 
-	.hero-content {
-		max-width: 100%;
-	}
+    .hero-image img {
+        width: 300px;
+        margin-top: 30px;
+    }
 
-	.hero-image img {
-		width: 300px;
-		margin-top: 30px;
-	}
-
-	.bottom-icons {
-		flex-wrap: wrap;
-		gap: 20px;
-	}
+    .bottom-icons {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
 }
 
 @media screen and (max-width: 768px) {
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0;
+        gap: 15px;
+    }
 
-	.top-header,
-	.navbar {
-		flex-direction: column;
-		align-items: center;
-		padding: 15px;
-		gap: 15px;
-	}
+    .hero-content h1 {
+        font-size: 45px;
+    }
 
-	.nav-links {
-		flex-wrap: wrap;
-		justify-content: center;
-		padding: 0;
-		gap: 15px;
-	}
+    .hero-content p {
+        font-size: 14px;
+    }
 
-	.header-actions {
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 15px;
-	}
+    .hero-image img {
+        width: 250px;
+    }
 
-	.hero-content h1 {
-		font-size: 45px;
-	}
-
-	.hero-content p {
-		font-size: 14px;
-	}
-
-	.hero-image img {
-		width: 250px;
-	}
-
-	.icon-box {
-		font-size: 30px;
-	}
+    .icon-box {
+        font-size: 30px;
+    }
 }
 
 @media screen and (max-width: 480px) {
+    .hero-content h1 {
+        font-size: 34px;
+        line-height: 45px;
+    }
 
-	.hero-content h1 {
-		font-size: 34px;
-		line-height: 45px;
-	}
+    .hero-image img {
+        width: 220px;
+    }
 
-	.hero-image img {
-		width: 220px;
-	}
+    .read-more-btn,
+    .logout-btn {
+        padding: 10px 20px;
+        font-size: 12px;
+    }
 
-	.read-more-btn,
-	.logout-btn {
-		padding: 10px 20px;
-		font-size: 12px;
-	}
-
-	.logo h1 {
-		font-size: 24px;
-		text-align: center;
-	}
+    .logo h1 {
+        font-size: 24px;
+        text-align: center;
+    }
 }
-

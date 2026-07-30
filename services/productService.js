@@ -2,7 +2,11 @@
 import Product from '../models/products.js';
 import fs from 'fs'
 const createProduct = async (productData, files) => {
-    const { title, category, author, description, price, quantity, status } = productData;
+    const { title, category, author, description, price, quantity, status,            publisher,
+            language,
+            isbn,
+            publicationDate,
+            pages } = productData;
 
     // Check if product exists
     const existProduct = await Product.findOne({title:title.toLowerCase().trim() });
@@ -27,6 +31,11 @@ const createProduct = async (productData, files) => {
         title: title.trim(),
         category,
         author,
+        publisher,
+        language,
+        isbn,
+        publicationDate,
+        pages,
         description,
         price,
         quantity,

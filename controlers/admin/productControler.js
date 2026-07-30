@@ -76,39 +76,32 @@ const getaddProductPage = async (req,res)=>{
 
 const postAddProductPage = async (req, res) => {
     try {
-        await productService.createProduct(req.body, req.files);
-        console.log("Product Saved Successfully!");
+        // 1. CHECK WHAT THE FRONTEND SENT
+        console.log("==== INCOMING REQUEST TO ADD PRODUCT ====");
+        console.log("Data from form (req.body):", req.body);
+        console.log("Files from form (req.files):", req.files ? req.files.length : 0);
 
-        // Assuming frontend fetch is used:
+        // 2. ATTEMPT TO SAVE
+        await productService.createProduct(req.body, req.files);
+        
+        console.log("==== SUCCESS: PRODUCT SAVED! ====");
         return res.status(200).json({ success: true, redirectUrl: "/admin/products" });
 
     } catch (error) {
-        console.error("Backend Error caught in controller:", error.message);
+        // 3. IF IT FAILS, PRINT THE EXACT REASON
+        console.log("==== ERROR: FAILED TO SAVE PRODUCT ====");
+        console.error("The exact error is:", error);
         
         if (req.files && req.files.length > 0) {
             req.files.forEach(file => {
-                fs.unlink(file.path, (err) => {
-                    if (err) console.error("Error clearing orphan file during crash:", err);
+                import('fs').then(fs => {
+                    fs.unlink(file.path, (err) => {
+                        if (err) console.error("Error clearing orphan file:", err);
+                    });
                 });
             });
         }
 
-        // ====== SSR FALLBACK ======
-        // If you stop using fetch() and switch to standard form action submissions, 
-        // uncomment the code below to repopulate the form:
-        /*
-        const categories = await Category.find({ isDeleted: false });
-        return res.render("admin/addProduct", {
-            title: "add products",
-            cssFile: "addProducts.css",
-            jsFile: "addProdcuts.js",
-            categories,
-            product: req.body,
-            error: error.message
-        });
-        */
-
-        // Current JSON return for fetch:
         return res.status(400).json({ error: error.message });
     }
 };
@@ -139,7 +132,12 @@ const getEditProduct = async (req, res) => {
 const postEditProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const { title, category, author, description, price, quantity, status } = req.body;
+        
+        // 🚨 FIX: Extract the newly added fields from req.body
+        const { 
+            title, category, author, description, price, quantity, status,
+            publisher, language, isbn, publicationDate, pages 
+        } = req.body;
 
         const currentProduct = await Product.findById(productId);
         if (!currentProduct) {
@@ -175,10 +173,16 @@ const postEditProduct = async (req, res) => {
             }
         }
 
+        // Now these variables actually contain the data from the form
         await Product.findByIdAndUpdate(productId, {
             title,
             category,
             author,
+            publisher,
+            language,
+            isbn,
+            publicationDate,
+            pages,
             description,
             price,
             quantity,
@@ -208,7 +212,7 @@ const postEditProduct = async (req, res) => {
 
         return res.status(500).json({ error: "Failed to update product details." });
     }
-};
+};        
 
 const softDeleteProduct = async (req, res) => {
     try {

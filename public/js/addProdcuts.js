@@ -134,9 +134,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantity = document.getElementById('quantity');
         const description = document.getElementById('description');
 
+        // NEW FIELDS
+        const publisher = document.getElementById('publisher');
+        const language = document.getElementById('language');
+        const isbn = document.getElementById('isbn');
+        const publicationDate = document.getElementById('publicationDate');
+        const pages = document.getElementById('pages');
+
         if (!title || !title.value.trim()) { showError('titleError', 'Title is required'); isValid = false; }
         if (!category || !category.value.trim()) { showError('categoryError', 'Please select a valid category'); isValid = false; }
         if (!author || !author.value.trim()) { showError('authorError', 'Author name is required'); isValid = false; }
+        
+        // NEW FIELD VALIDATION
+        if (!publisher || !publisher.value.trim()) { showError('publisherError', 'Publisher is required'); isValid = false; }
+        if (!language || !language.value.trim()) { showError('languageError', 'Language is required'); isValid = false; }
+        if (!isbn || !isbn.value.trim()) { showError('isbnError', 'ISBN is required'); isValid = false; }
+        if (!publicationDate || !publicationDate.value.trim()) { showError('publicationDateError', 'Publication date is required'); isValid = false; }
+        if (!pages || !pages.value.trim() || parseInt(pages.value) <= 0) { showError('pagesError', 'Valid number of pages is required'); isValid = false; }
+
         if (!description || !description.value.trim()) { showError('descriptionError', 'Description is required'); isValid = false; }
         
         if (!price || !price.value.trim() || parseFloat(price.value) <= 0) { 

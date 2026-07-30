@@ -1,17 +1,28 @@
 
-		.zoom-container {
-			overflow: hidden;
-			position: relative;
-			cursor: zoom-in;
-			border: 1px solid #eee;
-			background: #fcfcfc;
-			border-radius: 8px;
-		}
-		.zoom-image {
-			width: 100%;
-			height: auto;
-			transition: transform 0.1s ease-out;
-		}
+.zoom-container {
+    overflow: hidden;
+    position: relative;
+    cursor: zoom-in;
+    border: 1px solid #eee;
+    background: #fcfcfc;
+    border-radius: 8px;
+    /* Added flex properties to perfectly center the smaller image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Adds breathing room around the book */
+}
+
+.zoom-image {
+    width: 100%;
+    /* Added constraints to reduce the book size */
+    max-width: 300px; /* Adjust this value to make it wider or narrower */
+    max-height: 400px; /* Adjust this value to make it taller or shorter */
+    object-fit: contain; /* Ensures the book cover doesn't stretch */
+    
+    height: auto;
+    transition: transform 0.1s ease-out;
+}
 		.thumbnail-btn {
 			width: 60px;
 			height: 80px;

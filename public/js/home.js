@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (popularBooksSection) {
             setTimeout(() => {
                 popularBooksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
+            }, 700);
         }
     }
 });

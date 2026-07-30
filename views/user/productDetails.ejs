@@ -1,5 +1,4 @@
-
-	<title><%= product.title %> | BookStore</title>
+<title><%= product.title %> | BookStore</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -19,78 +18,61 @@
 </head>
 <body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
 
-	<div id="header-wrap" class="sticky-top bg-white shadow-sm">
-		<div class="top-content">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-md-6">
-						<div class="social-links">
-							<ul>
-								<li><a href="#"><i class="icon icon-facebook"></i></a></li>
-								<li><a href="#"><i class="icon icon-twitter"></i></a></li>
-								<li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
-								<li><a href="#"><i class="icon icon-behance-square"></i></a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="right-element d-flex align-items-center justify-content-end">
-							<% if (user) { %>
-								<form action="/logout" method="POST" class="d-inline m-0 p-0 me-3">
-									<button type="submit" class="user-login for-buy" style="background: transparent; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; text-transform: inherit; letter-spacing: inherit; position: static;">
-										<i class="icon icon-login"></i><span>Logout</span>
-									</button>
-								</form>  
-								<a href="/profile/user" class="user-account for-buy me-3"><i class="icon icon-user"></i><span>Account</span></a>
-								<a href="/wishlist" class="user-account for-buy me-3"><i class="icon icon-heart-o"></i><span>Wishlist</span></a>
-								<a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span></a>
-							<% } else { %>
-								<a href="/login" class="user-login for-buy me-3"><i class="icon icon-login"></i><span>Login</span></a>
-								<a href="/cart" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(0)</span></a>
-							<% } %>
-						</div>
-					</div>
+	<nav id="header-wrap" class="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-3">
+		<div class="container-fluid align-items-center">
+			
+			<!-- Brand Logo -->
+			<a class="navbar-brand m-0 p-0" href="<%= user ? '/home' : '/' %>">
+				<img src="/images/main-logo.png" alt="logo" style="max-height: 40px;">
+			</a>
+	
+			<!-- Mobile Hamburger Toggle -->
+			<button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+	
+			<!-- Collapsible Single-Line Content -->
+			<div class="collapse navbar-collapse" id="mainNavbar">
+				
+				<!-- Center Navigation Links -->
+				<ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 fw-medium">
+					<li class="nav-item"><a class="nav-link text-dark" href="<%= user ? '/home' : '/' %>">Home</a></li>
+					<li class="nav-item"><a class="nav-link text-dark" href="<%= user ? '/home#featured-books' : '/#featured-books' %>">Featured</a></li>
+					<li class="nav-item"><a class="nav-link text-dark" href="<%= user ? '/home#popular-books' : '/#popular-books' %>">Popular</a></li>
+					<li class="nav-item"><a class="nav-link text-dark" href="<%= user ? '/home#special-offer' : '/#special-offer' %>">Offer</a></li>
+					<li class="nav-item"><a class="nav-link text-dark" href="<%= user ? '/home#latest-blog' : '/#latest-blog' %>">Articles</a></li>
+				</ul>
+	
+				<!-- Right-Side User Actions -->
+				<div class="d-flex align-items-center gap-4 right-element">
+					<% if (user) { %>
+						<a href="/profile/user" class="text-decoration-none text-dark d-flex align-items-center gap-1">
+							<i class="icon icon-user"></i><span>Account</span>
+						</a>
+						<a href="/wishlist" class="text-decoration-none text-dark d-flex align-items-center gap-1">
+							<i class="icon icon-heart-o"></i><span>Wishlist</span>
+						</a>
+						<a href="/cart" class="text-decoration-none text-dark d-flex align-items-center gap-1 fw-bold">
+							<i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span>
+						</a>
+						<form action="/logout" method="POST" class="m-0 p-0">
+							<button type="submit" class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1">
+								<i class="icon icon-login"></i><span>Logout</span>
+							</button>
+						</form>  
+					<% } else { %>
+						<a href="/login" class="text-decoration-none text-dark d-flex align-items-center gap-1">
+							<i class="icon icon-login"></i><span>Login</span>
+						</a>
+						<a href="/cart" class="text-decoration-none text-dark d-flex align-items-center gap-1 fw-bold">
+							<i class="icon icon-clipboard"></i><span>Cart:(0)</span>
+						</a>
+					<% } %>
 				</div>
+				
 			</div>
 		</div>
-		
-		<header id="header">
-			<div class="container-fluid">
-				<div class="row align-items-center">
-					<div class="col-md-2">
-						<div class="main-logo">
-							<a href="<%= user ? '/home' : '/' %>"><img src="/images/main-logo.png" alt="logo"></a>
-						</div>
-					</div>
-
-					<div class="col-md-6">
-						<nav id="navbar">
-							<div class="main-menu stellarnav">
-								<ul class="menu-list">
-									<li class="menu-item"><a href="<%= user ? '/home' : '/' %>">Home</a></li>
-									<li class="menu-item"><a href="<%= user ? '/home#featured-books' : '/#featured-books' %>">Featured</a></li>
-									<li class="menu-item"><a href="<%= user ? '/home#popular-books' : '/#popular-books' %>">Popular</a></li>
-									<li class="menu-item"><a href="<%= user ? '/home#special-offer' : '/#special-offer' %>">Offer</a></li>
-									<li class="menu-item"><a href="<%= user ? '/home#latest-blog' : '/#latest-blog' %>">Articles</a></li>
-								</ul>
-								<div class="hamburger">
-									<span class="bar"></span>
-									<span class="bar"></span>
-									<span class="bar"></span>
-								</div>
-							</div>
-						</nav>
-					</div>
-
-					<div class="col-md-4 text-end">
-						<% if (user) { %>
-							<a href="/wishlist" class="btn btn-outline-secondary btn-sm" style="font-weight: 600;"><i class="icon icon-heart-o me-1"></i> Wishlist</a>
-						<% } %>
-					</div>
-				</div>
-			</div>
-		</header>
-	</div>
+	</nav>
 
 	<main class="container my-5">
 		<!-- Alert Messages -->
@@ -164,7 +146,7 @@
 					<span class="discount-badge">10% OFF with code BOOK10</span>
 				</div>
 
-				<p class="mb-4 text-secondary" style="line-height: 1.8;"><%= product.description %></p>
+				<p class="mb-4 text-secondary" style="line-height: 0.1;"><%= product.description %></p>
 
 				<!-- Details Table -->
 				<div class="bg-light p-3 rounded mb-4">
@@ -173,10 +155,18 @@
 						<div class="col-8"><strong><%= product.category.name %></strong></div>
 						<div class="col-4 text-muted">Author:</div>
 						<div class="col-8"><strong><%= product.author %></strong></div>
+						<div class="col-4 text-muted">Publisher:</div>
+						<div class="col-8"><strong><%= product.publisher %></strong></div>
+						<div class="col-4 text-muted">Published Date:</div>
+						<div class="col-8"><strong><%= product.publicationDate %></strong></div>
+						<div class="col-4 text-muted">ISBN:</div>
+						<div class="col-8"><strong><%= product.isbn %></strong></div>
 						<div class="col-4 text-muted">Language:</div>
-						<div class="col-8">English</div>
-						<div class="col-4 text-muted">Format:</div>
-						<div class="col-8">Hardcover</div>
+						<div class="col-8"><strong><%= product.language %></strong></div>
+						<div class="col-4 text-muted">Number of Pages:</div>
+						<div class="col-8"><strong><%= product.pages %></strong></div>
+						<div class="col-4 text-muted">Description:</div>
+						<div class="col-8"><strong><%= product.description %></strong></div>
 					</div> 
 				</div>
 
@@ -229,6 +219,7 @@
 			</section>
 		<% } %>
 
+		
 		<!-- Mock Reviews Section -->
 		<section class="mt-5 pt-5 border-top">
 			<h3 class="mb-4" style="font-family: var(--heading-font);">Customer Reviews</h3>
