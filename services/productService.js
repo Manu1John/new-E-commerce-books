@@ -1,7 +1,42 @@
 
 import Product from '../models/products.js';
+import Category from "../models/category.js"
 import fs from 'fs'
-const createProduct = async (productData, files) => {
+
+export async function getproductDashboardService(page,limit,search){
+        const skip = (page-1)*limit
+         // BASE QUERY
+        const query = { isDeleted: false };
+        // SEARCH
+        if (search) {
+                const matchedCategories = await Category.find({
+                name: { $regex: search, $options: "i" }
+            }).select("_id");
+            const categoryIds = matchedCategories.map(cat => cat._id);
+            query.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { author: { $regex: search, $options: "i" } },
+                { category: { $in: categoryIds } }
+            ];
+        }
+        const productData = await Product.find(query)
+            .populate("category")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+        // COUNT PRODUCTS
+         const categories = await Category.find();
+        const totalProducts = await Product.countDocuments(query);
+           // TOTAL PAGES
+        const totalPages = Math.ceil(totalProducts / limit);
+        return{
+            productData,
+            categories,
+            totalPages
+        }  
+}
+
+export async function  createProductService  (productData, files) {
     const { title, category, author, description, price, quantity, status,            publisher,
             language,
             isbn,
@@ -46,6 +81,66 @@ const createProduct = async (productData, files) => {
     return await newProduct.save();
 };
 
-export default {
-    createProduct
-};
+export async function getaddProductPageService(){
+
+    const categories = await Category.find({ isDeleted:false });
+    return categories
+}
+export async function getEditProductService(productId){
+    const product = await Product.findById(productId).populate("category")
+    const categories = await Category.find({});
+    return{
+        product,
+        categories
+    }
+}
+
+export async function postEditProductService(productId,productData){
+      const { 
+     title,
+            category,
+            author,
+            publisher,
+            language,
+            isbn,
+            publicationDate,
+            pages,
+            description,
+            price,
+            quantity,
+            status,
+            images: finalImages 
+        } = productData 
+    const currentProduct = await Product.findById(productId);
+    const updateProducts = await Product.findByIdAndUpdate(productId, {
+            title,
+            category,
+            author,
+            publisher,
+            language,
+            isbn,
+            publicationDate,
+            pages,
+            description,
+            price,
+            quantity,
+            status,
+            images: finalImages
+        });
+    return{
+        currentProduct,
+        updateProducts
+    }
+}
+export async function softDeleteProductService(productId,pro){
+    const product = Product.findById(productId)
+    const deleteProduct =       await Product.findByIdAndUpdate(productId, {
+            isDeleted: true,
+            deletedAt: new Date()
+        });
+        return{
+            product,
+            deleteProduct
+        }
+}
+
