@@ -1,20 +1,22 @@
 
 import express from 'express'
 import User from "../../models/User.js";
-
+import {getUserProfileService,
+    updateUserProfileService
+} from "../../services/user/profileService.js"
 const getUserProfile = async (req, res) => {
-
     try {
-
         if (!req.session.user) {
             return res.redirect("/");
         }
-
-        // get full user data from database
-        const user = await User.findById(
-            req.session.user.id
-        );
-
+        // Safely extract the ID depending on how you structured your session data
+        const userId = req.session.user._id || req.session.user.id || req.session.user;
+        const user = await getUserProfileService(userId);
+        // If the session exists but the user was deleted from the database
+        if (!user) {
+            req.session.destroy(); // Clear the invalid session
+            return res.redirect("/");
+        }
         return res.render(
             "user/userProfile",
             {
@@ -26,63 +28,38 @@ const getUserProfile = async (req, res) => {
         );
 
     } catch (error) {
-
-        console.log(error);
-
+        console.log("GET USER PROFILE ERROR:", error);
         return res.redirect("/");
     }
 };
 
-
-
 const updateUserProfile =
 async (req, res) => {
-
     try {
-
         const userId =
         req.session.user.id;
-
         const {
             firstName,
             lastName,
             phone
         } = req.body;
-
-        const updateData = {
-
-            firstName,
-            lastName,
-            phone
-        };
-
+        await updateUserProfileService(req.body,userId)
         // image upload
         if (req.file) {
-
             updateData.profileImage =
                 "/uploads/" +
                 req.file.filename;
         }
-
-        await User.findByIdAndUpdate(
-            userId,
-            updateData
-        );
-
         return res.redirect(
             "/profile/user"
         );
-
     } catch (error) {
-
         console.log(error);
-
         return res.redirect(
             "/profile/user"
         );
     }
 };
-
 export default {
     getUserProfile,
     updateUserProfile

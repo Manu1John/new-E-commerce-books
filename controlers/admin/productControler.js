@@ -5,7 +5,7 @@ import {createProductService,
     getEditProductService,
     postEditProductService,
     softDeleteProductService
-} from '../../services/productService.js';
+} from '../../services/admin/productService.js';
 import fs from 'fs'
 const getProductDashboard = async (req, res) => {
     try {

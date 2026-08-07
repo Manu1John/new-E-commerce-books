@@ -1,8 +1,8 @@
 import crypto from "crypto";
-import User from "../models/User.js";
+import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 // Notice the name change here! It is now sendEmail instead of sendOtpEmail
-import sendEmail from "../config/brevo.js"; 
+import sendEmail from "../../config/brevo.js"; 
 
 class AuthService {
     // Check if the email is already in use

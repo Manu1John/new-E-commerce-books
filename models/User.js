@@ -58,5 +58,10 @@ resetPasswordExpires: {
     timestamps: true
 });
 
-const User = mongoose.model("UserAuthentication", userSchema);
-export default User;
+
+
+// This checks if the model already exists in memory before compiling it again
+const UserAuthentication = mongoose.models
+.UserAuthentication || mongoose.model("UserAuthentication", userSchema);
+
+export default UserAuthentication;

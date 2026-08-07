@@ -1,66 +1,15 @@
-import User from "../../models/User.js";
 
-
-
+import {getUserDashboardService,blockUserService,
+    unblockUserService} from '../../services/admin/userService.js'
 /* ---------------- DASHBOARD ---------------- */
 export const getUserDashboard =
 async (req, res) => {
     try {
-
-        const page =
-            parseInt(
-                req.query.page
-            ) || 1;
-
-        const search =
-            req.query.search || "";
-
+        const page =parseInt(req.query.page) || 1;
+        const search =(req.query.search) || "";
         const limit = Number(req.query.limit)||5;
-
-        const skip =
-            (page - 1) * limit;
-
-        const filter = {
-            $or: [
-                {
-                    firstName: {
-                        $regex: search,
-                        $options: "i"
-                    }
-                },
-                {
-                    lastName: {
-                        $regex: search,
-                        $options: "i"
-                    }
-                },
-                {
-                    email: {
-                        $regex: search,
-                        $options: "i"
-                    }
-                }
-            ]
-        };
-
-        const totalUsers =
-            await User.countDocuments(
-                filter
-            );
-
-        const users =
-            await User.find(filter)
-                .sort({
-                    updatedAt: -1
-                })
-                .skip(skip)
-                .limit(limit);
-
-        const totalPages =
-            Math.ceil(
-                totalUsers / limit
-            );
-
+        const {users,totalPages,totalUsers} 
+        = await getUserDashboardService(page,limit,search) 
         return res.render(
             "admin/users",
             {
@@ -76,7 +25,7 @@ async (req, res) => {
                 totalPages,
                 totalUsers,
                 search,
-                limit:limit
+                limit,
             }
         );
 
@@ -99,28 +48,16 @@ async (req, res) => {
 export const blockUser =
 async (req, res) => {
     try {
-
-        const userId =
-            req.params.id;
-
-        await User.findByIdAndUpdate(
-            userId,
-            {
-                isBlocked: true
-            }
-        );
-
+        const userId =req.params.id;
+        await blockUserService(userId)
         return res.redirect(
             "/admin/users"
         );
-
     } catch (error) {
-
         console.log(
             "BLOCK USER ERROR:",
             error
         );
-
         return res.redirect(
             "/admin/dashboard"
         );
@@ -132,10 +69,8 @@ async (req, res) => {
 export const unblockUser =
 async (req, res) => {
     try {
-
-        const userId =
-            req.params.id;
-
+        const userId =req.params.id;
+        await unblockUserService(userId)
         await User.findByIdAndUpdate(
             userId,
             {

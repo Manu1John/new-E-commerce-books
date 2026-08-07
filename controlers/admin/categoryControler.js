@@ -2,7 +2,7 @@
 import { softDeleteCategoryService,getCategoryDashboardService,
     addCategoryService,getEditCategoryService,
     postEditCategoryService
- } from '../../services/categoryService.js'
+ } from '../../services/admin/categoryService.js'
 
 
 const getCategoryDashboard = async (req, res) => {

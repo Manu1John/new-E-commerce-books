@@ -1,5 +1,5 @@
 // services/categoryService.js
-import  Category from '../models/category.js'
+import  Category from '../../models/category.js'
 
 
 export const getCategoryDashboardService = async(page,limit,search)=>{

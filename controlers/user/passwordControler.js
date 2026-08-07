@@ -1,5 +1,5 @@
 import express from 'express'
-import AuthService from "../../services/authService.js";
+import AuthService from "../../services/user/authService.js";
 import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 import {

@@ -1,6 +1,6 @@
 
-import Product from '../models/products.js';
-import Category from "../models/category.js"
+import Product from '../../models/products.js';
+import Category from "../../models/category.js"
 import fs from 'fs'
 
 export async function getproductDashboardService(page,limit,search){

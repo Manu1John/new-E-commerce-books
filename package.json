@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-"start": "nodemon app.js",
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -29,6 +29,7 @@
     "passport-google-oauth20": "^2.0.0",
     "session": "^0.1.0",
     "sib-api-v3-sdk": "^8.5.0",
+    "start": "^5.1.0",
     "sweetalert2": "^11.26.25"
   },
   "devDependencies": {
