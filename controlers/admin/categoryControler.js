@@ -1,36 +1,18 @@
-import Category from "../../models/category.js"
-import { softDelete } from '../../services/categoryService.js'
+
+import { softDeleteCategoryService,getCategoryDashboardService,
+    addCategoryService,getEditCategoryService,
+    postEditCategoryService
+ } from '../../services/categoryService.js'
+
 
 const getCategoryDashboard = async (req, res) => {
     try {
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit)||5;
-        const skip = (page - 1) * limit;
         const search = req.query.search?.trim() || "";
-
-        // Base query
-        const query = {
-            isDeleted: false
-        };
-
-        // Add search only if user typed
-        const filter = {
-            name: {
-                $regex: search,
-                $options: "i"
-            },
-            isDeleted: false
-        }
-
-        const categoryData = await Category.find(filter)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const totalCategories = await Category.countDocuments(filter);
-        const totalPages = Math.ceil(totalCategories / limit);
-
-        return res.render("admin/category", {
+        const {categoryData,totalCategories,totalPages} =
+         await getCategoryDashboardService(page,limit,search)
+         res.render("admin/category", {
             title: "category management",
             cssFile: "category.css",
             jsFile: "category.js",
@@ -38,7 +20,8 @@ const getCategoryDashboard = async (req, res) => {
             currentPage: page,
             totalPages,
             totalCategories,
-            search
+            search,
+            limit
         });
 
     } catch (error) {
@@ -62,8 +45,8 @@ const getAddCategory = async(req,res)=>{
 const addCategory = async (req, res) => {
     try {
         const { name, description, status } = req.body;
-
-        // Validate category name
+        
+        // BEST PRACTICE: Validate inputs BEFORE hitting the database
         if (!name || !name.trim()) {
             return res.render("admin/addCategory", {
                 title: "Category Management",
@@ -75,20 +58,9 @@ const addCategory = async (req, res) => {
                 status            
             });
         }
-
-        // Remove extra spaces
-        const categoryName = name.trim().replace(/\s+/g, " ");
-
-        // Escape regex special characters
-        const escapedName = categoryName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-        // Case-insensitive duplicate check
-        const existingCategory = await Category.findOne({
-            name: {
-                $regex: new RegExp(`^${escapedName}$`, "i")
-            }
-        });
-
+        // Now that we know we have a name, call the service
+        const { newCategory, existingCategory } = await addCategoryService(req.body);
+        // This will now correctly trigger if a duplicate is found
         if (existingCategory) {
             return res.render("admin/addCategory", {
                 title: "Category Management",
@@ -101,15 +73,7 @@ const addCategory = async (req, res) => {
             });
         }
 
-        // Save new category
-        const newCategory = new Category({
-            name: categoryName,
-            description: description?.trim(),
-            status
-        });
-
-        await newCategory.save();
-
+        // Successfully created
         return res.redirect("/admin/category");
 
     } catch (error) {
@@ -131,9 +95,8 @@ const addCategory = async (req, res) => {
 
 const getEditCategory = async (req, res) => {
     try {
-        const { id } = req.params;
-        const category = await Category.findById(id);
-
+        const categoryId = req.params.id;
+        const category = await getEditCategoryService(categoryId)
         if (!category) {
             return res.status(404).send("Category not found");
         }
@@ -153,15 +116,11 @@ const getEditCategory = async (req, res) => {
 
 const postEditCategory = async (req, res) => {
     try {
-        const { id } = req.params;
+        const categoryId  = req.params.id;
         const { name, description, status } = req.body;
-
+        const {existingCategory,updateCategory} = 
+        await postEditCategoryService(categoryId,req.body)
         // Check duplicate category name
-        const existingCategory = await Category.findOne({
-            name: name.trim(),
-            _id: { $ne: id }
-        });
-
         if (existingCategory) {
             return res.render("admin/editCategory", {
                 title: "Edit Category",
@@ -169,22 +128,14 @@ const postEditCategory = async (req, res) => {
                 jsFile: "editCategory.js",
                 error: "Category already exists",
                 category: {
-                    _id: id,
+                    _id:categoryId,
                     name,
                     description,
                     status
                 }
             });
         }
-
-        await Category.findByIdAndUpdate(id, {
-            name: name.trim(),
-            description,
-            status
-        });
-
         return res.redirect("/admin/category");
-
     } catch (error) {
         console.log("POST EDIT CATEGORY ERROR:", error);
         return res.status(500).send("Internal server error");
@@ -193,10 +144,10 @@ const postEditCategory = async (req, res) => {
 
 const softDeleteCategory = async (req, res) => {
     try {
-        const { id } = req.params;
-        const category = await softDelete(id);
+        const categoryId= req.params.id;
+        const deleteCategory = await softDeleteCategoryService(categoryId);
 
-        if (!category) {
+        if (!deleteCategory) {
             return res.status(404).json({
                 success: false,
                 message: "Category not found"
