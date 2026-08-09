@@ -3,41 +3,73 @@ import Cart from "../../models/Cart.js";
 import Product from "../../models/products.js";
 import Category from "../../models/category.js";
 
-export async function getWishlistService({userId}){
-    let wishlist = await Wishlist.findOne({ user: userId }).populate({
-      path: "products",
-      populate: { path: "category" }     
-    });
-    if (!wishlist) {
+export async function getWishlistService({ userId }) {
+  let wishlist = await Wishlist.findOne({ user: userId }).populate({
+    path: "products",
+    populate: { path: "category" }
+  });
+  
+  if (!wishlist) {
     wishlist = new Wishlist({ user: userId, products: [] });
     await wishlist.save();
-    }
-    // Active Category check
-    const activeCategories = await Category.find({ isDeleted: false, status: "active" }).select("_id");
-    const activeCategoryIds = activeCategories.map((c) => c._id.toString());
-     // Filter out inactive/deleted products or products from inactive/deleted categories
-    const products = wishlist.products.filter((product) => {
-      return (
-        product &&
-        !product.isDeleted &&
-        product.status === "active" &&
-        product.category &&
-        !product.category.isDeleted &&
-        product.category.status === "active" &&
-        activeCategoryIds.includes(product.category._id.toString())
-      );
-    });
-    // Check cart count
-    let cartCount = 0;
-    const cart = await Cart.findOne({ user: userId });
-    if (cart) {
-      cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-    }
-    return {
-        products,
-        cartCount
-    }
+  }
+  
+  // Active Category check
+  const activeCategories = await Category.find({ isDeleted: false, status: "active" }).select("_id");
+  const activeCategoryIds = activeCategories.map((c) => c._id.toString());
+  
+  // Filter out inactive/deleted products or products from inactive/deleted categories
+  const products = wishlist.products.filter((product) => {
+    return (
+      product &&
+      !product.isDeleted &&
+      product.status === "active" &&
+      product.category &&
+      !product.category.isDeleted &&
+      product.category.status === "active" &&
+      activeCategoryIds.includes(product.category._id.toString())
+    );
+  });
+
+  // Calculate wishlist count (length of the filtered active products array)
+  const wishlistCount = products.length;
+
+  // Check cart count
+  let cartCount = 0;
+  const cart = await Cart.findOne({ user: userId });
+  if (cart) {
+    cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+  }
+  
+  return {
+    products,
+    cartCount,
+    wishlistCount // Return the new count
+  };
 }
+
+// Controller
+const getWishlist = async (req, res, next) => {
+  try {
+    const userId = req.session?.user?._id || req.session?.user?.id;
+    
+    // Destructure wishlistCount from the service response
+    const { products, cartCount, wishlistCount } = await getWishlistService({ userId });
+
+    return res.render("user/wishlist", {
+      title: "My Wishlist",
+      products,
+      cartCount,
+      wishlistCount, // Pass the count to your EJS template
+      user: req.session.user,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+  } catch (error) {
+    console.error("GET WISHLIST ERROR:", error);
+    next(error);
+  }
+};
 export async function addToWishlistService(productId, { userId }) {
   // 1. Fetch the product and populate its category
   const product = await Product.findById(productId).populate("category");

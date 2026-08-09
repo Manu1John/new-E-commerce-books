@@ -1,7 +1,8 @@
 import { 
   getIndexAndHomeProductsService, 
   getCartCountService, 
-  getProductDetailsService 
+  getProductDetailsService,
+  getWishlistCountService
 } from "../../services/user/homeService.js"; // Adjust the path as needed
 
 // URL parameters helper for pagination and tabs
@@ -54,7 +55,10 @@ const getHome = async (req, res, next) => {
     const data = await getIndexAndHomeProductsService(req.query);
     
     const userId = req.session?.user?._id || req.session?.user?.id;
+    
+    // Fetch both cart and wishlist counts
     const cartCount = await getCartCountService(userId);
+    const wishlistCount = await getWishlistCountService(userId);
 
     return res.render("user/home", {
       user: req.session.user,
@@ -71,6 +75,8 @@ const getHome = async (req, res, next) => {
       offerTotalPages: data.offerTotalPages,
       query: req.query,
       cartCount,
+      wishlistCount, // Passing wishlistCount to the view
+      
       activeTabId: req.query.activeTab || "all",
       getPageUrl: (paramName, paramValue, hash = "", activeTab = "") => 
         buildPageUrl(req.query, paramName, paramValue, hash, activeTab)
@@ -94,7 +100,10 @@ const getProductDetails = async (req, res, next) => {
     }
 
     const userId = req.session?.user?._id || req.session?.user?.id;
+    
+    // Fetch both cart and wishlist counts
     const cartCount = await getCartCountService(userId);
+    const wishlistCount = await getWishlistCountService(userId);
 
     return res.render("user/productDetails", {
       title: serviceResult.product.title,
@@ -102,6 +111,7 @@ const getProductDetails = async (req, res, next) => {
       relatedProducts: serviceResult.relatedProducts,
       user: req.session?.user,
       cartCount,
+      wishlistCount, // Passing wishlistCount to the view
       success: req.flash("success"),
       error: req.flash("error")
     });

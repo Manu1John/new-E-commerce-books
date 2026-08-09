@@ -8,12 +8,13 @@ import mongoose from "mongoose";
 const getWishlist = async (req, res, next) => {
   try {
     const userId = req.session?.user?._id || req.session?.user?.id;
-    const {products,cartCount } = await getWishlistService({userId})
+    const {products,cartCount,wishlistCount } = await getWishlistService({userId})
    
     return res.render("user/wishlist", {
       title: "My Wishlist",
       products,
       cartCount,
+      wishlistCount,
       user: req.session.user,
       success: req.flash("success"),
       error: req.flash("error")

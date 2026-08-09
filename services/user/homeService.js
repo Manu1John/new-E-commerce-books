@@ -1,6 +1,7 @@
 import Products from "../../models/products.js";
 import Category from "../../models/category.js";
 import Cart from "../../models/Cart.js";
+import Wishlist from "../../models/Wishlist.js";
 import mongoose from "mongoose";
 
 // Helper to build search, filter, and sort queries
@@ -169,6 +170,18 @@ export const getCartCountService = async (userId) => {
     cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
   }
   return cartCount;
+  
+};
+
+// Add this new function below getCartCountService
+export const getWishlistCountService = async (userId) => {
+  if (!userId) return 0;
+  let wishlistCount = 0;
+  const wishlist = await Wishlist.findOne({ user: userId });
+  if (wishlist && wishlist.products) {
+    wishlistCount = wishlist.products.length;
+  }
+  return wishlistCount;
 };
 
 export const getProductDetailsService = async (productId) => {
