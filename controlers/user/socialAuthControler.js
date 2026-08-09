@@ -67,4 +67,4 @@ const facebookAuthCallback = async (req, res) => {
 export default {
     googleAuthCallback,
     facebookAuthCallback
-}
+} 
