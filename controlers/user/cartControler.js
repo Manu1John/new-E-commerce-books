@@ -154,7 +154,15 @@ export const getCheckout = async (req, res, next) => {
 export const placeOrder = async (req, res) => {
   try {
     const userId = getUserId(req);
-    const { addressId } = req.body;
+    const { addressId } = req.body; // Matches the body sent from frontend
+
+    // SAFETY CHECK: Prevent literal EJS strings or empty IDs from crashing Mongoose
+    if (!addressId || addressId.includes('<%=')) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Invalid or missing delivery address." 
+      });
+    }
 
     const result = await placeOrderService({ userId, addressId });
 

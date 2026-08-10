@@ -4,8 +4,13 @@ const addressSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            ref: "UserAuthentication",
             required: true
+        },
+
+        isDefault: {
+            type: Boolean,
+            default: false
         },
 
         fullName: {
@@ -52,5 +57,5 @@ const addressSchema = new mongoose.Schema(
         timestamps: true
     }
 );
-
-export default mongoose.model("Address", addressSchema);
+const Address = mongoose.model("Address", addressSchema);
+export default Address

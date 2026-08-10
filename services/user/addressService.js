@@ -23,7 +23,7 @@ export const addAddressService = async(userId,addressData)=>{
         const pincodeNorm = pincode.trim();
         const phoneNorm = phone.toString().trim();
         // Reliable Duplicate Check (Includes City)
-            const existingAddress = await Address.findMany({
+            const existingAddress = await Address.findOne({
             userId,
             addressLine,
             city: cityNorm,
@@ -76,7 +76,7 @@ export const updateAddressService = async (userId, addressId, addressData) => {
     const phoneNorm = phone.toString().trim();
 
     // FIXED: Duplicate check now excludes the CURRENT address ID (addressId), not the userId
-    const existingAddress = await Address.findMany({
+    const existingAddress = await Address.findOne({
         userId,
         _id: { $ne: addressId }, 
         addressLine,

@@ -9,6 +9,7 @@ import addressRoutes from './addressRoutes.js'
 import homeRoutes from './homeRoutes.js'
 import cartRoutes from './cartRoutes.js'
 import wishlistRoutes from './wishlistRoutes.js'
+import orderRoutes from './orderRoutes.js'
 
 const router = express.Router()
 router.use(homeRoutes)
@@ -20,5 +21,6 @@ router.use(profileRoutes)
 router.use(addressRoutes)
 router.use(cartRoutes)
 router.use(wishlistRoutes)
+router.use(orderRoutes)
 
 export default router

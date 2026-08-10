@@ -3,6 +3,7 @@ import Wishlist from "../../models/Wishlist.js";
 import Product from "../../models/products.js";
 import Category from "../../models/category.js";
 import Address from "../../models/address.js";
+import Order from "../../models/Order.js";
 import mongoose from "mongoose";
 // Ensure you import your models: Product, Cart, Category, Address
 export async function getCartService({userId}) {
@@ -260,27 +261,44 @@ export const placeOrderService = async ({ userId, addressId }) => {
     }
   }
 
-  // Use a transaction for safe stock reduction and cart clearing
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
+    let totalAmount = 0;
+    const orderItems = [];
+
     for (let item of cart.items) {
       await Product.findByIdAndUpdate(
         item.product._id,
-        { $inc: { quantity: -item.quantity } },
-        { session }
+        { $inc: { quantity: -item.quantity } }
       );
+      totalAmount += item.product.price * item.quantity;
+      orderItems.push({
+        product: item.product._id,
+        quantity: item.quantity,
+        price: item.product.price
+      });
     }
+
+    const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const finalAmount = totalAmount; // Add tax, shipping, discount logic here later if needed
+
+    const newOrder = new Order({
+      orderId,
+      user: userId,
+      items: orderItems,
+      shippingAddress: addressId,
+      totalAmount,
+      finalAmount,
+      paymentMethod: "COD",
+      status: "Pending"
+    });
+
+    await newOrder.save();
+
     cart.items = [];
-    await cart.save({ session });
+    await cart.save();
     
-    await session.commitTransaction();
-    session.endSession();
-    return { success: true };
+    return { success: true, orderId: newOrder.orderId };
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     throw error;
   }
 };
