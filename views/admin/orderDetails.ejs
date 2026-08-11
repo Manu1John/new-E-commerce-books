@@ -1,0 +1,278 @@
+<%- include('../partials/header') %>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Link to external CSS -->
+<body>
+    <div class="container">
+        <!-- Header Section -->
+<header class="page-header">
+
+    <div class="header-titles">
+        <h1><%= order.orderId %></h1>
+        <p><%= order.createdAt %></p>
+    </div>
+
+    <div class="status-dropdown">
+
+        <select
+            id="orderStatus"
+            data-order-id="<%= order.orderId %>"
+        >
+
+            <option value="Pending"
+                <%= order.status === "Pending" ? "selected" : "" %>>
+                Pending
+            </option>
+
+            <option value="Confirmed"
+                <%= order.status === "Confirmed" ? "selected" : "" %>>
+                Confirmed
+            </option>
+
+            <option value="Processing"
+                <%= order.status === "Processing" ? "selected" : "" %>>
+                Processing
+            </option>
+
+            <option value="Packed"
+                <%= order.status === "Packed" ? "selected" : "" %>>
+                Packed
+            </option>
+
+            <option value="Shipped"
+                <%= order.status === "Shipped" ? "selected" : "" %>>
+                Shipped
+            </option>
+
+            <option value="Delivered"
+                <%= order.status === "Delivered" ? "selected" : "" %>>
+                Delivered
+            </option>
+
+            <option value="Cancelled"
+                <%= order.status === "Cancelled" ? "selected" : "" %>>
+                Cancelled
+            </option>
+
+            <option value="Returned"
+                <%= order.status === "Returned" ? "selected" : "" %>>
+                Returned
+            </option>
+
+            <option value="Refunded"
+                <%= order.status === "Refunded" ? "selected" : "" %>>
+                Refunded
+            </option>
+
+        </select>
+
+    </div>
+
+</header>
+        
+        <!-- Customer Information Card -->
+        <section class="card customer-info">
+            <h2>Customer Information</h2>
+            <div class="info-grid">
+                <div class="info-column">
+                    <div class="info-group">
+                        <label>Customer Name</label>
+                        <p><strong><%=order.user.firstName%> <%=order.user.lastName%></strong></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Email</label>
+                        <p><strong><%=order.user.email%></strong></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Phone</label>
+                        <p><strong><%=order.user.phone%></strong></p>
+                    </div>
+                </div>
+                <div class="info-column">
+                    <div class="info-group">
+                        <label>Shipping Address</label>
+                        <p><strong><%=order.shippingAddress.fullName%></strong></p>
+                        <p><strong><%=order.shippingAddress.phone%></strong></p>
+                        <p><strong><%=order.shippingAddress.landmark%></strong></p>
+                        <p><strong><%=order.shippingAddress.city%></strong></p>
+                        <p><strong><%=order.shippingAddress.state%></strong></p>
+                        <p><strong><%=order.shippingAddress.pincode%></strong></p>
+                        <p><strong><%=order.shippingAddress.addressType%></strong></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Billing Address</label>
+                                                <label>Shipping Address</label>
+                        <p><strong><%=order.shippingAddress.fullName%></strong></p>
+                        <p><strong><%=order.shippingAddress.phone%></strong></p>
+                        <p><strong><%=order.shippingAddress.landmark%></strong></p>
+                        <p><strong><%=order.shippingAddress.city%></strong></p>
+                        <p><strong><%=order.shippingAddress.state%></strong></p>
+                        <p><strong><%=order.shippingAddress.pincode%></strong></p>
+                        <p><strong><%=order.shippingAddress.addressType%></strong></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Layout Grid -->
+        <div class="main-layout">
+            
+            <!-- Left Column -->
+            <div class="left-column">
+                
+                <!-- Ordered Books Table -->
+                <section class="card books-section">
+                    <h2>Ordered Books</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>ISBN</th>
+                                    <th>Language</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%order.items.forEach((item)=>{%>
+                                <tr>
+                                    <td class="book-cell">
+                                        <div class="book-cover placeholder-gray"></div>
+                                        <strong></strong>
+                                    </td>
+                                    <td><%=item.product.title%></td>
+                                    <td><%=item.product.author%></td>
+                                    <td><%=item.product.isbn%></td>
+                                    <td><%=item.product.language%></td>
+                                    <td><%=item.product.quantity%></td>
+                                    <td><%=item.product.price%></td>
+                                    <td><%=item.product.price*item.product.quantity%></td>
+                                </tr>
+                                <%})%>
+                    
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Bottom Left Grid (Timeline & Shipping) -->
+                <div class="bottom-left-grid">
+                    
+                    <!-- Order Timeline -->
+                    <section class="card timeline-section">
+                        <h2>Order Timeline</h2>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-icon active"><i class="fa-solid fa-check"></i></div>
+                                <div class="timeline-content">
+                                    <strong>Order Placed</strong>
+                                    <p>12 May 2026 - 10:30 AM</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon active"><i class="fa-regular fa-credit-card"></i></div>
+                                <div class="timeline-content">
+                                    <strong>Payment Confirmed</strong>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon active"><i class="fa-solid fa-box"></i></div>
+                                <div class="timeline-content">
+                                    <strong>Packed</strong>
+                                </div>
+                            </div>
+                            <div class="timeline-item last">
+                                <div class="timeline-icon active"><i class="fa-solid fa-truck"></i></div>
+                                <div class="timeline-content">
+                                    <strong>Shipped</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Shipping Details -->
+                    <section class="card shipping-section">
+                        <h2>Shipping Details</h2>
+                        <div class="shipping-info">
+                            <div class="info-group">
+                                <label>Courier Partner</label>
+                                <p><strong>Delhivery</strong></p>
+                            </div>
+                            <div class="info-group">
+                                <label>Tracking ID</label>
+                                <p><strong>TRK458965</strong></p>
+                            </div>
+                            <div class="info-group">
+                                <label>Estimated Delivery</label>
+                                <p><strong>18 May 2026</strong></p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                
+                <!-- Price Summary -->
+                <section class="card price-summary">
+                    <h2>Price Summary</h2>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹1690</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Coupon Discount</span>
+                        <span>-₹100</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Offer Discount</span>
+                        <span>-₹50</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span>₹40</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax</span>
+                        <span>₹18</span>
+                    </div>
+                    <hr>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>₹1598</span>
+                    </div>
+                </section>
+
+                <!-- Admin Actions -->
+                <!-- Admin Actions -->
+<section class="card admin-actions">
+    <h2>Admin Actions</h2>
+    <div class="action-buttons">
+        <button id="downloadInvoiceBtn" class="btn btn-blue" data-order-id="<%= order._id %>">
+            <i class="fa-solid fa-download"></i> Download Invoice
+        </button>
+        <button id="printInvoiceBtn" class="btn btn-dark">
+            <i class="fa-solid fa-print"></i> Print Invoice
+        </button>
+        <button id="updateStatusBtn" class="btn btn-yellow" data-order-id="<%= order._id %>">
+            <i class="fa-solid fa-rotate"></i> Update Status
+        </button>
+        <button id="issueRefundBtn" class="btn btn-red" data-order-id="<%= order._id %>">
+            <i class="fa-solid fa-rotate-left"></i> Issue Refund
+        </button>
+    </div>
+</section>
+
+            </div>
+        </div>
+    </div>
+
+<%-include("../partials/footer.ejs")%>

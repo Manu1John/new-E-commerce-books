@@ -1,0 +1,104 @@
+<%- include('../partials/header') %>
+<div class="container">
+
+    <aside class="sidebar">
+        <h1 class="logo">Admin Panel</h1>
+        <ul class="menu">
+            <li><a href="/admin/orders">Users</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="">Orders</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">Coupons</a></li>
+            <li><a href="/admin/category">Categories</a></li>
+            <li>            <form action="/admin/logout" method="POST">
+                <button class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </button>
+            </form></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="top-bar">
+            <form action="/admin/orders" method="GET" id="searchForm">
+                <div class="search-box">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="searchInput" name="search" placeholder="Search by email or id" value="<%=search||''%>">
+
+                        <button type="button" id="clearSearch" class="clear-btn">✖</button>
+
+                </div>
+            </form>
+
+
+        </div>
+
+        <h2 class="page-title">Orders</h2>
+        <h5 class="page-users-count">Total Orders:<%=totalOrders%> </h5>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%orders.forEach((order)=>{%>
+                    <tr>
+                        <td><%=order.orderId%></td>
+                        <td><%=order.user.email%></td>
+                        <td><%=order.totalAmount%></td>
+                        <td><%=order.paymentMethod%></td>
+                        <td>
+                            <span class="status active">
+                               <%=order.status%>
+                            </span>
+                        </td>
+                        <td>
+                                <a href="/admin/orders/<%=order._id%>" style="display:inline;" class="status-form" >
+                                    <button type="submit" class="block-btn">View</button>
+                                </a>
+
+                        </td>
+                    </tr>
+                    <%})%>
+
+                </tbody>
+            </table>
+            <div class="pagination">
+                <%if(currentPage>1){%>
+                    <a href="/admin/orders?page=<%=currentPage-1%>&search=<%=search%>">
+                        Prev
+                    </a>
+                <%}%>
+
+                <%for(let i=1;i<=totalPages;i++){%>
+                    <a
+                        href="/admin/orders?page=<%=i%>&search=<%=search%>"
+                        class="<%= currentPage === i ? 'active-page' : '' %>"
+                    >
+                   <%=i%>
+                    </a>
+                <%}%>
+                    <%if(currentPage< totalPages){%>
+                    <a href="/admin/orders?page<%=currentPage+1%>&search=<%=search%>">
+                        Next
+                    </a>
+                    <%}%>
+  
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,154 @@
+<%- include('../partials/header') %>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            BOOKSAW
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/#featured-books">Featured</a>
+            <a href="/#popular-books">Popular</a>
+            <a href="/#special-offer">Offer</a>
+            <a href="/#latest-blog">Articles</a>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="page-header">
+        <span class="subtitle">TRACK YOUR PURCHASE</span>
+        <h1>ORDER DETAILS</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="layout-grid">
+            
+            <!-- Left Column: Ordered Items -->
+            <div class="left-col">
+                <h2 class="section-title">Ordered Items</h2>
+
+                <!-- Item 1 -->
+                 <%orders.forEach((order)=>{%>
+                <div class="order-card">
+                    <%order.items.forEach((item)=>{%>
+                    <div class="product-info">
+                        
+                        <div class="product-image">
+                            <img src="https://via.placeholder.com/80x100?text=Book+Cover" alt="Simple Way Of Piece Life">
+                        </div>
+                        <div class="product-details">
+                            <h3>Title: <%=item.product.title%></h3>
+                            <p>Author: <%=item.product.author%></p>
+                            <p>Quantity: <%=item.product.quantity%></p>
+                            <p class="price">Price: <%=item.product.price%></p>
+                        </div>
+                        
+                    </div>
+                    <%})%>
+                    
+                    <div class="order-meta">
+                        <strong><%=order.order_id%></strong>
+                        <span class="badge badge-shipped"><%=order.status%></span>
+                    </div>
+
+                    <div class="order-grid">
+                        <div class="grid-item">
+                            <label>Order Date</label>
+                            <strong><%=order.createdAt%></strong>
+                        </div>
+                        <div class="grid-item">
+                            <label>Estimated Delivery</label>
+                            <strong>18 May 2026</strong>
+                        </div>
+                        <div class="grid-item">
+                            <label>Payment Method</label>
+                            <strong><%=order.paymentMethod%></strong>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons dual">
+                        <button class="btn btn-dark">CANCEL ORDER</button>
+                        <button class="btn btn-olive">Track Order</button>
+                    </div>
+                </div>
+                <%})%>                
+
+            </div>
+
+            <!-- Right Column: Summary & Tracking -->
+            <div class="right-col">
+                <!-- Payment Summary -->
+                <div class="summary-section">
+                    <h2 class="section-title">Payment Summary</h2>
+                    <div class="summary-row">
+                        <span>Items Total</span>
+                        <span>$122.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span>$4.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Taxes</span>
+                        <span>$3.15</span>
+                    </div>
+                    <hr>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>$129.15</span>
+                    </div>
+                </div>
+
+                <!-- Order Tracking -->
+                <div class="tracking-section">
+                    <h2 class="section-title">Order Tracking</h2>
+                    <div class="timeline">
+                        <div class="timeline-item active">
+                            <div class="dot"></div>
+                            <div class="content">
+                                <strong>Order Confirmed</strong>
+                                <p>15 May 2026 - Your order has been placed successfully.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="dot"></div>
+                            <div class="content">
+                                <strong>Packed</strong>
+                                <p>16 May 2026 - Seller packed your books carefully.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="dot"></div>
+                            <div class="content">
+                                <strong>Shipped</strong>
+                                <p>17 May 2026 - Shipment is on the way.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item pending">
+                            <div class="dot"></div>
+                            <div class="content">
+                                <strong>Delivered</strong>
+                                <p>Expected by 18 May 2026.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Widget -->
+                <div class="map-widget">
+                    <img src="https://via.placeholder.com/400x200?text=Map+of+Kochi" alt="Map Location">
+                </div>
+
+            </div>
+        </div>
+    </main>
+<%- include('../partials/footer') %>

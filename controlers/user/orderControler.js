@@ -17,8 +17,9 @@ export const getUserOrders = async (req, res, next) => {
     
     const { orders, total, totalPages } = await getUserOrdersService(userId, page, limit, search);
     
-    res.render("user/order-history", {
+    res.render("user/myOrders", {
       title: "My Orders",
+      cssFile:"myOrders.css",
       orders,
       currentPage: page,
       totalPages,
