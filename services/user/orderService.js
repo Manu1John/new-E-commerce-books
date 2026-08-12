@@ -30,8 +30,11 @@ export const cancelOrderService = async (userId, orderId, cancellationReason) =>
   try {
     const order = await Order.findOne({ _id: orderId, user: userId });
     if (!order) throw new Error("Order not found");
-    if (order.status !== "Pending" && order.status !== "Shipped") {
-      throw new Error("Order cannot be cancelled at this stage");
+    
+    // FIX: Corrected cancellation logic to block shipped/delivered orders
+    const uncancellableStatuses = ["Shipped", "Out for Delivery", "Delivered", "Cancelled", "Returned", "Refunded"];
+    if (uncancellableStatuses.includes(order.status)) {
+      throw new Error(`Order cannot be cancelled because it is currently ${order.status}`);
     }
 
     order.status = "Cancelled";
@@ -86,15 +89,11 @@ export const generateInvoicePDF = (order, res) => {
   
   doc.pipe(res);
   
-  // Header
   doc.fontSize(20).text("Invoice", { align: "center" }).moveDown();
-  
-  // Order Info
   doc.fontSize(12).text(`Order ID: ${order.orderId}`);
   doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
   doc.text(`Status: ${order.status}`).moveDown();
   
-  // Shipping Address
   doc.text("Shipping Address:");
   if (order.shippingAddress) {
     doc.text(`${order.shippingAddress.fullName}`);
@@ -103,9 +102,7 @@ export const generateInvoicePDF = (order, res) => {
     doc.text(`Phone: ${order.shippingAddress.phone}`).moveDown();
   }
   
-  // Items Table Header
   doc.text("Items:", { underline: true }).moveDown(0.5);
-  
   let y = doc.y;
   doc.text("Product", 50, y);
   doc.text("Quantity", 300, y);
@@ -115,7 +112,6 @@ export const generateInvoicePDF = (order, res) => {
   doc.moveTo(50, y + 15).lineTo(550, y + 15).stroke();
   y += 25;
   
-  // Items
   order.items.forEach((item) => {
     doc.text(item.product?.title || "Unknown Product", 50, y, { width: 240 });
     doc.text(item.quantity.toString(), 300, y);
@@ -127,7 +123,6 @@ export const generateInvoicePDF = (order, res) => {
   doc.moveTo(50, y).lineTo(550, y).stroke();
   y += 15;
   
-  // Totals
   doc.text(`Subtotal: $${order.totalAmount.toFixed(2)}`, 400, y);
   y += 15;
   if (order.tax > 0) {
@@ -144,6 +139,5 @@ export const generateInvoicePDF = (order, res) => {
   }
   
   doc.font("Helvetica-Bold").text(`Final Amount: $${order.finalAmount.toFixed(2)}`, 400, y);
-  
   doc.end();
 };

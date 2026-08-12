@@ -7,6 +7,24 @@
     <!-- Link to external CSS -->
 <body>
     <div class="container">
+        
+        <!-- Breadcrumb Navigation -->
+        <style>
+            .breadcrumb-nav { padding: 16px 0 24px 0; font-size: 14px; font-family: 'Inter', sans-serif; }
+            .breadcrumb { list-style: none; display: flex; align-items: center; gap: 8px; margin: 0; padding: 0; }
+            .breadcrumb-item a { color: #2b6cb0; text-decoration: none; transition: color 0.2s; }
+            .breadcrumb-item a:hover { color: #1a365d; text-decoration: underline; }
+            .breadcrumb-item + .breadcrumb-item::before { content: "/"; padding-right: 8px; color: #a0aec0; }
+            .breadcrumb-item.active { color: #4a5568; font-weight: 500; }
+        </style>
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/orders">Orders</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= order.orderId %></li>
+            </ol>
+        </nav>
+
         <!-- Header Section -->
 <header class="page-header">
 
@@ -104,7 +122,6 @@
                     </div>
                     <div class="info-group">
                         <label>Billing Address</label>
-                                                <label>Shipping Address</label>
                         <p><strong><%=order.shippingAddress.fullName%></strong></p>
                         <p><strong><%=order.shippingAddress.phone%></strong></p>
                         <p><strong><%=order.shippingAddress.landmark%></strong></p>
@@ -143,17 +160,28 @@
                             <tbody>
                                 <%order.items.forEach((item)=>{%>
                                 <tr>
-                                    <td class="book-cell">
-                                        <div class="book-cover placeholder-gray"></div>
-                                        <strong></strong>
-                                    </td>
+                                <td>
+                                <% if (item.product.images && item.product.images.length > 0) { %>
+                                    <img
+                                        src="/uploads/<%= item.product.images[0] %>"
+                                        alt="<%= item.product.title %>"
+                                        style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
+                                    >
+                                <% } else { %>
+                                    <img
+                                        src="https://via.placeholder.com/60"
+                                        alt="No image available"
+                                        style="width: 60px; height: 60px; object-fit: cover; opacity: 0.5;"
+                                    >
+                                <% } %>
+                            </td>
                                     <td><%=item.product.title%></td>
                                     <td><%=item.product.author%></td>
                                     <td><%=item.product.isbn%></td>
                                     <td><%=item.product.language%></td>
-                                    <td><%=item.product.quantity%></td>
+                                    <td><%=item.quantity%></td>
                                     <td><%=item.product.price%></td>
-                                    <td><%=item.product.price*item.product.quantity%></td>
+                                    <td><%=item.product.price*item.quantity%></td>
                                 </tr>
                                 <%})%>
                     
@@ -169,31 +197,80 @@
                     <section class="card timeline-section">
                         <h2>Order Timeline</h2>
                         <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-icon active"><i class="fa-solid fa-check"></i></div>
-                                <div class="timeline-content">
-                                    <strong>Order Placed</strong>
-                                    <p>12 May 2026 - 10:30 AM</p>
+                            
+                            <% if (["Cancelled", "Returned", "Refunded"].includes(order.status)) { %>
+                                <!-- Handle Negative Statuses -->
+                                <div class="timeline-item last">
+                                    <div class="timeline-icon active" style="background-color: #dc3545;">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <strong style="color: #dc3545;">Order <%= order.status %></strong>
+                                        <p>This order has been <%= order.status.toLowerCase() %>.</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon active"><i class="fa-regular fa-credit-card"></i></div>
-                                <div class="timeline-content">
-                                    <strong>Payment Confirmed</strong>
+                            <% } else { %>
+                                <!-- Handle Standard Progression -->
+                                <% 
+                                    const s = order.status;
+                                    const passedConfirmed = ["Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered"].includes(s);
+                                    const passedPacked = ["Packed", "Shipped", "Out for Delivery", "Delivered"].includes(s);
+                                    const passedShipped = ["Shipped", "Out for Delivery", "Delivered"].includes(s);
+                                    const passedDelivered = ["Delivered"].includes(s);
+                                %>
+                                
+                                <!-- Step 1: Placed -->
+                                <div class="timeline-item">
+                                    <div class="timeline-icon active"><i class="fa-solid fa-check"></i></div>
+                                    <div class="timeline-content">
+                                        <strong>Order Placed</strong>
+                                        <p><%= new Date(order.createdAt).toLocaleString() %></p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon active"><i class="fa-solid fa-box"></i></div>
-                                <div class="timeline-content">
-                                    <strong>Packed</strong>
+                    
+                                <!-- Step 2: Confirmed -->
+                                <div class="timeline-item">
+                                    <div class="timeline-icon" style="<%= passedConfirmed ? 'background-color: #3b82f6;' : 'background-color: #d3d3d3;' %>">
+                                        <i class="fa-regular fa-credit-card"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <strong style="<%= passedConfirmed ? '' : 'color: #999;' %>">Payment Confirmed</strong>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="timeline-item last">
-                                <div class="timeline-icon active"><i class="fa-solid fa-truck"></i></div>
-                                <div class="timeline-content">
-                                    <strong>Shipped</strong>
+                    
+                                <!-- Step 3: Packed -->
+                                <div class="timeline-item">
+                                    <div class="timeline-icon" style="<%= passedPacked ? 'background-color: #3b82f6;' : 'background-color: #d3d3d3;' %>">
+                                        <i class="fa-solid fa-box"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <strong style="<%= passedPacked ? '' : 'color: #999;' %>">Packed</strong>
+                                    </div>
                                 </div>
-                            </div>
+                    
+                                <!-- Step 4: Shipped -->
+                                <div class="timeline-item <%= !passedDelivered ? 'last' : '' %>">
+                                    <div class="timeline-icon" style="<%= passedShipped ? 'background-color: #3b82f6;' : 'background-color: #d3d3d3;' %>">
+                                        <i class="fa-solid fa-truck"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <strong style="<%= passedShipped ? '' : 'color: #999;' %>">Shipped</strong>
+                                    </div>
+                                </div>
+                    
+                                <!-- Step 5: Delivered (Only renders if the order is shipped or delivered) -->
+                                <% if (passedShipped || passedDelivered) { %>
+                                <div class="timeline-item last">
+                                    <div class="timeline-icon" style="<%= passedDelivered ? 'background-color: #1e8e3e;' : 'background-color: #d3d3d3;' %>">
+                                        <i class="fa-solid fa-house"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <strong style="<%= passedDelivered ? '' : 'color: #999;' %>">Delivered</strong>
+                                    </div>
+                                </div>
+                                <% } %>
+                                
+                            <% } %>
                         </div>
                     </section>
 
@@ -252,27 +329,25 @@
                 </section>
 
                 <!-- Admin Actions -->
-                <!-- Admin Actions -->
-<section class="card admin-actions">
-    <h2>Admin Actions</h2>
-    <div class="action-buttons">
-        <button id="downloadInvoiceBtn" class="btn btn-blue" data-order-id="<%= order._id %>">
-            <i class="fa-solid fa-download"></i> Download Invoice
-        </button>
-        <button id="printInvoiceBtn" class="btn btn-dark">
-            <i class="fa-solid fa-print"></i> Print Invoice
-        </button>
-        <button id="updateStatusBtn" class="btn btn-yellow" data-order-id="<%= order._id %>">
-            <i class="fa-solid fa-rotate"></i> Update Status
-        </button>
-        <button id="issueRefundBtn" class="btn btn-red" data-order-id="<%= order._id %>">
-            <i class="fa-solid fa-rotate-left"></i> Issue Refund
-        </button>
-    </div>
-</section>
+                <section class="card admin-actions">
+                    <h2>Admin Actions</h2>
+                    <div class="action-buttons">
+                        <button id="downloadInvoiceBtn" class="btn btn-blue" data-order-id="<%= order._id %>">
+                            <i class="fa-solid fa-download"></i> Download Invoice
+                        </button>
+                        <button id="printInvoiceBtn" class="btn btn-dark">
+                            <i class="fa-solid fa-print"></i> Print Invoice
+                        </button>
+                        <button id="updateStatusBtn" class="btn btn-yellow" data-order-id="<%= order._id %>">
+                            <i class="fa-solid fa-rotate"></i> Update Status
+                        </button>
+                        <button id="issueRefundBtn" class="btn btn-red" data-order-id="<%= order._id %>">
+                            <i class="fa-solid fa-rotate-left"></i> Issue Refund
+                        </button>
+                    </div>
+                </section>
 
             </div>
         </div>
     </div>
-
 <%-include("../partials/footer.ejs")%>

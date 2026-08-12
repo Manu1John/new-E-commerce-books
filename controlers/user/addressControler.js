@@ -24,16 +24,18 @@ const getAddressPage = async (req, res) => {
     }
 };
 // GET ADD ADDRESS PAGE
+// GET ADD ADDRESS PAGE
 const getAddAddressPage = (req, res) => {
     try {
+        const returnTo = req.query.returnTo; // Capture the flag
         return res.render("user/addAddress", {
             title: "Add Address",
             cssFile: "addAddress.css",
             jsFile: "addAddress.js",
             user: req.session?.user,
-            error: null
+            error: null,
+            returnTo // Pass it to EJS
         });
-
     } catch (error) {
         console.error("getAddAddressPage error:", error);
         return res.redirect("/user-profile");
@@ -44,19 +46,25 @@ const getAddAddressPage = (req, res) => {
 const addAddress = async (req, res) => {
     try {
         const userId = req.session?.user?._id || req.session?.user?.id;
-        const {existingAddress,newAddress} = 
-        await addAddressService(userId,req.body)
+        const returnTo = req.query.returnTo; // Capture the flag
+        const redirectUrl = returnTo === 'checkout' ? '/checkout' : '/address'; // Determine routing
+
+        const {existingAddress,newAddress} = await addAddressService(userId,req.body);
+        
         if (existingAddress) {
             return res.render("user/addAddress", {
                 title: "Add Address",
                 cssFile: "addAddress.css",
                 jsFile: "addAddress.js",
                 user: req.session?.user,
-                error: "This address already exists in your saved addresses."
+                error: "This address already exists in your saved addresses.",
+                returnTo // Maintain flag on error
             });
         }
         if (req.flash) req.flash("success", "Address added successfully");
-        return res.redirect("/address");
+        
+        // Redirect dynamically
+        return res.redirect(redirectUrl);
 
     } catch (error) {
         console.log("ADD ADDRESS ERROR:", error);
@@ -67,8 +75,10 @@ const addAddress = async (req, res) => {
 // GET EDIT ADDRESS PAGE
 const getEditAddress = async (req, res) => {
     try {
-        const addressId = req.params.id
-        const updateAddress = await getEditAddressService(addressId)
+        const addressId = req.params.id;
+        const returnTo = req.query.returnTo; // Capture the flag
+        const updateAddress = await getEditAddressService(addressId);
+        
         if (!updateAddress) {
             return res.redirect("/address");
         }
@@ -78,7 +88,8 @@ const getEditAddress = async (req, res) => {
             cssFile: "addAddress.css",
             jsFile: "editAddress.js",
             user: req.session?.user,
-            address:updateAddress
+            address:updateAddress,
+            returnTo // Pass it to EJS
         });
 
     } catch (error) {
@@ -91,26 +102,26 @@ const getEditAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
     try {
         const userId = req.session?.user?._id || req.session?.user?.id;
-        
-        // Extract the address ID from the URL parameters
         const addressId = req.params.id; 
+        const returnTo = req.query.returnTo; // Capture the flag
+        const redirectUrl = returnTo === 'checkout' ? '/checkout' : '/address'; // Determine routing
 
-        // FIXED: Pass addressId to the service
         const { existingAddress, updateAddress } = await updateAddressService(userId, addressId, req.body);
         
         if (existingAddress) {
-            // Re-render the edit page with an error, maintaining the user's input
             return res.render("user/editAddress", {
                 title: "Edit Address",
                 cssFile: "addAddress.css",
                 jsFile: "editAddress.js",
                 user: req.session?.user,
                 address: { ...req.body, _id: addressId }, 
-                error: "Another saved address already has these details."
+                error: "Another saved address already has these details.",
+                returnTo // Maintain flag on error
             });
         }
 
-        return res.redirect("/address");
+        // Redirect dynamically
+        return res.redirect(redirectUrl);
 
     } catch (error) {
         console.error("UPDATE ADDRESS ERROR:", error);

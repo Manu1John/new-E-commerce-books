@@ -20,6 +20,7 @@ export const getUserOrders = async (req, res, next) => {
     res.render("user/myOrders", {
       title: "My Orders",
       cssFile:"myOrders.css",
+      jsFile:"myOrders.js",
       orders,
       currentPage: page,
       totalPages,
