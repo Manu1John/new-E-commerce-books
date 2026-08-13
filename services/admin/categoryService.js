@@ -4,7 +4,6 @@ import  Category from '../../models/category.js'
 
 export const getCategoryDashboardService = async(page,limit,search)=>{
     const skip = (page - 1) * limit;
-
             // Base query
         const query = {
             isDeleted: false

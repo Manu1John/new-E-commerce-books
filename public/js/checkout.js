@@ -1,5 +1,3 @@
-// 1. REMOVE the global selectedAddressId variable at the top entirely.
-
 // 2. Keep your selectAddress function exactly like this:
 function selectAddress(element) {
     // Remove 'selected' class from all cards
@@ -19,12 +17,26 @@ function placeOrder() {
     
     // If nothing is checked, stop here
     if (!selectedRadio) {
-        alert('Please select a delivery address.');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Address Required',
+            text: 'Please select a delivery address.'
+        });
         return;
     }
 
     // Extract the real ObjectId from the checked radio button
     const selectedAddressId = selectedRadio.value;
+
+    // Show a loading state while the fetch request happens
+    Swal.fire({
+        title: 'Placing Order...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     // Send it to your backend
     fetch('/checkout/place', {
@@ -35,11 +47,29 @@ function placeOrder() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
-            window.location.href = data.redirectUrl;
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Confirmed!',
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = data.redirectUrl;
+            });
         } else {
-            alert(data.error || 'Failed to place order.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to place order',
+                text: data.error || 'Please try again.'
+            });
         }
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Server Error',
+            text: 'Something went wrong while communicating with the server.'
+        });
+    });
 }

@@ -95,4 +95,48 @@ function addToCart(productId) {
         // If server redirects due to auth middleware
         window.location.href = '/login';
     });
+} // <--- FIX: Closed the addToCart function here!
+
+async function addToWishlist(productId, buttonElement) {
+    try {
+        // Send POST request to your backend
+        const response = await fetch('/wishlist/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: productId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Target the <i> tag inside the clicked button
+            const icon = buttonElement.querySelector('i');
+            
+            // Toggle classes to make the heart solid and red
+            icon.classList.remove('fa-regular', 'text-dark');
+            icon.classList.add('fa-solid', 'text-danger'); 
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Added to wishlist!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.error || 'Failed to add to wishlist',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    } catch (error) {
+        console.error("Error adding to wishlist:", error);
+    }
 }

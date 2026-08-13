@@ -175,7 +175,7 @@ export const placeOrder = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Order placed successfully!",
-      redirectUrl: "/profile/user"
+      redirectUrl: "/home"
     });
   } catch (error) {
     console.error("PLACE ORDER ERROR:", error);

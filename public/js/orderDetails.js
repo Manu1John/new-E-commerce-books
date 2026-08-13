@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
     // Elements
     const updateStatusBtn = document.getElementById("updateStatusBtn");
     const downloadInvoiceBtn = document.getElementById("downloadInvoiceBtn");
@@ -24,14 +23,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
-                    window.location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
                 } else {
-                    alert(result.error || "Failed to update status");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: result.error || "Failed to update status"
+                    });
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Server error occurred.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    text: 'A server error occurred while updating the status.'
+                });
             }
         });
     }
@@ -68,12 +82,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     a.click();
                     a.remove();
                     window.URL.revokeObjectURL(downloadUrl);
+                    
+                    // Optional success toast
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Downloaded!',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 } else {
-                    alert("Failed to generate invoice.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: 'Failed to generate invoice.'
+                    });
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error downloading invoice.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while downloading the invoice.'
+                });
             }
         });
     }
@@ -85,9 +117,30 @@ document.addEventListener("DOMContentLoaded", () => {
         issueRefundBtn.addEventListener("click", async () => {
             const orderId = issueRefundBtn.getAttribute("data-order-id");
             
-            // Add a confirmation dialog to prevent accidental refunds
-            if (confirm("Are you sure you want to issue a refund for this order? This action cannot be undone.")) {
+            // SweetAlert2 Confirmation Dialog
+            const confirmResult = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to issue a refund for this order? This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, issue refund!',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (confirmResult.isConfirmed) {
                 try {
+                    // Show a loading state while processing the refund
+                    Swal.fire({
+                        title: 'Processing Refund...',
+                        text: 'Please wait while we process the request.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     // This requires a backend route to process the refund via your payment gateway
                     const response = await fetch(`/admin/orders/${orderId}/refund`, {
                         method: "POST",
@@ -95,15 +148,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
 
                     const result = await response.json();
+                    
                     if (result.success) {
-                        alert("Refund issued successfully.");
-                        window.location.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Refunded!',
+                            text: 'Refund issued successfully.',
+                            confirmButtonColor: '#3085d6'
+                        }).then(() => {
+                            window.location.reload();
+                        });
                     } else {
-                        alert(result.error || "Failed to issue refund.");
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Refund Failed',
+                            text: result.error || "Failed to issue refund."
+                        });
                     }
                 } catch (error) {
                     console.error("Error:", error);
-                    alert("Server error processing refund.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: 'A server error occurred while processing the refund.'
+                    });
                 }
             }
         });
