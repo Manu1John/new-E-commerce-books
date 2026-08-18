@@ -137,13 +137,18 @@ export const getCheckout = async (req, res, next) => {
       return res.redirect("/cart");
     }
 
+    const Wallet = (await import("../../models/Wallet.js")).default;
+    const wallet = await Wallet.findOne({ user: userId });
+    const walletBalance = wallet ? wallet.balance : 0;
+
     return res.render("user/checkout", {
       title: "Checkout Order",
       items: result.items,
       cartSubtotal: result.cartSubtotal,
       addresses: result.addresses,
       user: req.session.user,
-      cartCount: result.cartCount
+      cartCount: result.cartCount,
+      walletBalance
     });
   } catch (error) {
     console.error("GET CHECKOUT ERROR:", error);
@@ -183,11 +188,55 @@ export const placeOrder = async (req, res) => {
   }
 };
 
+export const applyCoupon = async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    const { code } = req.body;
+    
+    if (!code) return res.status(400).json({ success: false, message: "Coupon code is required" });
+
+    const Coupon = (await import("../../models/Coupon.js")).default;
+    const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
+
+    if (!coupon) return res.status(400).json({ success: false, message: "Invalid or expired coupon" });
+    if (new Date() > coupon.expiryDate) return res.status(400).json({ success: false, message: "Coupon has expired" });
+    if (coupon.usedBy.includes(userId)) return res.status(400).json({ success: false, message: "Coupon already used" });
+
+    // Calculate cart total to check minPurchaseAmount and calculate discount
+    const { getCheckoutDetailsService } = await import("../../services/user/cartService.js");
+    const result = await getCheckoutDetailsService(userId);
+    
+    if (result.cartSubtotal < coupon.minPurchaseAmount) {
+      return res.status(400).json({ success: false, message: `Minimum purchase amount is ₹${coupon.minPurchaseAmount}` });
+    }
+
+    let discountAmount = 0;
+    if (coupon.discountType === "flat") {
+      discountAmount = coupon.discountValue;
+    } else if (coupon.discountType === "percentage") {
+      discountAmount = (result.cartSubtotal * coupon.discountValue) / 100;
+      if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
+        discountAmount = coupon.maxDiscountAmount;
+      }
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      couponId: coupon._id,
+      discountAmount: Math.round(discountAmount) 
+    });
+  } catch (error) {
+    console.error("APPLY COUPON ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 export default {
   getCart,
   addToCart,
   updateQuantity,
   removeFromCart,
   getCheckout,
-  placeOrder
+  placeOrder,
+  applyCoupon
 };

@@ -1,0 +1,125 @@
+<%- include('../partials/adminHeader') %>
+
+<div class="container-fluid mt-4">
+    <h2><%= title %></h2>
+    
+    <%- include('../partials/flashMessages') %>
+
+    <div class="card my-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Create New Coupon</h5>
+        </div>
+        <div class="card-body">
+            <form action="/admin/coupons" method="POST">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label>Coupon Code</label>
+                        <input type="text" name="code" class="form-control" required style="text-transform:uppercase">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Discount Type</label>
+                        <select name="discountType" class="form-select" required>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="flat">Flat Amount (₹)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Discount Value</label>
+                        <input type="number" name="discountValue" class="form-control" required min="1">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Min Purchase Amount (₹)</label>
+                        <input type="number" name="minPurchaseAmount" class="form-control" required min="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Max Discount Amount (₹)</label>
+                        <input type="number" name="maxDiscountAmount" class="form-control">
+                        <small class="text-muted">Optional (for % discounts)</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Expiry Date</label>
+                        <input type="date" name="expiryDate" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Create Coupon</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Existing Coupons</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Discount</th>
+                        <th>Min Purchase</th>
+                        <th>Max Discount</th>
+                        <th>Expiry</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(coupons.length === 0) { %>
+                        <tr><td colspan="7" class="text-center">No coupons found.</td></tr>
+                    <% } else { %>
+                        <% coupons.forEach(coupon => { %>
+                            <tr>
+                                <td><strong><%= coupon.code %></strong></td>
+                                <td><%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %></td>
+                                <td>₹<%= coupon.minPurchaseAmount %></td>
+                                <td><%= coupon.maxDiscountAmount ? '₹' + coupon.maxDiscountAmount : 'No Limit' %></td>
+                                <td><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
+                                <td>
+                                    <% if(new Date() > new Date(coupon.expiryDate)) { %>
+                                        <span class="badge bg-danger">Expired</span>
+                                    <% } else if(coupon.isActive) { %>
+                                        <span class="badge bg-success">Active</span>
+                                    <% } else { %>
+                                        <span class="badge bg-warning text-dark">Inactive</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">Delete</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function deleteCoupon(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/coupons/${id}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            Swal.fire('Deleted!', data.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    });
+            }
+        });
+    }
+</script>
+
+<%- include('../partials/adminFooter') %>

@@ -11,5 +11,6 @@ router.post("/cart/remove", authenticatedUser, cartControler.removeFromCart);
 
 router.get("/checkout", authenticatedUser, disableCache, cartControler.getCheckout);
 router.post("/checkout/place", authenticatedUser, cartControler.placeOrder);
+router.post("/cart/apply-coupon", authenticatedUser, cartControler.applyCoupon);
 
 export default router;

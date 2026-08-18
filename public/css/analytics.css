@@ -1,0 +1,308 @@
+/* ==========================================================================
+   Base Typography & Layout (Premium Outfit Font)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #334155;
+    background-color: #F8FAFC; /* Slightly cooler, crisper background */
+}
+
+.dashboard-title {
+    color: #0F172A;
+    font-weight: 800;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+}
+
+/* ==========================================================================
+   Summary Cards (.card-custom)
+   ========================================================================== */
+.card-custom {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px -8px rgba(15, 23, 42, 0.08);
+    border-color: #CBD5E1;
+}
+
+.card-title-small {
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1E1B4B; /* Deep indigo for numbers */
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   Filter Section (Pill-shaped inputs)
+   ========================================================================== */
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+.form-select-custom, .form-control {
+    border: 1px solid #CBD5E1;
+    border-radius: 50px; /* Pill shape */
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #334155;
+    padding: 0.5rem 1.25rem;
+    box-shadow: none;
+    transition: all 0.2s;
+    background-color: #ffffff;
+}
+
+.form-select-custom:focus, .form-control:focus {
+    border-color: #6366F1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    outline: none;
+}
+
+/* Filter Buttons */
+#filterForm .btn {
+    border-radius: 50px; /* Pill shape */
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+}
+
+#filterForm .btn-primary {
+    background-color: #4F46E5; /* Vibrant Indigo */
+    border-color: #4F46E5;
+}
+
+#filterForm .btn-primary:hover {
+    background-color: #3730A3;
+    transform: scale(1.02);
+}
+
+/* ==========================================================================
+   Minimalist Tables
+   ========================================================================== */
+.table-custom-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.table-custom-wrapper h5 {
+    padding: 1.5rem 1.5rem 1rem;
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.01em;
+}
+
+.table-custom {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.table-custom th {
+    background-color: #ffffff; /* Clean white header */
+    color: #94A3B8;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em; /* Widely spaced modern headers */
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #F1F5F9;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.table-custom td {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+    color: #1E293B;
+    font-weight: 500;
+    vertical-align: middle;
+    border-bottom: 1px solid #F8FAFC;
+    transition: background-color 0.2s;
+}
+
+.table-custom tbody tr:hover td {
+    background-color: #F8FAFC;
+}
+
+.table-custom tr:last-child td {
+    border-bottom: none;
+}
+
+/* Status Badges */
+.badge {
+    padding: 0.5em 1em;
+    font-weight: 600;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+}
+
+/* ==========================================================================
+   Charts Section
+   ========================================================================== */
+.chart-header {
+    font-size: 1.15rem; 
+    color: #0F172A; 
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+/* ==========================================================================
+   Dark-Mode Highlight Card (The "Wow" Factor)
+   ========================================================================== */
+.highlight-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.highlight-title {
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 1rem !important;
+    padding: 0 !important;
+}
+
+.highlight-card {
+    /* Stunning Dark Gradient */
+    background: linear-gradient(135deg, #1E1B4B 0%, #4338CA 100%);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    border: none;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 10px 25px -5px rgba(67, 56, 202, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a subtle glow effect inside the card */
+.highlight-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+    pointer-events: none;
+}
+
+.highlight-content {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ffffff; /* White text on dark bg */
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 2;
+}
+
+.highlight-sub {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #A5B4FC; /* Light indigo text */
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border-radius: 50px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* ==========================================================================
+   Download Actions
+   ========================================================================== */
+.sales-report-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.sales-report-header h5 {
+    padding: 0;
+}
+
+.sales-report-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-download {
+    background-color: #ffffff;
+    border: 1px solid #E2E8F0;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px; /* Pill shaped buttons */
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-download:hover {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    border-color: #94A3B8;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 768px) {
+    .sales-report-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .card-value {
+        font-size: 1.5rem;
+    }
+    
+    .filter-label {
+        margin-top: 1rem;
+    }
+}

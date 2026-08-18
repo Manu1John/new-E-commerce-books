@@ -134,7 +134,7 @@ export async function postEditProductService(productId,productData){
 }
 export async function softDeleteProductService(productId,pro){
     const product = Product.findById(productId)
-    const deleteProduct =       await Product.findByIdAndUpdate(productId, {
+    const deleteProduct =     await Product.findByIdAndUpdate(productId, {
             isDeleted: true,
             deletedAt: new Date()
         });
@@ -142,5 +142,4 @@ export async function softDeleteProductService(productId,pro){
             product,
             deleteProduct
         }
-}
-
+    }

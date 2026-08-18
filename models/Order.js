@@ -51,13 +51,35 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    couponApplied: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Coupon",
+      default: null
+    },
+    couponDiscount: {
+      type: Number,
+      default: 0
+    },
+    offerDiscount: {
+      type: Number,
+      default: 0
+    },
     finalAmount: {
       type: Number,
       required: true
     },
+    walletUsed: {
+      type: Number,
+      default: 0
+    },
     paymentMethod: {
       type: String,
       default: "COD"
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid", "Failed", "Refunded"],
+      default: "Pending"
     },
     status: {
         type: String,

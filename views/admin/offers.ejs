@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container">
+
+    <aside class="sidebar">
+        <h1 class="logo">Admin Panel</h1>
+
+        <ul class="menu">
+            <li><a href="/admin/users">Users</a></li>
+            <li><a href="/admin/sales-report">Reports</a></li>
+            <li><a href="/admin/products">Products</a></li>
+            <li><a href="/admin/orders">Orders</a></li>
+            <li><a href="/admin/offers" class="active">Offers</a></li>
+            <li><a href="#">Coupons</a></li>
+            <li><a href="/admin/category">Categories</a></li>
+            <li>            
+                <form action="/admin/logout" method="POST">
+                    <button class="logout-btn">
+                        Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="top-bar">
+            <form action="/admin/offers" method="GET" id="searchForm">
+                <div class="search-box">
+                    <i class="fa fa-search"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        id="searchInput"
+                        placeholder="Search Offers..."
+                        value="<%= typeof search !== 'undefined' ? search : '' %>"
+                    >
+                    <button type="button" class="clear-btn" id="clearButton" onclick="document.getElementById('searchInput').value=''; document.getElementById('searchForm').submit();">
+                        ✖
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="page-header">
+            <h2 class="page-title">Offer Management</h2>
+            <a href="/admin/offers/add"><button class="add-btn">Add Offer</button></a>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Offer Name</th>
+                        <th>Discount</th>
+                        <th>Type</th>
+                        <th>Assigned To</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% if (offers && offers.length > 0) { %>
+                        <% offers.forEach((offer, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= offer.name %></td>
+                                <td><%= offer.discountPercentage %>%</td>
+                                <td style="text-transform: capitalize;"><%= offer.type %></td>
+                                <td>
+                                    <% if (offer.type === 'product' && offer.productRef) { %>
+                                        <%= offer.productRef.title %>
+                                    <% } else if (offer.type === 'category' && offer.categoryRef) { %>
+                                        <%= offer.categoryRef.name %>
+                                    <% } else { %>
+                                        <span class="text-muted">General / Referral</span>
+                                    <% } %>
+                                </td>
+                                <td><%= new Date(offer.expiryDate).toLocaleDateString() %></td>
+                                <td>
+                                    <span class="badge <%= offer.isActive ? 'bg-success text-white' : 'bg-secondary text-white' %>" style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
+                                        <%= offer.isActive ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a style="text-decoration: none;" href="/admin/offers/edit/<%= offer._id %>">
+                                        <button class="edit" type="button">
+                                            Edit
+                                        </button>
+                                    </a>
+                                    
+                                    <button type="button" class="delete-offer-btn" data-id="<%= offer._id %>">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8" class="text-center py-4" style="text-align: center;">
+                                No Offers found
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <!-- Pagination placeholder if implemented later -->
+            <div class="pagination">
+                <!-- Pagination links can go here -->
+            </div>
+        </div>
+
+    </main> 
+
+</div>
+
+
+<%- include('../partials/footer') %>

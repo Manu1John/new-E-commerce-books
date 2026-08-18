@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .failure-icon { font-size: 80px; color: #dc3545; margin-bottom: 20px; }
+        .failure-container { max-width: 500px; margin: 100px auto; text-align: center; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: #fff; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="failure-container">
+        <div class="failure-icon">✗</div>
+        <h2 class="mb-3">Payment Failed</h2>
+        <p class="text-muted mb-4">Unfortunately, your payment could not be processed. Please try again or choose a different payment method.</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="/cart" class="btn btn-dark">Retry Payment</a>
+            <a href="/home" class="btn btn-outline-dark">Return to Home</a>
+        </div>
+    </div>
+</body>
+</html>

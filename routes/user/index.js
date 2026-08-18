@@ -10,6 +10,8 @@ import homeRoutes from './homeRoutes.js'
 import cartRoutes from './cartRoutes.js'
 import wishlistRoutes from './wishlistRoutes.js'
 import orderRoutes from './orderRoutes.js'
+import walletRoutes from './walletRoutes.js'
+import paymentRoutes from './paymentRoutes.js'
 
 const router = express.Router()
 router.use(homeRoutes)
@@ -22,5 +24,7 @@ router.use(addressRoutes)
 router.use(cartRoutes)
 router.use(wishlistRoutes)
 router.use(orderRoutes)
+router.use(walletRoutes)
+router.use(paymentRoutes)
 
 export default router

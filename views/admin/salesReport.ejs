@@ -1,0 +1,243 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid py-4 px-lg-5" style="background-color: #f4f7fb; min-height: 100vh;">
+    
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0" style="font-size: 0.85rem; font-weight: 500;">
+            <li class="breadcrumb-item">
+                <a href="/admin/dashboard" class="text-decoration-none" style="color: #64748b;">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page" style="color: #0f172a;">
+                Analytics & Reports
+            </li>
+        </ol>
+    </nav>
+
+    <h2 class="dashboard-title">Analytics & Reports</h2>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-small">Total Orders</div>
+                <h3 class="card-value"><%= summary.salesCount %></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-small">Total Revenue</div>
+                <h3 class="card-value">₹<%= summary.totalSales.toFixed(2) %></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-small">Total Offer Discounts</div>
+                <h3 class="card-value">₹<%= summary.totalDiscounts.toFixed(2) %></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-custom">
+                <div class="card-title-small">Coupon Deductions</div>
+                <h3 class="card-value">₹<%= summary.totalCoupons.toFixed(2) %></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 w-100">
+        <div class="col-md-8">
+            <label class="filter-label mb-2">Filter Sales Data</label>
+            <form action="/admin/sales-report" method="GET" id="filterForm" class="d-flex flex-wrap gap-2 align-items-center">
+                
+                <select name="filter" id="filterType" class="form-select form-select-custom" style="width: auto;" onchange="toggleCustomDates()">
+                    <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Time</option>
+                    <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Today</option>
+                    <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>Last 7 Days</option>
+                    <option value="yearly" <%= filter === 'yearly' ? 'selected' : '' %>>Last 1 Year</option>
+                    <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
+                </select>
+
+                <div class="custom-date-col <%= filter === 'custom' ? '' : 'd-none' %> d-flex gap-2">
+                    <input type="date" name="startDate" class="form-control" style="width: auto;" value="<%= startDate || '' %>" placeholder="Start Date">
+                    <input type="date" name="endDate" class="form-control" style="width: auto;" value="<%= endDate || '' %>" placeholder="End Date">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-sm px-3 py-2">Apply Filter</button>
+                <a href="/admin/sales-report" class="btn btn-outline-secondary btn-sm px-3 py-2">Reset</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-custom-wrapper mb-4">
+        <div class="sales-report-header flex-row justify-content-between align-items-center">
+            <h5 class="p-0 m-0">Detailed Sales Report</h5>
+            <div class="sales-report-actions m-0">
+                <a href="/admin/sales-report/excel?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>" class="btn-download">
+                    <i class="fas fa-file-excel me-1 text-success"></i> Download Excel
+                </a>
+                <a href="/admin/sales-report/pdf?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>" class="btn-download">
+                    <i class="fas fa-file-pdf me-1 text-danger"></i> Download PDF
+                </a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Products</th>
+                        <th>Payment Method</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(orders && orders.length > 0) { %>
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td><%= order.createdAt.toLocaleDateString() %></td>
+                                <td><%= order.orderId %></td>
+                                <td><%= order.user ? order.user.email : 'Guest' %></td>
+                                
+                                <td>
+                                    <% order.items.forEach((item) => { %>
+                                        <div style="font-size: 0.85rem;" class="mb-1">
+                                            <%= item.product ? item.product.title : 'Unknown Product' %> (x<%= item.quantity %>)
+                                        </div>
+                                    <% }) %>
+                                </td>
+
+                                <td>
+                                    <span class="badge <%= order.paymentMethod === 'COD' ? 'bg-warning text-dark' : 'bg-success' %>">
+                                        <%= order.paymentMethod %>
+                                    </span>
+                                </td>
+                                <td>₹<%= order.finalAmount.toFixed(2) %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No orders found for the selected period.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr class="my-5">
+    <h4 class="mb-4 text-muted">Analytics Dashboard</h4>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card-custom">
+                <h5 class="chart-header">Monthly Revenue</h5>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-custom">
+                <h5 class="chart-header">Order Status</h5>
+                <div class="chart-container">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="table-custom-wrapper h-100">
+                <h5>Best Customers</h5>
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Customer Name</th>
+                                <th>Total Orders</th>
+                                <th>Total Spend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(bestCustomers && bestCustomers.length > 0) { %>
+                                <% bestCustomers.forEach((customer) => { %>
+                                <tr>
+                                    <td><%= customer.userId.toString().slice(-6).toUpperCase() %></td>
+                                    <td>
+                                        <%= customer.firstName || customer.name || customer.email.split('@')[0] %> 
+                                        <%= customer.lastName || '' %>
+                                    </td>
+                                    <td><%= customer.totalOrders %></td>
+                                    <td>₹<%= customer.totalAmount.toFixed(2) %></td>
+                                </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No customer data available for this period.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-custom highlight-wrapper">
+                <h5 class="highlight-title">Most Ordered Category</h5>
+                <div class="highlight-card">
+                    <% if (categoryPerformance && categoryPerformance.length > 0) { %>
+                        <div class="highlight-content">📚 <%= categoryPerformance[0].categoryName %></div>
+                        <div class="highlight-sub">Orders: <%= categoryPerformance[0].totalOrders %>+</div>
+                    <% } else { %>
+                        <div class="highlight-content text-muted">No Data Available</div>
+                        <div class="highlight-sub">Orders: 0</div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-custom-wrapper">
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Orders</th>
+                        <th>Revenue</th>
+                        <th>Top Selling Book</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (categoryPerformance && categoryPerformance.length > 0) { %>
+                        <% categoryPerformance.forEach((cat) => { %>
+                        <tr>
+                            <td><%= cat.categoryName %></td>
+                            <td><%= cat.totalOrders %></td>
+                            <td>₹<%= cat.totalRevenue.toFixed(2) %></td>
+                            <td><%= cat.topSellingBook %></td>
+                        </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No category data available for this period.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // This makes the data fetched in reportControler.js available to public/js/salesReport.js
+    window.dynamicChartData = <%- JSON.stringify(chartData) %>;
+</script>
+
+<%- include('../partials/footer') %>

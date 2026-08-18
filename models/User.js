@@ -53,6 +53,19 @@ resetPasswordExpires: {
         type: String,
         default: ""
     },
+    wallet: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Wallet"
+    },
+    referralCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    referredBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserAuthentication"
+    }
 },
 {
     timestamps: true
