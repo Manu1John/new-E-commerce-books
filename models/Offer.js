@@ -32,9 +32,17 @@ const offerSchema = new mongoose.Schema(
       type: Boolean,
       default: true
     },
+    startDate: {
+      type: Date,
+      required: true // Added for form validation mapping
+    },
     expiryDate: {
       type: Date,
       required: true
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false // Added to support the Soft Delete functionality
     }
   },
   {
@@ -42,15 +50,14 @@ const offerSchema = new mongoose.Schema(
   }
 );
 
-// Ensure a product or category offer actually has the reference set
-offerSchema.pre("save", function (next) {
+// Modern Mongoose approach: Just throw errors instead of using the next() callback
+offerSchema.pre("save", function () {
   if (this.type === "product" && !this.productRef) {
-    return next(new Error("Product offers must have a product reference."));
+    throw new Error("Product offers must have a product reference.");
   }
   if (this.type === "category" && !this.categoryRef) {
-    return next(new Error("Category offers must have a category reference."));
+    throw new Error("Category offers must have a category reference.");
   }
-  next();
 });
 
 const Offer = mongoose.model("Offer", offerSchema);

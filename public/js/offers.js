@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const offerId = button.getAttribute('data-id');
         
-        // SweetAlert2 Confirmation Dialog
         Swal.fire({
             title: 'Are you sure?',
             text: "Do you want to delete this offer? This action cannot be undone.",

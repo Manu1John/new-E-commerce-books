@@ -27,21 +27,19 @@
 
     <main class="main-content">
 
+        <!-- Updated Search Form -->
         <div class="top-bar">
             <form action="/admin/offers" method="GET" id="searchForm">
                 <div class="search-box">
                     <i class="fa fa-search"></i>
-                    <input
-                        type="text"
-                        name="search"
-                        id="searchInput"
-                        placeholder="Search Offers..."
-                        value="<%= typeof search !== 'undefined' ? search : '' %>"
-                    >
-                    <button type="button" class="clear-btn" id="clearButton" onclick="document.getElementById('searchInput').value=''; document.getElementById('searchForm').submit();">
-                        ✖
-                    </button>
+                    <input type="text" name="search" id="searchInput" placeholder="Search Offers..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+                    <% if (typeof search !== 'undefined' && search.length > 0) { %>
+                        <button type="button" class="clear-btn" style="background:none; border:none; color:red; cursor:pointer;" onclick="window.location.href='/admin/offers'">
+                            ✖ Clear
+                        </button>
+                    <% } %>
                 </div>
+                <button type="submit" style="display:none;"></button>
             </form>
         </div>
 
@@ -90,14 +88,9 @@
                                 </td>
                                 <td>
                                     <a style="text-decoration: none;" href="/admin/offers/edit/<%= offer._id %>">
-                                        <button class="edit" type="button">
-                                            Edit
-                                        </button>
+                                        <button class="edit" type="button">Edit</button>
                                     </a>
-                                    
-                                    <button type="button" class="delete-offer-btn" data-id="<%= offer._id %>">
-                                        Delete
-                                    </button>
+                                    <button type="button" class="delete-offer-btn" data-id="<%= offer._id %>">Delete</button>
                                 </td>
                             </tr>
                         <% }) %>
@@ -110,16 +103,38 @@
                     <% } %>
                 </tbody>
             </table>
-
-            <!-- Pagination placeholder if implemented later -->
-            <div class="pagination">
-                <!-- Pagination links can go here -->
-            </div>
         </div>
+<!-- Replace your existing pagination placeholder with this -->
+            <div class="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; padding-bottom: 20px;">
+                <% if (totalPages > 1) { %>
+                    
+                    <!-- Previous Button -->
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>">
+                            <button class="btn btn-outline" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: white;">Previous</button>
+                        </a>
+                    <% } %>
 
+                    <!-- Page Numbers -->
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
+                            <button class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
+                                style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; <%= currentPage === i ? 'background-color: #2563eb; color: white; border-color: #2563eb;' : 'background: white;' %>">
+                                <%= i %>
+                            </button>
+                        </a>
+                    <% } %>
+
+                    <!-- Next Button -->
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>">
+                            <button class="btn btn-outline" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: white;">Next</button>
+                        </a>
+                    <% } %>
+
+                <% } %>
+            </div>
     </main> 
-
 </div>
-
 
 <%- include('../partials/footer') %>
