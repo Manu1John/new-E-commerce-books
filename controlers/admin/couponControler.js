@@ -77,7 +77,7 @@ const couponControler = {
         minPurchaseAmount,
         startDate,
         expiryDate,
-        usageLimit: calculatedLimit, // Set calculated limit here
+        usageLimit: calculatedLimit, 
         description,
         isActive: isActive === "true"
       });
@@ -95,12 +95,14 @@ const couponControler = {
     try {
       const coupon = await Coupon.findById(req.params.id);
       if (!coupon || coupon.isDeleted) return res.redirect("/admin/coupons");
+      
       res.render("admin/editCoupons", { 
         title: "Edit Coupon",
-      jsFile:"addCoupons.js",
-      cssFile:"addCoupons.css",
-         coupon
-       });
+        // FIXED: Point to the correct Edit JS and CSS files
+        jsFile: "editCoupons.js",
+        cssFile: "editCoupons.css",
+        coupon
+      });
     } catch (error) {
       res.redirect("/admin/coupons");
     }
@@ -131,7 +133,7 @@ const couponControler = {
         minPurchaseAmount,
         startDate,
         expiryDate,
-        usageLimit: calculatedLimit, // Set calculated limit here
+        usageLimit: calculatedLimit, 
         description,
         isActive: isActive === "true"
       });

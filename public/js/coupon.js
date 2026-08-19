@@ -1,7 +1,11 @@
+document.addEventListener("DOMContentLoaded", function () {
     // --- Mobile Sidebar Toggle ---
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('active');
-    });
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    }
 
     // --- Search Form Submission Logic ---
     const searchForm = document.getElementById("searchForm");
@@ -40,14 +44,23 @@
                 try {
                     const response = await fetch(`/admin/coupons/${couponId}`, { method: 'DELETE' });
                     const data = await response.json();
+                    
                     if (response.ok && data.success) {
-                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message, showConfirmButton: false, timer: 1500 }) 
-                            .then(() => window.location.reload());
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Deleted!', 
+                            text: data.message, 
+                            showConfirmButton: false, 
+                            timer: 1500 
+                        }).then(() => window.location.reload());
                     } else {
                         Swal.fire('Error', data.message, 'error');
+                    } // FIXED: This bracket was missing in your original code
+                    
                 } catch (err) {
                     Swal.fire('Error', 'Network request failed', 'error');
                 }
             }
         });
     });
+});

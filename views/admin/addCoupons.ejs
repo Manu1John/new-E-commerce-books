@@ -1,122 +1,155 @@
 <%- include('../partials/header') %>
+<!-- FontAwesome & SweetAlert2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<div class="container" style="max-width: 900px; margin: 40px auto; padding: 20px;">
-    <h1 class="page-title" style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">Add New Coupon</h1>
-    
-    <div class="card" style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <form id="couponForm">
-            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Code</label>
-                    <input type="text" name="code" placeholder="Enter coupon code" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                </div>
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Discount Value</label>
-                    <input type="number" name="discountValue" placeholder="Enter discount" min="0" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                </div>
-
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Type</label>
-                    <select name="discountType" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                        <option value="" disabled selected>Select Coupon Type</option>
-                        <option value="percentage">Percentage</option>
-                        <option value="flat">Flat Amount</option>
-                    </select>
-                </div>
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Status</label>
-                    <select name="isActive" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                        <option value="true" selected>Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Min Purchase Amount</label>
-                    <input type="number" name="minPurchaseAmount" placeholder="Minimum order amount" min="0" value="0" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                </div>
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Start Date</label>
-                    <input type="date" name="startDate" id="startDate" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                </div>
-
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Expiry Date</label>
-                    <input type="date" name="expiryDate" id="expiryDate" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
-                </div>
-                <div class="form-group" style="display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Usage Limit (Auto-calculated)</label>
-                    <!-- Made read-only with a gray background -->
-                    <input type="number" name="usageLimit" id="usageLimit" placeholder="Calculated automatically" min="1" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; background-color: #f1f5f9; color: #64748b;" readonly required>
-                </div>
-
-                <div class="form-group full-width" style="grid-column: span 2; display: flex; flex-direction: column;">
-                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Description</label>
-                    <textarea name="description" rows="3" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;"></textarea>
-                </div>
-
-                <div class="form-group full-width" style="grid-column: span 2;">
-                    <button type="submit" style="width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Coupon</button>
-                </div>
-                
-            </div>
-        </form>
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
     </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1>
+        </div>
+        <ul class="menu">
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+            <li><a href="/admin/coupons" class="active"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST">
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header-wrapper mb-4">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <ol class="breadcrumb">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/coupons">Coupons</a></li>
+                    <li class="active">Add Coupon</li>
+                </ol>
+            </nav>
+            <h2 class="page-title">Create New Coupon</h2>
+        </div>
+
+        <div class="form-layout-grid">
+            <!-- Form Section -->
+            <div class="card-custom form-card">
+                <h3 class="section-title"><i class="fa-solid fa-ticket me-2 text-primary"></i> Coupon Details</h3>
+                
+                <form id="couponForm" class="d-flex flex-column h-100">
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Coupon Code <span class="text-danger">*</span></label>
+                            <div class="input-wrapper">
+                                <input type="text" name="code" class="form-control-custom" placeholder="e.g., SUMMER50" style="text-transform: uppercase;" required>
+                                <i class="fa-solid fa-barcode input-icon text-muted"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Discount Value <span class="text-danger">*</span></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="discountValue" class="form-control-custom pe-5" placeholder="Amount or %" min="0" required>
+                                <i class="fa-solid fa-coins input-icon text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Discount Type <span class="text-danger">*</span></label>
+                            <select name="discountType" class="form-select-custom" required>
+                                <option value="" disabled selected>Select Type...</option>
+                                <option value="percentage">Percentage (%)</option>
+                                <option value="flat">Flat Amount (₹)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Min Purchase Amount (₹) <span class="text-danger">*</span></label>
+                            <input type="number" name="minPurchaseAmount" class="form-control-custom" placeholder="e.g., 500" min="0" value="0" required>
+                        </div>
+                    </div>
+
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Start Date <span class="text-danger">*</span></label>
+                            <input type="date" name="startDate" id="startDate" class="form-control-custom" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Expiry Date <span class="text-danger">*</span></label>
+                            <input type="date" name="expiryDate" id="expiryDate" class="form-control-custom" required>
+                        </div>
+                    </div>
+
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Visibility Status</label>
+                            <div class="radio-group-modern">
+                                <label class="radio-card">
+                                    <input type="radio" name="isActive" value="true" checked>
+                                    <span class="radio-content">
+                                        <i class="fa-solid fa-eye text-success me-1"></i> Active
+                                    </span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="isActive" value="false">
+                                    <span class="radio-content">
+                                        <i class="fa-solid fa-eye-slash text-danger me-1"></i> Inactive
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Usage Limit (Days Valid) <span class="text-danger">*</span></label>
+                            <input type="number" name="usageLimit" id="usageLimit" class="form-control-custom bg-light text-muted" placeholder="Calculated automatically" min="1" readonly required>
+                        </div>
+                    </div>
+
+                    <div class="form-group flex-grow-1">
+                        <label>Description</label>
+                        <textarea name="description" class="form-control-custom" rows="3" placeholder="Enter optional coupon details..."></textarea>
+                    </div>
+
+                    <div class="form-actions mt-auto pt-4 border-top">
+                        <button type="button" class="btn-outline-pill" onclick="window.location.href='/admin/coupons'">Cancel</button>
+                        <button type="submit" class="btn-primary-pill"><i class="fa-solid fa-check me-1"></i> Save Coupon</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tips Sidebar -->
+            <div class="sidebar-card-wrapper">
+                <div class="card-custom highlight-card-soft">
+                    <h3 class="highlight-title"><i class="fa-regular fa-lightbulb me-2"></i> Coupon Tips</h3>
+                    <ul class="tips-list">
+                        <li><i class="fa-solid fa-check text-success"></i> <strong>Percentage</strong> discounts apply a ratio reduction (e.g., 10% off). Do not exceed 99.</li>
+                        <li><i class="fa-solid fa-check text-success"></i> <strong>Flat Amount</strong> discounts apply a direct currency reduction (e.g., ₹100 off).</li>
+                        <li><i class="fa-solid fa-check text-success"></i> The <strong>Usage Limit</strong> is automatically calculated based on the span between your start and expiry dates.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 
-<script>
-// --- Dynamic Usage Limit Logic ---
-const startDateInput = document.getElementById('startDate');
-const expiryDateInput = document.getElementById('expiryDate');
-const usageLimitInput = document.getElementById('usageLimit');
 
-function calculateLimit() {
-    if (startDateInput.value && expiryDateInput.value) {
-        const start = new Date(startDateInput.value);
-        const end = new Date(expiryDateInput.value);
-        
-        if (end >= start) {
-            let days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-            usageLimitInput.value = days > 0 ? days : 1;
-        } else {
-            usageLimitInput.value = '';
-        }
-    }
-}
-
-startDateInput.addEventListener('change', calculateLimit);
-expiryDateInput.addEventListener('change', calculateLimit);
-
-// --- Form Submission Logic ---
-document.getElementById('couponForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
-
-    if (!data.code.trim()) return Swal.fire('Error', 'Coupon Code is required', 'error');
-    if (new Date(data.startDate) > new Date(data.expiryDate)) return Swal.fire('Error', 'Expiry Date must be after Start Date', 'error');
-    if (data.discountType === 'percentage' && (data.discountValue <= 0 || data.discountValue > 99)) {
-        return Swal.fire('Error', 'Percentage discount must be between 1 and 99', 'error');
-    }
-
-    try {
-        const response = await fetch('/admin/coupons/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await response.json();
-        if (response.ok && result.success) {
-            Swal.fire({ icon: 'success', title: 'Success', text: result.message, showConfirmButton: false, timer: 1500 })
-                .then(() => window.location.href = '/admin/coupons');
-        } else {
-            Swal.fire('Failed', result.message || 'Error occurred', 'error');
-        }
-    } catch (err) {
-        Swal.fire('Error', 'Network Error', 'error');
-    }
-});
-</script>
 <%- include('../partials/footer') %>

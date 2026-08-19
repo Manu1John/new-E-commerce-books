@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Delete Offer Logic ---
     document.addEventListener('click', async function (e) {
         const button = e.target.closest('.delete-offer-btn');
         if (!button) return; 
@@ -66,4 +68,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // --- Mobile Sidebar Toggle ---
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    // Added safety check to ensure elements exist before attaching listeners
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    // --- Search Form Submission Logic ---
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+
+    // Added safety check here as well
+    if (searchForm && searchInput) {
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault(); 
+            const searchValue = searchInput.value.trim();
+            if (searchValue) {
+                window.location.href = `/admin/offers?search=${encodeURIComponent(searchValue)}`;
+            } else {
+                window.location.href = "/admin/offers";
+            }
+        });
+    }
 });

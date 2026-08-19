@@ -1,7 +1,7 @@
-<%- include('../partials/header') %> <!--[cite: 25] -->
+<%- include('../partials/header') %>
 <!-- FontAwesome & SweetAlert2 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!--[cite: 25] -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="dashboard-container">
     <!-- Mobile Header -->
@@ -13,21 +13,21 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <h1 class="logo">Admin Panel</h1> <!--[cite: 25] -->
+            <h1 class="logo">Admin Panel</h1>
         </div>
         <ul class="menu">
-            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/coupons" class="active"><i class="fa-solid fa-ticket"></i> Coupons</a></li> <!--[cite: 25] -->
-            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+            <li><a href="/admin/coupons" class="active"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
             <li class="logout-item">
-                <form action="/admin/logout" method="POST"> <!--[cite: 25] -->
+                <form action="/admin/logout" method="POST">
                     <button class="logout-btn" type="submit">
-                        <i class="fa-solid fa-right-from-bracket"></i> Logout <!--[cite: 25] -->
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
                     </button>
                 </form>
             </li>
@@ -46,23 +46,23 @@
                         <li class="active">Coupon Management</li>
                     </ol>
                 </nav>
-                <h2 class="page-title">Coupons</h2> <!--[cite: 25] -->
+                <h2 class="page-title">Coupons</h2>
                 <p class="text-muted mb-0">Manage promo codes, usage limits, and discounts.</p>
             </div>
             
             <div class="header-actions">
-                <a href="/admin/coupons/add" class="btn-primary-pill"><i class="fa-solid fa-plus me-1"></i> Add New Coupon</a> <!--[cite: 25] -->
+                <a href="/admin/coupons/add" class="btn-primary-pill"><i class="fa-solid fa-plus me-1"></i> Add New Coupon</a>
             </div>
         </div>
 
         <!-- Search Bar -->
         <div class="search-container mt-4">
-            <form action="/admin/coupons" method="GET" id="searchForm" class="search-form"> <!--[cite: 25] -->
+            <form action="/admin/coupons" method="GET" id="searchForm" class="search-form">
                 <div class="search-input-group">
                     <i class="fa fa-search search-icon"></i>
-                    <input type="text" name="search" id="searchInput" placeholder="Search Code or Type..." value="<%= typeof search !== 'undefined' ? search : '' %>"> <!--[cite: 25] -->
-                    <% if (typeof search !== 'undefined' && search.length > 0) { %> <!--[cite: 25] -->
-                        <button type="button" class="clear-search-btn" title="Clear Search" onclick="window.location.href='/admin/coupons'"> <!--[cite: 25] -->
+                    <input type="text" name="search" id="searchInput" placeholder="Search Code or Type..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+                    <% if (typeof search !== 'undefined' && search.length > 0) { %>
+                        <button type="button" class="clear-search-btn" title="Clear Search" onclick="window.location.href='/admin/coupons'">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     <% } %>
@@ -76,47 +76,47 @@
                 <table class="table-custom">
                     <thead>
                         <tr>
-                            <th>No</th> <!--[cite: 25] -->
-                            <th>Coupon Code</th> <!--[cite: 25] -->
-                            <th>Discount</th> <!--[cite: 25] -->
-                            <th>Type</th> <!--[cite: 25] -->
-                            <th>Min Purchase</th> <!--[cite: 25] -->
-                            <th>Expiry Date</th> <!--[cite: 25] -->
-                            <th>Limit</th> <!--[cite: 25] -->
-                            <th>Status</th> <!--[cite: 25] -->
-                            <th class="text-center">Actions</th> <!--[cite: 25] -->
+                            <th>No</th>
+                            <th>Coupon Code</th>
+                            <th>Discount</th>
+                            <th>Type</th>
+                            <th>Min Purchase</th>
+                            <th>Expiry Date</th>
+                            <th>Limit</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (coupons && coupons.length > 0) { %> <!--[cite: 25] -->
-                            <% coupons.forEach((coupon, index) => { %> <!--[cite: 25] -->
+                        <% if (coupons && coupons.length > 0) { %>
+                            <% coupons.forEach((coupon, index) => { %>
                             <tr>
-                                <td class="text-muted fw-bold">#<%= index + 1 %></td> <!--[cite: 25] -->
+                                <td class="text-muted fw-bold">#<%= index + 1 %></td>
                                 <td>
-                                    <span class="coupon-code-badge"><i class="fa-solid fa-ticket-simple me-1"></i> <%= coupon.code %></span> <!--[cite: 25] -->
+                                    <span class="coupon-code-badge"><i class="fa-solid fa-ticket-simple me-1"></i> <%= coupon.code %></span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-success"><%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %></span> <!--[cite: 25] -->
+                                    <span class="fw-bold text-success"><%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %></span>
                                 </td>
                                 <td>
-                                    <span class="badge badge-neutral" style="text-transform: capitalize;"><%= coupon.discountType %></span> <!--[cite: 25] -->
+                                    <span class="badge badge-neutral" style="text-transform: capitalize;"><%= coupon.discountType %></span>
                                 </td>
-                                <td class="fw-bold">₹<%= coupon.minPurchaseAmount %></td> <!--[cite: 25] -->
+                                <td class="fw-bold">₹<%= coupon.minPurchaseAmount %></td>
                                 <td class="text-muted">
-                                    <i class="fa-regular fa-calendar me-1"></i> <%= new Date(coupon.expiryDate).toLocaleDateString() %> <!--[cite: 25] -->
+                                    <i class="fa-regular fa-calendar me-1"></i> <%= new Date(coupon.expiryDate).toLocaleDateString() %>
                                 </td>
-                                <td><span class="badge badge-info"><%= coupon.usageLimit %></span></td> <!--[cite: 25] -->
+                                <td><span class="badge badge-info"><%= coupon.usageLimit %></span></td>
                                 <td>
-                                    <span class="badge <%= coupon.isActive ? 'badge-success' : 'badge-danger' %>"> <!--[cite: 25] -->
-                                        <%= coupon.isActive ? 'Active' : 'Inactive' %> <!--[cite: 25] -->
+                                    <span class="badge <%= coupon.isActive ? 'badge-success' : 'badge-danger' %>">
+                                        <%= coupon.isActive ? 'Active' : 'Inactive' %>
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     <div class="action-buttons">
-                                        <a href="/admin/coupons/edit/<%= coupon._id %>" class="action-btn btn-edit" title="Edit Coupon"> <!--[cite: 25] -->
+                                        <a href="/admin/coupons/edit/<%= coupon._id %>" class="action-btn btn-edit" title="Edit Coupon">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <button type="button" class="action-btn btn-delete delete-coupon-btn" data-id="<%= coupon._id %>" title="Delete Coupon"> <!--[cite: 25] -->
+                                        <button type="button" class="action-btn btn-delete delete-coupon-btn" data-id="<%= coupon._id %>" title="Delete Coupon">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
@@ -125,9 +125,9 @@
                             <% }) %>
                         <% } else { %>
                             <tr>
-                                <td colspan="9" class="text-center py-5 text-muted"> <!--[cite: 25] -->
+                                <td colspan="9" class="text-center py-5 text-muted">
                                     <i class="fa-solid fa-ticket fs-1 mb-3 d-block"></i>
-                                    No Coupons found matching your criteria. <!--[cite: 25] -->
+                                    No Coupons found matching your criteria.
                                 </td>
                             </tr>
                         <% } %>
@@ -137,23 +137,23 @@
         </div>
 
         <!-- Pagination -->
-        <% if (totalPages > 1) { %> <!--[cite: 25] -->
+        <% if (totalPages > 1) { %>
         <div class="pagination-wrapper mt-4">
             <div class="pagination-custom">
-                <% if (currentPage > 1) { %> <!--[cite: 25] -->
-                    <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next"> <!--[cite: 25] -->
+                <% if (currentPage > 1) { %>
+                    <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next">
                         <i class="fa-solid fa-chevron-left"></i> Prev
                     </a>
                 <% } %>
                 
-                <% for(let i = 1; i <= totalPages; i++) { %> <!--[cite: 25] -->
-                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 25] -->
-                        <%= i %> <!--[cite: 25] -->
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>" class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
                     </a>
                 <% } %>
                 
-                <% if (currentPage < totalPages) { %> <!--[cite: 25] -->
-                    <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next"> <!--[cite: 25] -->
+                <% if (currentPage < totalPages) { %>
+                    <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next">
                         Next <i class="fa-solid fa-chevron-right"></i>
                     </a>
                 <% } %>
@@ -164,5 +164,7 @@
     </main>
 </div>
 
+<!-- Ensure the script is included -->
+<script src="/js/coupons.js"></script>
 
-<%- include('../partials/footer') %> <!--[cite: 25] -->
+<%- include('../partials/footer') %>
