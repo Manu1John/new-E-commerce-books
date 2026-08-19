@@ -1,6 +1,8 @@
 console.log("==== EDIT PRODUCTS SCRIPT IS ALIVE! ====");
+
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
+    // 🚨 FIX: Target the form by its specific ID to avoid grabbing the logout form
+    const form = document.getElementById('productForm');
     const dropArea = document.getElementById('dropArea');
     const imageUpload = document.getElementById('imageUpload');
     const previewContainer = document.getElementById('previewContainer');
@@ -20,14 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // --- 💾 INITIALIZE EXISTING IMAGES ---
-    const existingData = JSON.parse(previewContainer.getAttribute('data-existing') || '[]');
-    imageArray = existingData.map(img => ({
-        type: 'existing',
-        name: img,
-        src: `/uploads/${img}`
-    }));
-    renderThumbnails();
+    // --- 💾 SAFELY INITIALIZE EXISTING IMAGES ---
+    try {
+        const rawExistingData = previewContainer.getAttribute('data-existing');
+        const existingData = rawExistingData ? JSON.parse(rawExistingData) : [];
+        
+        imageArray = existingData.map(img => ({
+            type: 'existing',
+            name: img,
+            src: `/uploads/${img}`
+        }));
+        renderThumbnails();
+    } catch (error) {
+        console.error("Failed to parse existing image data. Check EJS quotes.", error);
+        imageArray = [];
+    }
 
     // --- 📸 IMAGE SELECTION & INTERACTION ---
     dropArea.addEventListener('click', () => imageUpload.click());
@@ -38,12 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!files.length) return;
 
         if (imageArray.length + files.length > 5) {
-                Swal.fire({
+            Swal.fire({
                 icon: "info",
                 title: "Oops...",
                 text: 'Maximum limit reached! A product cannot have more than 5 images.',
-
-                });
+            });
             this.value = '';
             return;
         }
@@ -63,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsDataURL(file);
         });
-        this.value = ''; // Reset slot
+        this.value = ''; 
     });
 
     // Single replacement handler
@@ -73,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const reader = new FileReader();
         reader.onload = (event) => {
-            // Hot-swap the specific index item with a new uncropped instance
             imageArray[replacementIndex] = {
                 type: 'new',
                 originalSrc: event.target.result,
@@ -84,14 +91,14 @@ document.addEventListener('DOMContentLoaded', () => {
             renderThumbnails();
         };
         reader.readAsDataURL(file);
-        this.value = ''; // Reset slot
+        this.value = ''; 
     });
 
     function renderThumbnails() {
         previewContainer.innerHTML = '';
         imageArray.forEach((item, index) => {
             const card = document.createElement('div');
-            card.style.cssText = 'position:relative; display:inline-block; margin:15px; width:150px; text-align:center; border:1px solid #ddd; padding:5px; border-radius:6px; background:#fff;';
+            card.style.cssText = 'position:relative; display:inline-block; margin:0; width:150px; text-align:center; border:1px solid #ddd; padding:5px; border-radius:6px; background:#fff;';
 
             const img = document.createElement('img');
             if (item.type === 'existing') {
@@ -205,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantity = document.getElementById('quantity');
         const description = document.getElementById('description');
         
-        // NEW FIELDS
         const publisher = document.getElementById('publisher');
         const language = document.getElementById('language');
         const isbn = document.getElementById('isbn');
@@ -215,24 +221,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!title || !title.value.trim()) { showError('titleError', 'Title is required'); isValid = false; }
         if (!category || !category.value.trim()) { showError('categoryError', 'Please select a valid category'); isValid = false; }
         if (!author || !author.value.trim()) { showError('authorError', 'Author name is required'); isValid = false; }
-        
-        // NEW FIELD VALIDATION
         if (!publisher || !publisher.value.trim()) { showError('publisherError', 'Publisher is required'); isValid = false; }
         if (!language || !language.value.trim()) { showError('languageError', 'Language is required'); isValid = false; }
         if (!isbn || !isbn.value.trim()) { showError('isbnError', 'ISBN is required'); isValid = false; }
         if (!publicationDate || !publicationDate.value.trim()) { showError('publicationDateError', 'Publication date is required'); isValid = false; }
         if (!pages || !pages.value.trim() || parseInt(pages.value) <= 0) { showError('pagesError', 'Valid number of pages is required'); isValid = false; }
-
         if (!description || !description.value.trim()) { showError('descriptionError', 'Description is required'); isValid = false; }
-        
-        if (!price || !price.value.trim() || parseFloat(price.value) <= 0) { 
-            showError('priceError', 'Price must be a positive number'); isValid = false; 
-        }
-        if (!quantity || !quantity.value.trim() || parseInt(quantity.value) < 0) { 
-            showError('quantityError', 'Stock quantity cannot be negative'); isValid = false; 
-        }
+        if (!price || !price.value.trim() || parseFloat(price.value) <= 0) { showError('priceError', 'Price must be a positive number'); isValid = false; }
+        if (!quantity || !quantity.value.trim() || parseInt(quantity.value) < 0) { showError('quantityError', 'Stock quantity cannot be negative'); isValid = false; }
 
-        // Total count validation check
         if (imageArray.length < 3 || imageArray.length > 5) {
             showError('imageError', 'The product must have between 3 and 5 total images.');
             isValid = false;
@@ -246,6 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (errorSpan) {
             errorSpan.innerText = message;
             errorSpan.style.display = 'block';
+            if(errorSpan.previousElementSibling) {
+                errorSpan.previousElementSibling.classList.add('input-error');
+            }
         }
     }
 
@@ -253,6 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.error-message').forEach(span => {
             span.innerText = '';
             span.style.display = 'none';
+        });
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.classList.remove('input-error');
         });
     }
 
@@ -267,9 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log("✅ Validation passed! Compiling mapped payload data...");
         const formData = new FormData(this);
-        formData.delete('images'); // Discard baseline input payload elements
+        formData.delete('images'); 
 
-        // Map order sequence arrays so the backend knows where old files remain or new files inject
         let fileCounter = 0;
         imageArray.forEach((item) => {
             if (item.type === 'existing') {
@@ -293,11 +295,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const textData = await response.text();
             let data;
+            
             try {
                 data = JSON.parse(textData);
             } catch (jsonError) {
                 console.error("🚨 CRITICAL: Unexpected backend output parsing error.", textData);
-                alert("The server returned a bad payload response. Review your dev tools console.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Server Error",
+                    text: "The server did not return a valid response.",
+                });
                 return;
             }
 
@@ -305,17 +312,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = data.redirectUrl || '/admin/products'; 
             } else {
                 Swal.fire({
-                icon: "info",
-                title: "Oops...",
-                text: "Product name already exists or invalid data!",
+                    icon: "info",
+                    title: "Oops...",
+                    text: data.error || "Product name already exists or invalid data!",
                 });
             }
         } catch (error) {
             console.error('Network Upload Exception:', error);
-                Swal.fire({
-            title: "The Internet?",
-            text: "Network error is occured?",
-            icon: "question"
+            Swal.fire({
+                title: "Network Error",
+                text: "A network error occurred while submitting.",
+                icon: "error"
             });
         }
     });

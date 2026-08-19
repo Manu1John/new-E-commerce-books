@@ -1,109 +1,78 @@
-// =========================
-// SEARCH (CATEGORY ONLY)
-// =========================
-let timer;
-const searchInput = document.getElementById("searchInput");
-const clearInput  = document.getElementById("clearInput")
+document.addEventListener("DOMContentLoaded", function () {
 
+    // --- Mobile Sidebar Toggle ---
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    }
 
-if (searchInput) {
-    searchInput.addEventListener("keyup", function () {
+    // --- Search Form Submission Logic ---
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
 
-        clearTimeout(timer);
-
-        timer = setTimeout(() => {
-
+    if (searchForm) {
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // Stop the default form submission
+            
             const searchValue = searchInput.value.trim();
-
-            window.location.href =
-                `/admin/category?search=${searchValue}`;
-
-        }, 500);
-
-    });
-}
-if(clearInput){
-    clearInput.addEventListener("click",function(){
-        window.location.href = "/admin/category"
-    })
-
-}
-
-// =========================
-// DELETE MODAL LOGIC
-// =========================
-
-let selectedId = null;
-
-const modal = document.getElementById("deleteModal");
-const cancelBtn = document.getElementById("cancelDelete");
-const confirmBtn = document.getElementById("confirmDelete");
-
-function openDeleteModal(id) {
-    selectedId = id;
-    if (modal) modal.style.display = "flex";
-}
-
-function closeModal() {
-    selectedId = null;
-    if (modal) modal.style.display = "none";
-}
-
-// expose to HTML
-window.openDeleteModal = openDeleteModal;
-
-if (cancelBtn) {
-    cancelBtn.addEventListener("click", closeModal);
-}
-
-if (confirmBtn) {
-    confirmBtn.addEventListener("click", async function () {
-
-        if (!selectedId) return;
-
-        try {
-
-            const response = await fetch(
-                `/admin/category/${selectedId}/delete`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                }
-            );
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                showToast("Category deleted successfully!", "success");
-                closeModal();
-                setTimeout(() => location.reload(), 800);
+            if (searchValue) {
+                // Redirect with the query
+                window.location.href = `/admin/category?search=${encodeURIComponent(searchValue)}`;
             } else {
-                showToast(data.message || "Delete failed", "error");
+                // Clear state if submitted empty
+                window.location.href = "/admin/category";
             }
+        });
+    }
 
-        } catch (err) {
-            console.error(err);
-            showToast("Server error", "error");
-        }
+    // --- SweetAlert2 Delete Logic ---
+    const deleteButtons = document.querySelectorAll('.delete-category-btn');
 
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async function (e) {
+            e.preventDefault();
+            
+            const categoryId = this.getAttribute('data-id');
+
+            // Replace your custom modal with SweetAlert2
+            const result = await Swal.fire({
+                title: 'Delete Category?',
+                text: "Are you sure you want to delete this category?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/category/${categoryId}/delete`, {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Category deleted successfully.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        location.reload();
+                    } else {
+                        Swal.fire('Error', data.message || "Delete failed", 'error');
+                    }
+                } catch (err) {
+                    console.error("Delete Error:", err);
+                    Swal.fire('Server error', 'Could not delete category.', 'error');
+                }
+            }
+        });
     });
-}
-
-
-// =========================
-// TOAST
-// =========================
-
-function showToast(message, type = "success") {
-    Toastify({
-        text: message,
-        duration: 3000,
-        close: true,
-        gravity: "top",
-        position: "right",
-        backgroundColor:
-            type === "success" ? "#28a745" : "#dc3545",
-    }).showToast();
-}
+});

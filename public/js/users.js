@@ -1,117 +1,345 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
+
+    // =====================================================
+    // SEARCH
+    // =====================================================
+
     const searchInput = document.getElementById("searchInput");
     const clearButton = document.getElementById("clearSearch");
-    let timer;
 
-    // Debounced search
+    let searchTimer = null;
+
     if (searchInput) {
-        searchInput.addEventListener("keyup", function () {
-            clearTimeout(timer);
-            timer = setTimeout(() => {
+
+        searchInput.addEventListener("input", function () {
+
+            clearTimeout(searchTimer);
+
+            searchTimer = setTimeout(function () {
+
                 const searchValue = searchInput.value.trim();
-                window.location.href = `/admin/users?search=${searchValue}`;
+
+                if (searchValue !== "") {
+
+                    window.location.href =
+                        `/admin/users?search=${encodeURIComponent(searchValue)}`;
+
+                } else {
+
+                    window.location.href = "/admin/users";
+
+                }
+
             }, 500);
+
         });
     }
 
-    // Clear search
+
+    // =====================================================
+    // CLEAR SEARCH
+    // =====================================================
+
     if (clearButton) {
-        clearButton.addEventListener("click", function () {
+
+        clearButton.addEventListener("click", function (event) {
+
+            event.preventDefault();
+
             window.location.href = "/admin/users";
+
         });
     }
 
-    // --- NEW TOAST & CUSTOM CONFIRMATION LOGIC ---
 
-    // Automatically build & inject Toast container into DOM
-    const toastContainer = document.createElement('div');
-    toastContainer.className = 'toast-container';
+    // =====================================================
+    // TOAST CONTAINER
+    // =====================================================
+
+    const toastContainer = document.createElement("div");
+
+    toastContainer.className = "toast-container";
+
     document.body.appendChild(toastContainer);
 
-    // Toast Generator Function
-    window.showToast = function(message, type = 'success') {
-        const toast = document.createElement('div');
+
+    // =====================================================
+    // TOAST FUNCTION
+    // =====================================================
+
+    window.showToast = function (message, type = "success") {
+
+        const toast = document.createElement("div");
+
         toast.className = `toast ${type}`;
-        
-        const iconClass = type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark';
-        
-        toast.innerHTML = `
-            <i class="${iconClass}"></i>
-            <span>${message}</span>
-        `;
-        
+
+
+        // Icon
+        const icon = document.createElement("i");
+
+        if (type === "success") {
+
+            icon.className = "fa-solid fa-circle-check";
+
+        } else if (type === "error") {
+
+            icon.className = "fa-solid fa-circle-xmark";
+
+        } else if (type === "warning") {
+
+            icon.className = "fa-solid fa-triangle-exclamation";
+
+        } else {
+
+            icon.className = "fa-solid fa-circle-info";
+
+        }
+
+
+        // Message
+        const messageElement = document.createElement("span");
+
+        messageElement.textContent = message;
+
+
+        // Add elements
+        toast.appendChild(icon);
+        toast.appendChild(messageElement);
+
         toastContainer.appendChild(toast);
-        
-        // Trigger presentation transitions
-        setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Auto remove layout
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 400);
-        }, 3000);
-    }
 
-    // Custom Pop-up Confirmation Modal Generator Function
-    function showCustomConfirm(message, onConfirm) {
-        const overlay = document.createElement('div');
-        overlay.className = 'confirm-overlay';
-        overlay.innerHTML = `
-            <div class="confirm-box">
-                <h3>Confirm Action</h3>
-                <p>${message}</p>
-                <div class="confirm-buttons">
-                    <button class="confirm-btn no">Cancel</button>
-                    <button class="confirm-btn yes">Confirm</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-        
-        setTimeout(() => overlay.classList.add('show'), 10);
 
-        const closeConfirm = () => {
-            overlay.classList.remove('show');
-            setTimeout(() => overlay.remove(), 300);
-        };
+        // Show animation
+        setTimeout(function () {
 
-        overlay.querySelector('.confirm-btn.no').addEventListener('click', closeConfirm);
-        overlay.querySelector('.confirm-btn.yes').addEventListener('click', () => {
-            closeConfirm();
-            onConfirm();
-        });
-    }
+            toast.classList.add("show");
 
-    // Intercept User Block/Unblock Form Submissions
-    document.querySelectorAll('.status-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // Stop standard direct page reloads
-            
-            const confirmationMessage = this.getAttribute('data-message') || 'Are you sure you want to proceed?';
-            
-            showCustomConfirm(confirmationMessage, async () => {
-                try {
-                    const response = await fetch(this.action, {
-                        method: 'POST', // Handled via _method=PATCH parsing
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        }
-                    });
+        }, 10);
 
-                    if (response.ok) {
-                        showToast('Status updated successfully!', 'success');
-                        // Delays reload briefly so the user experiences the beautiful success toast
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1300);
-                    } else {
-                        showToast('Failed to update status. Please try again.', 'error');
-                    }
-                } catch (error) {
-                    console.error('Error handling status change:', error);
-                    showToast('A network error occurred.', 'error');
+
+        // Remove toast
+        setTimeout(function () {
+
+            toast.classList.remove("show");
+
+            setTimeout(function () {
+
+                if (toast.parentNode) {
+                    toast.remove();
                 }
-            });
+
+            }, 400);
+
+        }, 3000);
+    };
+
+
+    // =====================================================
+    // MOBILE SIDEBAR
+    // =====================================================
+
+    const sidebarToggle =
+        document.getElementById("sidebarToggle");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+
+    if (sidebarToggle && sidebar) {
+
+        sidebarToggle.addEventListener("click", function () {
+
+            sidebar.classList.toggle("active");
+
         });
+
+    }
+
+
+    // =====================================================
+    // BLOCK / UNBLOCK USER
+    // =====================================================
+
+    const actionButtons =
+        document.querySelectorAll(".action-btn");
+
+
+    actionButtons.forEach(function (button) {
+
+        button.addEventListener("click", function (event) {
+
+            event.preventDefault();
+
+
+            // ---------------------------------------------
+            // Find the form
+            // ---------------------------------------------
+
+            const form = this.closest("form");
+
+            if (!form) {
+
+                console.error(
+                    "Block/Unblock button is not inside a form."
+                );
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // Get user information
+            // ---------------------------------------------
+
+            const userName =
+                this.getAttribute("data-name") || "this user";
+
+            const action =
+                this.getAttribute("data-action");
+
+
+            // ---------------------------------------------
+            // Determine block/unblock
+            // ---------------------------------------------
+
+            const isBlock = action === "block";
+
+
+            const titleText = isBlock
+                ? "Block User?"
+                : "Unblock User?";
+
+
+            const textContent = isBlock
+
+                ? `Are you sure you want to block ${userName}? They will lose access to their account.`
+
+                : `Are you sure you want to unblock ${userName}? They will regain access to their account.`;
+
+
+            const confirmText = isBlock
+                ? "Yes, block them"
+                : "Yes, unblock them";
+
+
+            const confirmColor = isBlock
+                ? "#ef4444"
+                : "#10b981";
+
+
+            // ---------------------------------------------
+            // Check SweetAlert
+            // ---------------------------------------------
+
+            if (typeof Swal === "undefined") {
+
+                console.error(
+                    "SweetAlert2 is not loaded."
+                );
+
+                // Fallback
+                if (confirm(textContent)) {
+
+                    form.submit();
+
+                }
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // SweetAlert Confirmation
+            // ---------------------------------------------
+
+            Swal.fire({
+
+                title: titleText,
+
+                text: textContent,
+
+                icon: "warning",
+
+                showCancelButton: true,
+
+                confirmButtonColor: confirmColor,
+
+                cancelButtonColor: "#64748b",
+
+                confirmButtonText: confirmText,
+
+                cancelButtonText: "Cancel",
+
+                reverseButtons: true,
+
+                allowOutsideClick: false,
+
+                allowEscapeKey: true,
+
+                customClass: {
+
+                    popup: "user-action-popup"
+
+                }
+
+            }).then(function (result) {
+
+                if (result.isConfirmed) {
+
+                    // -------------------------------------
+                    // Submit original form
+                    // -------------------------------------
+
+                    form.submit();
+
+                }
+
+            });
+
+        });
+
     });
+
+
+    // =====================================================
+    // OPTIONAL: SHOW SERVER-SIDE TOAST MESSAGE
+    // =====================================================
+
+    /*
+        If your controller sends:
+
+        res.redirect("/admin/users?success=User blocked");
+
+        then you can display the message here.
+    */
+
+    const urlParams =
+        new URLSearchParams(window.location.search);
+
+    const successMessage =
+        urlParams.get("success");
+
+    const errorMessage =
+        urlParams.get("error");
+
+
+    if (successMessage) {
+
+        window.showToast(
+            successMessage,
+            "success"
+        );
+
+    }
+
+
+    if (errorMessage) {
+
+        window.showToast(
+            errorMessage,
+            "error"
+        );
+
+    }
+
 });

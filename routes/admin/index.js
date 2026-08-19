@@ -7,6 +7,7 @@ import orderRoutes from './orderRoutes.js'
 import couponRoutes from './couponRoutes.js'
 import offerRoutes from './offerRoutes.js'
 import reportRoutes from './reportRoutes.js'
+import dashboardRoutes from './dashboardRoutes.js'
 const router = express.Router()
 
 router.use(adminAuthRoutes)
@@ -17,4 +18,5 @@ router.use(orderRoutes)
 router.use(couponRoutes)
 router.use(offerRoutes)
 router.use(reportRoutes)
+router.use(dashboardRoutes)
 export default router

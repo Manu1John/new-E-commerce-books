@@ -1,140 +1,262 @@
-<%- include('../partials/header') %>
+<%- include('../partials/header') %> <!--[cite: 21] -->
+<!-- FontAwesome & SweetAlert2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!--[cite: 21] -->
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<div class="container">
-
-    <aside class="sidebar">
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
         <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
 
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1> <!--[cite: 21] -->
+        </div>
         <ul class="menu">
-            <li><a href="/admin/users">Users</a></li>
-            <li><a href="/admin/sales-report">Reports</a></li>
-            <li><a href="/admin/products">Products</a></li>
-            <li><a href="/admin/orders">Orders</a></li>
-            <li><a href="/admin/offers" class="active">Offers</a></li>
-            <li><a href="#">Coupons</a></li>
-            <li><a href="/admin/category">Categories</a></li>
-            <li>            
-                <form action="/admin/logout" method="POST">
-                    <button class="logout-btn">
-                        Logout
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/offers" class="active"><i class="fa-solid fa-tags"></i> Offers</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li> <!--[cite: 21] -->
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li> <!--[cite: 21] -->
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST"> <!--[cite: 21] -->
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout <!--[cite: 21] -->
                     </button>
                 </form>
             </li>
         </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
+        
+        <!-- Breadcrumb & Header Section -->
+        <div class="page-header-wrapper">
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                        <li class="active">Offer Management</li>
+                    </ol>
+                </nav>
+                <h2 class="page-title">Offers & Promotions</h2> <!--[cite: 21] -->
+                <p class="text-muted mb-0">Manage discounts for products, categories, and referrals.</p>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/admin/offers/add" class="btn-primary-pill"><i class="fa-solid fa-plus me-1"></i> Add New Offer</a> <!--[cite: 21] -->
+            </div>
+        </div>
 
-        <!-- Updated Search Form -->
-        <div class="top-bar">
-            <form action="/admin/offers" method="GET" id="searchForm">
-                <div class="search-box">
-                    <i class="fa fa-search"></i>
-                    <input type="text" name="search" id="searchInput" placeholder="Search Offers..." value="<%= typeof search !== 'undefined' ? search : '' %>">
-                    <% if (typeof search !== 'undefined' && search.length > 0) { %>
-                        <button type="button" class="clear-btn" style="background:none; border:none; color:red; cursor:pointer;" onclick="window.location.href='/admin/offers'">
-                            ✖ Clear
+        <!-- Search Bar -->
+        <div class="search-container mt-4">
+            <form action="/admin/offers" method="GET" id="searchForm" class="search-form"> <!--[cite: 21] -->
+                <div class="search-input-group">
+                    <i class="fa fa-search search-icon"></i>
+                    <input type="text" name="search" id="searchInput" placeholder="Search Offers..." value="<%= typeof search !== 'undefined' ? search : '' %>"> <!--[cite: 21] -->
+                    <% if (typeof search !== 'undefined' && search.length > 0) { %> <!--[cite: 21] -->
+                        <button type="button" class="clear-search-btn" title="Clear Search" onclick="window.location.href='/admin/offers'"> <!--[cite: 21] -->
+                            <i class="fa-solid fa-xmark"></i>
                         </button>
                     <% } %>
                 </div>
-                <button type="submit" style="display:none;"></button>
             </form>
         </div>
 
-        <div class="page-header">
-            <h2 class="page-title">Offer Management</h2>
-            <a href="/admin/offers/add"><button class="add-btn">Add Offer</button></a>
-        </div>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Offer Name</th>
-                        <th>Discount</th>
-                        <th>Type</th>
-                        <th>Assigned To</th>
-                        <th>Expiry Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <% if (offers && offers.length > 0) { %>
-                        <% offers.forEach((offer, index) => { %>
+        <!-- Offers Table -->
+        <div class="table-custom-wrapper mt-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>No</th> <!--[cite: 21] -->
+                            <th>Offer Details</th> <!--[cite: 21] -->
+                            <th>Discount</th> <!--[cite: 21] -->
+                            <th>Assigned To</th> <!--[cite: 21] -->
+                            <th>Expiry Date</th> <!--[cite: 21] -->
+                            <th>Status</th> <!--[cite: 21] -->
+                            <th class="text-center">Actions</th> <!--[cite: 21] -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (offers && offers.length > 0) { %> <!--[cite: 21] -->
+                            <% offers.forEach((offer, index) => { %> <!--[cite: 21] -->
                             <tr>
-                                <td><%= index + 1 %></td>
-                                <td><%= offer.name %></td>
-                                <td><%= offer.discountPercentage %>%</td>
-                                <td style="text-transform: capitalize;"><%= offer.type %></td>
+                                <td class="text-muted fw-bold">#<%= index + 1 %></td> <!--[cite: 21] -->
                                 <td>
-                                    <% if (offer.type === 'product' && offer.productRef) { %>
-                                        <%= offer.productRef.title %>
-                                    <% } else if (offer.type === 'category' && offer.categoryRef) { %>
-                                        <%= offer.categoryRef.name %>
+                                    <div class="offer-name-cell">
+                                        <div class="offer-icon"><i class="fa-solid fa-tag"></i></div>
+                                        <div>
+                                            <span class="fw-bold d-block"><%= offer.name %></span> <!--[cite: 21] -->
+                                            <span class="text-muted" style="font-size: 0.8rem; text-transform: capitalize;"><%= offer.type %> Offer</span> <!--[cite: 21] -->
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success" style="font-size: 0.85rem;"><%= offer.discountPercentage %>% OFF</span> <!--[cite: 21] -->
+                                </td>
+                                <td class="text-muted fw-bold">
+                                    <% if (offer.type === 'product' && offer.productRef) { %> <!--[cite: 21] -->
+                                        <i class="fa-solid fa-box me-1"></i> <%= offer.productRef.title %> <!--[cite: 21] -->
+                                    <% } else if (offer.type === 'category' && offer.categoryRef) { %> <!--[cite: 21] -->
+                                        <i class="fa-solid fa-list me-1"></i> <%= offer.categoryRef.name %> <!--[cite: 21] -->
                                     <% } else { %>
-                                        <span class="text-muted">General / Referral</span>
+                                        <span class="badge badge-neutral">General / Referral</span> <!--[cite: 21] -->
                                     <% } %>
                                 </td>
-                                <td><%= new Date(offer.expiryDate).toLocaleDateString() %></td>
                                 <td>
-                                    <span class="badge <%= offer.isActive ? 'bg-success text-white' : 'bg-secondary text-white' %>" style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
-                                        <%= offer.isActive ? 'Active' : 'Inactive' %>
+                                    <i class="fa-regular fa-calendar me-1 text-muted"></i> 
+                                    <%= new Date(offer.expiryDate).toLocaleDateString() %> <!--[cite: 21] -->
+                                </td>
+                                <td>
+                                    <span class="badge <%= offer.isActive ? 'badge-success' : 'badge-danger' %>"> <!--[cite: 21] -->
+                                        <%= offer.isActive ? 'Active' : 'Inactive' %> <!--[cite: 21] -->
                                     </span>
                                 </td>
-                                <td>
-                                    <a style="text-decoration: none;" href="/admin/offers/edit/<%= offer._id %>">
-                                        <button class="edit" type="button">Edit</button>
-                                    </a>
-                                    <button type="button" class="delete-offer-btn" data-id="<%= offer._id %>">Delete</button>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="/admin/offers/edit/<%= offer._id %>" class="action-btn btn-edit" title="Edit Offer"> <!--[cite: 21] -->
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <button type="button" class="action-btn btn-delete delete-offer-btn" data-id="<%= offer._id %>" title="Delete Offer"> <!--[cite: 21] -->
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="8" class="text-center py-4" style="text-align: center;">
-                                No Offers found
-                            </td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted"> <!--[cite: 21] -->
+                                    <i class="fa-solid fa-tags fs-1 mb-3 d-block"></i>
+                                    No Offers found matching your criteria. <!--[cite: 21] -->
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
-<!-- Replace your existing pagination placeholder with this -->
-            <div class="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; padding-bottom: 20px;">
-                <% if (totalPages > 1) { %>
-                    
-                    <!-- Previous Button -->
-                    <% if (currentPage > 1) { %>
-                        <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>">
-                            <button class="btn btn-outline" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: white;">Previous</button>
-                        </a>
-                    <% } %>
 
-                    <!-- Page Numbers -->
-                    <% for(let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
-                            <button class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
-                                style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; <%= currentPage === i ? 'background-color: #2563eb; color: white; border-color: #2563eb;' : 'background: white;' %>">
-                                <%= i %>
-                            </button>
-                        </a>
-                    <% } %>
-
-                    <!-- Next Button -->
-                    <% if (currentPage < totalPages) { %>
-                        <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>">
-                            <button class="btn btn-outline" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: white;">Next</button>
-                        </a>
-                    <% } %>
-
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %> <!--[cite: 21] -->
+        <div class="pagination-wrapper mt-4">
+            <div class="pagination-custom">
+                <% if (currentPage > 1) { %> <!--[cite: 21] -->
+                    <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next"> <!--[cite: 21] -->
+                        <i class="fa-solid fa-chevron-left"></i> Prev
+                    </a>
+                <% } %>
+                
+                <% for(let i = 1; i <= totalPages; i++) { %> <!--[cite: 21] -->
+                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 21] -->
+                        <%= i %> <!--[cite: 21] -->
+                    </a>
+                <% } %>
+                
+                <% if (currentPage < totalPages) { %> <!--[cite: 21] -->
+                    <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next"> <!--[cite: 21] -->
+                        Next <i class="fa-solid fa-chevron-right"></i>
+                    </a>
                 <% } %>
             </div>
-    </main> 
+        </div>
+        <% } %>
+
+    </main>
 </div>
 
-<%- include('../partials/footer') %>
+<script>
+    // --- Mobile Sidebar Toggle ---
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+    });
+
+    // --- Search Form Submission Logic ---
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+
+    if (searchForm) {
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault(); 
+            const searchValue = searchInput.value.trim();
+            if (searchValue) {
+                window.location.href = `/admin/offers?search=${encodeURIComponent(searchValue)}`;
+            } else {
+                window.location.href = "/admin/offers";
+            }
+        });
+    }
+
+    // --- SweetAlert2 Deletion Logic ---
+    document.addEventListener('click', async function (e) { <!--[cite: 22] -->
+        const button = e.target.closest('.delete-offer-btn'); <!--[cite: 22] -->
+        if (!button) return; <!--[cite: 22] -->
+
+        e.preventDefault(); <!--[cite: 22] -->
+        const offerId = button.getAttribute('data-id'); <!--[cite: 22] -->
+        
+        Swal.fire({
+            title: 'Are you sure?', <!--[cite: 22] -->
+            text: "Do you want to delete this offer? This action cannot be undone.", <!--[cite: 22] -->
+            icon: 'warning', <!--[cite: 22] -->
+            showCancelButton: true, <!--[cite: 22] -->
+            confirmButtonColor: '#ef4444', <!--[cite: 22] -->
+            cancelButtonColor: '#64748b', <!--[cite: 22] -->
+            confirmButtonText: 'Yes, delete it!', <!--[cite: 22] -->
+            cancelButtonText: 'Cancel' <!--[cite: 22] -->
+        }).then(async (result) => { <!--[cite: 22] -->
+            if (result.isConfirmed) { <!--[cite: 22] -->
+                try {
+                    const response = await fetch(`/admin/offers/${offerId}`, { <!--[cite: 22] -->
+                        method: 'DELETE', <!--[cite: 22] -->
+                        headers: { 'Content-Type': 'application/json' } <!--[cite: 22] -->
+                    });
+
+                    const data = await response.json(); <!--[cite: 22] -->
+
+                    if (response.ok && data.success) { <!--[cite: 22] -->
+                        const Toast = Swal.mixin({ <!--[cite: 22] -->
+                            toast: true, <!--[cite: 22] -->
+                            position: 'top-end', <!--[cite: 22] -->
+                            showConfirmButton: false, <!--[cite: 22] -->
+                            timer: 1500, <!--[cite: 22] -->
+                            timerProgressBar: true <!--[cite: 22] -->
+                        });
+
+                        await Toast.fire({ <!--[cite: 22] -->
+                            icon: 'success', <!--[cite: 22] -->
+                            title: data.message || 'Offer deleted successfully' <!--[cite: 22] -->
+                        });
+
+                        setTimeout(() => { window.location.reload(); }, 1500); <!--[cite: 22] -->
+                    } else {
+                        Swal.fire({ <!--[cite: 22] -->
+                            icon: 'error', <!--[cite: 22] -->
+                            title: 'Failed to delete', <!--[cite: 22] -->
+                            text: data.message || "Unknown server error", <!--[cite: 22] -->
+                            confirmButtonColor: '#4F46E5' 
+                        });
+                    }
+                } catch (error) { <!--[cite: 22] -->
+                    console.error("Deletion Fetch Error:", error); <!--[cite: 22] -->
+                    Swal.fire({ <!--[cite: 22] -->
+                        icon: 'error', <!--[cite: 22] -->
+                        title: 'Network Error', <!--[cite: 22] -->
+                        text: 'A network error occurred while trying to delete the offer.', <!--[cite: 22] -->
+                        confirmButtonColor: '#4F46E5'
+                    });
+                }
+            }
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %> <!--[cite: 21] -->

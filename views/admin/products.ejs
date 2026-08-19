@@ -1,236 +1,178 @@
 <%- include('../partials/header') %>
+<!-- FontAwesome & SweetAlert2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!--[cite: 15] -->
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<div class="container">
-
-    <aside class="sidebar">
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
         <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
 
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1>
+        </div>
         <ul class="menu">
-            <li><a href="/admin/users">Users</a></li>
-            <li><a href="/admin/sales-report">Reports</a></li>
-            <li><a href="/admin/products">Products</a></li>
-            <li><a href="/admin/orders">Orders</a></li>
-            <li><a href="/admin/offers">Offers</a></li>
-            <li><a href="#">Coupons</a></li>
-            <li><a href="/admin/category">Categories</a></li>
-            <li>            <form action="/admin/logout" method="POST">
-                <button class="logout-btn">
-                    Logout
-                </button>
-            </form></li>
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="/admin/products" class="active"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST"> <!--[cite: 15] -->
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </form>
+            </li>
         </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
+        
+        <!-- Breadcrumb & Header Section -->
+        <div class="page-header-wrapper">
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                        <li class="active">Product Management</li>
+                    </ol>
+                </nav>
+                <h2 class="page-title">Products Inventory</h2>
+                <p class="text-muted mb-0">Manage your store's items, pricing, and stock levels.</p>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/admin/product/add" class="btn-primary-pill"><i class="fa-solid fa-plus me-1"></i> Add New Product</a> <!--[cite: 15] -->
+            </div>
+        </div>
 
-        <div class="top-bar">
-
-            <form action="/admin/products" method="GET" id="searchForm">
-                <div class="search-box">
-                    <i class="fa fa-search"></i>
-                    <input
-                        type="text"
-                        name="search"
-                        id="searchInput"
-                        placeholder="Search product..."
-                        value="<%= search || '' %>"
-                    >
-                    <button type="button" class="clear-btn" id="clearButton">
-                        ✖
-                    </button>
+        <!-- Search Bar -->
+        <div class="search-container mt-4">
+            <form action="/admin/products" method="GET" id="searchForm" class="search-form"> <!--[cite: 15] -->
+                <div class="search-input-group">
+                    <i class="fa fa-search search-icon"></i>
+                    <input type="text" id="searchInput" name="search" placeholder="Search by product name..." value="<%= search || '' %>"> <!--[cite: 15] -->
+                    <% if(search) { %>
+                        <button type="button" id="clearButton" class="clear-search-btn" title="Clear Search"><i class="fa-solid fa-xmark"></i></button> <!--[cite: 15] -->
+                    <% } %>
                 </div>
             </form>
         </div>
 
-        <div class="page-header">
-            <h2 class="page-title">Products</h2>
-            <a href="/admin/product/add"><button class="add-btn">Add Product</button></a>
+        <!-- Products Table -->
+        <div class="table-custom-wrapper mt-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>No</th> <!--[cite: 15] -->
+                            <th>Product Details</th>
+                            <th>Category</th> <!--[cite: 15] -->
+                            <th>Author</th> <!--[cite: 15] -->
+                            <th>Price</th> <!--[cite: 15] -->
+                            <th>Stock</th> <!--[cite: 15] -->
+                            <th class="text-center">Actions</th> <!--[cite: 15] -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(pro && pro.length > 0) { %> <!--[cite: 15] -->
+                            <% pro.forEach((product, index) => { %> <!--[cite: 15] -->
+                            <tr>
+                                <td class="text-muted fw-bold">#<%= (currentPage - 1) * 4 + index + 1 %></td> <!--[cite: 15] -->
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-img-wrapper">
+                                            <% if (product.images && product.images.length > 0) { %> <!--[cite: 15] -->
+                                                <img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" class="product-thumbnail"> <!--[cite: 15] -->
+                                            <% } else { %>
+                                                <div class="product-placeholder"><i class="fa-solid fa-image"></i></div>
+                                            <% } %>
+                                        </div>
+                                        <span class="fw-bold product-title"><%= product.title %></span> <!--[cite: 15] -->
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-neutral"><%= product.category?.name || "No Category" %></span></td> <!--[cite: 15] -->
+                                <td class="text-muted"><%= product.author || "Unknown" %></td> <!--[cite: 15] -->
+                                <td class="fw-bold text-success">₹<%= product.price %></td> <!--[cite: 15] -->
+                                <td>
+                                    <% if(product.quantity > 10) { %> <!--[cite: 15] -->
+                                        <span class="badge badge-success"><%= product.quantity %> in stock</span>
+                                    <% } else if(product.quantity > 0) { %>
+                                        <span class="badge badge-warning">Low: <%= product.quantity %></span>
+                                    <% } else { %>
+                                        <span class="badge badge-danger">Out of Stock</span>
+                                    <% } %>
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="/admin/product/<%=product._id%>/edit" class="action-btn btn-edit" title="Edit"> <!--[cite: 15] -->
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <button type="button" class="action-btn btn-delete delete-product-btn" data-id="<%= product._id %>" title="Delete"> <!--[cite: 15] -->
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted"> <!--[cite: 15] -->
+                                    <i class="fa-solid fa-box-open fs-1 mb-3 d-block"></i>
+                                    No products found in the inventory. <!--[cite: 15] -->
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Author</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <% if(pro.length > 0){ %>
-                        <% pro.forEach((product, index) => { %>
-                        <tr>
-                            <td>
-                                <%= (currentPage - 1) * 4 + index + 1 %>
-                            </td>
-
-                            <td>
-                                <% if (product.images && product.images.length > 0) { %>
-                                    <img
-                                        src="/uploads/<%= product.images[0] %>"
-                                        alt="<%= product.title %>"
-                                        style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
-                                    >
-                                <% } else { %>
-                                    <img
-                                        src="https://via.placeholder.com/60"
-                                        alt="No image available"
-                                        style="width: 60px; height: 60px; object-fit: cover; opacity: 0.5;"
-                                    >
-                                <% } %>
-                            </td>
-
-                            <td>
-                                <%= product.title %>
-                            </td>
-
-                            <td>
-                                <%= product.category?.name || "No Category" %>
-                            </td>
-
-                            <td>
-                                <%= product.author %>
-                            </td>
-
-                            <td>
-                                ₹<%= product.price %>
-                            </td>
-
-                            <td>
-                                <%= product.quantity %>
-                            </td>
-
-                            <td>
-                                <a style="text-decoration: none;" href="/admin/product/<%=product._id%>/edit">
-                                    <button class="edit">
-                                        Edit
-                                    </button>
-                                </a>
-                                
-                                <button type="button" class="delete-product-btn" data-id="<%= product._id %>">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="8">
-                                No products found
-                            </td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
-
-            <div class="pagination">
-                <% if(currentPage > 1){ %>
-                    <a href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>">
-                        Prev
+        <!-- Pagination -->
+        <% if(totalPages > 1) { %> <!--[cite: 15] -->
+        <div class="pagination-wrapper mt-4">
+            <div class="pagination-custom">
+                <% if(currentPage > 1) { %> <!--[cite: 15] -->
+                    <a href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link prev-next"> <!--[cite: 15] -->
+                        <i class="fa-solid fa-chevron-left"></i> Prev
                     </a>
                 <% } %>
-
-                <% for(let i = 1; i <= totalPages; i++){ %>
-                    <a
-                        href="/admin/products?page=<%= i %>&search=<%= search %>"
-                        class="<%= currentPage === i ? 'active-page' : '' %>"
-                    >
+                
+                <% for(let i = 1; i <= totalPages; i++) { %> <!--[cite: 15] -->
+                    <a href="/admin/products?page=<%= i %>&search=<%= search %>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 15] -->
                         <%= i %>
                     </a>
                 <% } %>
-
-                <% if(currentPage < totalPages){ %>
-                    <a href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>">
-                        Next
+                
+                <% if(currentPage < totalPages) { %> <!--[cite: 15] -->
+                    <a href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link prev-next"> <!--[cite: 15] -->
+                        Next <i class="fa-solid fa-chevron-right"></i>
                     </a>
                 <% } %>
             </div>
         </div>
+        <% } %>
 
-    </main> 
-
+    </main>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    document.addEventListener('click', async function (e) {
-        const button = e.target.closest('.delete-product-btn');
-        if (!button) return; 
-
-        e.preventDefault();
-
-        const productId = button.getAttribute('data-id');
-        
-        // SweetAlert2 Confirmation Dialog
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Do you want to soft-delete this product? It will be hidden from the storefront.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`/admin/product/${productId}/delete`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        // Modern Toast Pop-up Notification Configuration
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: true
-                        });
-
-                        // Display the success toast
-                        await Toast.fire({
-                            icon: 'success',
-                            title: 'Product deleted successfully'
-                        });
-
-                        // Redirect after toast timeline ends
-                        window.location.href = data.redirectUrl || '/admin/products';
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed to delete',
-                            text: data.error || "Unknown server error",
-                            confirmButtonColor: '#2563eb'
-                        });
-                    }
-
-                } catch (error) {
-                    console.error("Deletion Fetch Error:", error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Network Error',
-                        text: 'A network error occurred while trying to delete the product.',
-                        confirmButtonColor: '#2563eb'
-                    });
-                }
-            }
-        });
+    // --- Mobile Sidebar Toggle ---
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
     });
-});
 </script>
+
+<!-- Keep your existing JS file attached for the SweetAlert logic -->
+<script src="/js/products.js"></script>
 
 <%- include('../partials/footer') %>

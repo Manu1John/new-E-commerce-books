@@ -1,0 +1,122 @@
+<%- include('../partials/header') %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container" style="max-width: 900px; margin: 40px auto; padding: 20px;">
+    <h1 class="page-title" style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">Add New Coupon</h1>
+    
+    <div class="card" style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <form id="couponForm">
+            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Code</label>
+                    <input type="text" name="code" placeholder="Enter coupon code" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Discount Value</label>
+                    <input type="number" name="discountValue" placeholder="Enter discount" min="0" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Type</label>
+                    <select name="discountType" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                        <option value="" disabled selected>Select Coupon Type</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="flat">Flat Amount</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Status</label>
+                    <select name="isActive" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                        <option value="true" selected>Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Min Purchase Amount</label>
+                    <input type="number" name="minPurchaseAmount" placeholder="Minimum order amount" min="0" value="0" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Start Date</label>
+                    <input type="date" name="startDate" id="startDate" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Expiry Date</label>
+                    <input type="date" name="expiryDate" id="expiryDate" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;" required>
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Usage Limit (Auto-calculated)</label>
+                    <!-- Made read-only with a gray background -->
+                    <input type="number" name="usageLimit" id="usageLimit" placeholder="Calculated automatically" min="1" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; background-color: #f1f5f9; color: #64748b;" readonly required>
+                </div>
+
+                <div class="form-group full-width" style="grid-column: span 2; display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600;">Coupon Description</label>
+                    <textarea name="description" rows="3" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px;"></textarea>
+                </div>
+
+                <div class="form-group full-width" style="grid-column: span 2;">
+                    <button type="submit" style="width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Coupon</button>
+                </div>
+                
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// --- Dynamic Usage Limit Logic ---
+const startDateInput = document.getElementById('startDate');
+const expiryDateInput = document.getElementById('expiryDate');
+const usageLimitInput = document.getElementById('usageLimit');
+
+function calculateLimit() {
+    if (startDateInput.value && expiryDateInput.value) {
+        const start = new Date(startDateInput.value);
+        const end = new Date(expiryDateInput.value);
+        
+        if (end >= start) {
+            let days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            usageLimitInput.value = days > 0 ? days : 1;
+        } else {
+            usageLimitInput.value = '';
+        }
+    }
+}
+
+startDateInput.addEventListener('change', calculateLimit);
+expiryDateInput.addEventListener('change', calculateLimit);
+
+// --- Form Submission Logic ---
+document.getElementById('couponForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    if (!data.code.trim()) return Swal.fire('Error', 'Coupon Code is required', 'error');
+    if (new Date(data.startDate) > new Date(data.expiryDate)) return Swal.fire('Error', 'Expiry Date must be after Start Date', 'error');
+    if (data.discountType === 'percentage' && (data.discountValue <= 0 || data.discountValue > 99)) {
+        return Swal.fire('Error', 'Percentage discount must be between 1 and 99', 'error');
+    }
+
+    try {
+        const response = await fetch('/admin/coupons/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+            Swal.fire({ icon: 'success', title: 'Success', text: result.message, showConfirmButton: false, timer: 1500 })
+                .then(() => window.location.href = '/admin/coupons');
+        } else {
+            Swal.fire('Failed', result.message || 'Error occurred', 'error');
+        }
+    } catch (err) {
+        Swal.fire('Error', 'Network Error', 'error');
+    }
+});
+</script>
+<%- include('../partials/footer') %>

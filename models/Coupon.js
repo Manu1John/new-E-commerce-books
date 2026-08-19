@@ -23,17 +23,28 @@ const couponSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    maxDiscountAmount: {
-      type: Number,
-      default: null // Useful for percentage discounts to cap the max discount
+    startDate: {
+      type: Date,
+      required: true 
     },
     expiryDate: {
       type: Date,
       required: true
     },
+    usageLimit: {
+      type: Number,
+      default: 1
+    },
+    description: {
+      type: String
+    },
     isActive: {
       type: Boolean,
       default: true
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false // For soft delete
     },
     usedBy: [
       {

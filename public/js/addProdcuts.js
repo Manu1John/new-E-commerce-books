@@ -1,6 +1,8 @@
 console.log("==== ADD PRODUCTS SCRIPT IS ALIVE! ====");
+
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
+    // 🚨 FIX: Target the form by its specific ID to avoid grabbing the logout form
+    const form = document.getElementById('productForm');
     const dropArea = document.getElementById('dropArea');
     const imageUpload = document.getElementById('imageUpload');
     const previewContainer = document.getElementById('previewContainer');
@@ -13,19 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // --- IMAGE SELECTION & CROPPER MODAL LOGIC ---
+    // --- 📸 IMAGE SELECTION & CROPPER MODAL LOGIC ---
     dropArea.addEventListener('click', () => imageUpload.click());
 
     imageUpload.addEventListener('change', function(e) {
         const files = e.target.files;
         if (files.length < 3 || files.length > 5) {
-
-                Swal.fire({
+            Swal.fire({
                 icon: "info",
                 title: "Oops...",
                 text: 'Please select between 3 and 5 images !',
-
-                });
+            });
             this.value = '';
             previewContainer.innerHTML = '';
             imageArray = [];
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewContainer.innerHTML = '';
         imageArray.forEach((item, index) => {
             const card = document.createElement('div');
-            card.style.cssText = 'position:relative; display:inline-block; margin:15px; width:150px; text-align:center; border:1px solid #ddd; padding:5px; border-radius:6px; background:#fff;';
+            card.style.cssText = 'position:relative; display:inline-block; margin:0; width:150px; text-align:center; border:1px solid #ddd; padding:5px; border-radius:6px; background:#fff;';
 
             const img = document.createElement('img');
             img.src = item.croppedBlob ? URL.createObjectURL(item.croppedBlob) : item.originalSrc;
@@ -222,21 +222,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            const data = await response.json();
+            // Read the text first, in case the server crashes and sends HTML error pages
+            const textData = await response.text();
+            let data;
+            
+            try {
+                data = JSON.parse(textData);
+            } catch (jsonError) {
+                console.error("🚨 CRITICAL: Unexpected backend output parsing error.", textData);
+                Swal.fire({
+                    icon: "error",
+                    title: "Server Error",
+                    text: "The server did not return a valid response.",
+                });
+                return;
+            }
+
             if (response.ok) {
                 window.location.href = data.redirectUrl || '/admin/products'; 
             } else {
-
                 Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Product name already exists!",
-
+                    icon: "error",
+                    title: "Oops...",
+                    text: data.error || "Product name already exists or data is invalid!",
                 });
             }
         } catch (error) {
             console.error('Network Upload Exception:', error);
-            alert('A network error occurred while reaching the server.');
+            Swal.fire({
+                icon: "error",
+                title: "Network Error",
+                text: "A network error occurred while reaching the server.",
+            });
         }
     });
 });

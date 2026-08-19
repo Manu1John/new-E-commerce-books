@@ -1,0 +1,177 @@
+<%- include('../partials/header') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- FontAwesome for professional icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1>
+        </div>
+        <ul class="menu">
+            <li><a href="/admin/dashboard" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST">
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h2 class="page-title">Dashboard Overview</h2>
+                <p class="text-muted">Welcome back! Here is what's happening with your store today.</p>
+            </div>
+        </header>
+
+        <!-- KPI Metric Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon revenue-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Revenue</p>
+                    <h3 class="stat-value">₹<%= stats.totalRevenue.toLocaleString() %></h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orders-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Orders</p>
+                    <h3 class="stat-value"><%= stats.totalOrders %></h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon products-icon"><i class="fa-solid fa-box-open"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Active Products</p>
+                    <h3 class="stat-value"><%= stats.totalProducts %></h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon users-icon"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Customers</p>
+                    <h3 class="stat-value"><%= stats.totalUsers %></h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="card chart-container main-chart">
+                <div class="card-header">
+                    <h3>Revenue Overview (<%= new Date().getFullYear() %>)</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            <div class="card chart-container side-chart">
+                <div class="card-header">
+                    <h3>Order Status</h3>
+                </div>
+                <div class="chart-wrapper donut-wrapper">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders & Best Sellers -->
+        <div class="tables-grid">
+            <!-- Recent Orders -->
+            <div class="card table-card">
+                <div class="card-header">
+                    <h3>Recent Orders</h3>
+                    <a href="/admin/orders" class="btn-link">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (recentOrders && recentOrders.length > 0) { %>
+                                <% recentOrders.forEach(order => { %>
+                                    <tr>
+                                        <td class="fw-bold">#<%= order._id.toString().slice(-6).toUpperCase() %></td>
+                                        <td><%= order.user ? (order.user.name || order.user.firstName || order.user.email) : 'Guest' %></td>
+                                        <td>₹<%= order.finalAmount.toLocaleString() %></td>
+                                        <td>
+                                            <span class="badge status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
+                                                <%= order.status %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="4" class="text-center">No orders recorded yet.</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="card table-card">
+                <div class="card-header">
+                    <h3>Top Selling Products</h3>
+                    <a href="/admin/products" class="btn-link">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Sold</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (topProducts && topProducts.length > 0) { %>
+                                <% topProducts.forEach(item => { %>
+                                    <tr>
+                                        <td class="product-name"><%= item.product.title || item.product.name %></td>
+                                        <td><span class="fw-bold"><%= item.unitsSold %></span> units</td>
+                                        <td class="text-success fw-bold">₹<%= item.revenue.toLocaleString() %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="3" class="text-center">No product sales recorded yet.</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    // Make the chart data available globally for the external JS file
+    window.dashboardChartData = <%- JSON.stringify(chartData || {}) %>;
+</script>
+
+<%- include('../partials/footer') %>

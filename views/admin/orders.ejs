@@ -1,104 +1,168 @@
-<%- include('../partials/header') %>
-<div class="container">
+<%- include('../partials/header') %> <!--[cite: 20] -->
+<!-- FontAwesome for professional icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <aside class="sidebar">
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
         <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1> <!--[cite: 20] -->
+        </div>
         <ul class="menu">
-            <li><a href="/admin/users">Users</a></li>
-            <li><a href="/admin/sales-report">Reports</a></li>
-            <li><a href="/admin/products">Products</a></li>
-            <li><a href="">Orders</a></li>
-            <li><a href="/admin/offers">Offers</a></li>
-            <li><a href="#">Coupons</a></li>
-            <li><a href="/admin/category">Categories</a></li>
-            <li>            <form action="/admin/logout" method="POST">
-                <button class="logout-btn">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    Logout
-                </button>
-            </form></li>
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/orders" class="active"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li> <!--[cite: 20] -->
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li> <!--[cite: 20] -->
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST"> <!--[cite: 20] -->
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout <!--[cite: 20] -->
+                    </button>
+                </form>
+            </li>
         </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
-
-        <div class="top-bar">
-            <form action="/admin/orders" method="GET" id="searchForm">
-                <div class="search-box">
-                    <i class="fa fa-search"></i>
-                    <input type="text" id="searchInput" name="search" placeholder="Search by email or id" value="<%=search||''%>">
-
-                        <button type="button" id="clearSearch" class="clear-btn">✖</button>
-
-                </div>
-            </form>
-
-
-        </div>
-
-        <h2 class="page-title">Orders</h2>
-        <h5 class="page-users-count">Total Orders:<%=totalOrders%> </h5>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Payment Method</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <%orders.forEach((order)=>{%>
-                    <tr>
-                        <td><%=order.orderId%></td>
-                        <td><%=order.user.email%></td>
-                        <td><%=order.totalAmount%></td>
-                        <td><%=order.paymentMethod%></td>
-                        <td>
-                            <span class="status active">
-                               <%=order.status%>
-                            </span>
-                        </td>
-                        <td>
-                                <a href="/admin/orders/<%=order._id%>" style="display:inline;" class="status-form" >
-                                    <button type="submit" class="block-btn">View</button>
-                                </a>
-
-                        </td>
-                    </tr>
-                    <%})%>
-
-                </tbody>
-            </table>
-            <div class="pagination">
-                <%if(currentPage>1){%>
-                    <a href="/admin/orders?page=<%=currentPage-1%>&search=<%=search%>">
-                        Prev
-                    </a>
-                <%}%>
-
-                <%for(let i=1;i<=totalPages;i++){%>
-                    <a
-                        href="/admin/orders?page=<%=i%>&search=<%=search%>"
-                        class="<%= currentPage === i ? 'active-page' : '' %>"
-                    >
-                   <%=i%>
-                    </a>
-                <%}%>
-                    <%if(currentPage< totalPages){%>
-                    <a href="/admin/orders?page<%=currentPage+1%>&search=<%=search%>">
-                        Next
-                    </a>
-                    <%}%>
-  
+        
+        <!-- Breadcrumb & Header Section -->
+        <div class="page-header-wrapper">
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                        <li class="active">Order Management</li>
+                    </ol>
+                </nav>
+                <h2 class="page-title">Orders</h2> <!--[cite: 20] -->
+                <p class="text-muted mb-0">Total Orders: <span class="fw-bold text-dark"><%=totalOrders%></span></p> <!--[cite: 20] -->
             </div>
-
+            
+            <!-- Search Box -->
+            <div class="search-wrapper mt-3 mt-md-0">
+                <form action="/admin/orders" method="GET" id="searchForm" class="search-form"> <!--[cite: 20] -->
+                    <div class="search-input-group">
+                        <i class="fa fa-search search-icon"></i>
+                        <input type="text" id="searchInput" name="search" placeholder="Search by email or id" value="<%=search||''%>"> <!--[cite: 20] -->
+                        <% if(search) { %>
+                            <button type="button" id="clearSearch" class="clear-search-btn" title="Clear Search"><i class="fa-solid fa-xmark"></i></button> <!--[cite: 20] -->
+                        <% } %>
+                    </div>
+                    <button type="submit" class="btn-primary-pill d-none d-md-block">Search</button>
+                </form>
+            </div>
         </div>
+
+        <!-- Orders Table -->
+        <div class="table-custom-wrapper mt-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Id</th> <!--[cite: 20] -->
+                            <th>Customer</th> <!--[cite: 20] -->
+                            <th>Total</th> <!--[cite: 20] -->
+                            <th>Payment Method</th> <!--[cite: 20] -->
+                            <th>Status</th> <!--[cite: 20] -->
+                            <th class="text-center">Action</th> <!--[cite: 20] -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(orders && orders.length > 0) { %>
+                            <%orders.forEach((order)=>{%> <!--[cite: 20] -->
+                            <tr>
+                                <td class="fw-bold text-muted">#<%=order.orderId%></td> <!--[cite: 20] -->
+                                <td>
+                                    <div class="customer-cell">
+                                        <div class="customer-avatar"><i class="fa-regular fa-user"></i></div>
+                                        <span><%=order.user.email%></span> <!--[cite: 20] -->
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-success">₹<%=order.totalAmount%></td> <!--[cite: 20] -->
+                                <td>
+                                    <span class="payment-badge <%= order.paymentMethod === 'COD' ? 'bg-cod' : 'bg-online' %>">
+                                        <i class="fa-solid <%= order.paymentMethod === 'COD' ? 'fa-truck' : 'fa-credit-card' %> me-1"></i>
+                                        <%=order.paymentMethod%> <!--[cite: 20] -->
+                                    </span>
+                                </td>
+                                <td>
+                                    <% 
+                                        let statusClass = 'badge-neutral';
+                                        if(order.status === 'Delivered') statusClass = 'badge-success';
+                                        if(order.status === 'Cancelled' || order.status === 'Returned') statusClass = 'badge-danger';
+                                        if(order.status === 'Pending' || order.status === 'Processing') statusClass = 'badge-warning';
+                                        if(order.status === 'Confirmed' || order.status === 'Shipped') statusClass = 'badge-info';
+                                    %>
+                                    <span class="status badge <%= statusClass %>">
+                                       <%=order.status%> <!--[cite: 20] -->
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="/admin/orders/<%=order._id%>" class="action-btn btn-view" title="View Details"> <!--[cite: 20] -->
+                                        <i class="fa-regular fa-eye me-1"></i> View <!--[cite: 20] -->
+                                    </a>
+                                </td>
+                            </tr>
+                            <%})%> <!--[cite: 20] -->
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-box-open fs-1 mb-3 d-block"></i>
+                                    No orders found matching your criteria.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <% if(totalPages > 1) { %>
+        <div class="pagination-wrapper mt-4">
+            <div class="pagination-custom">
+                <%if(currentPage>1){%> <!--[cite: 20] -->
+                    <a href="/admin/orders?page=<%=currentPage-1%>&search=<%=search%>" class="page-link prev-next"> <!--[cite: 20] -->
+                        <i class="fa-solid fa-chevron-left"></i> Prev <!--[cite: 20] -->
+                    </a>
+                <%}%> <!--[cite: 20] -->
+
+                <%for(let i=1;i<=totalPages;i++){%> <!--[cite: 20] -->
+                    <a href="/admin/orders?page=<%=i%>&search=<%=search%>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 20] -->
+                        <%=i%> <!--[cite: 20] -->
+                    </a>
+                <%}%> <!--[cite: 20] -->
+
+                <%if(currentPage< totalPages){%> <!--[cite: 20] -->
+                    <a href="/admin/orders?page=<%=currentPage+1%>&search=<%=search%>" class="page-link prev-next"> <!--[cite: 20] -->
+                        Next <i class="fa-solid fa-chevron-right"></i> <!--[cite: 20] -->
+                    </a>
+                <%}%> <!--[cite: 20] -->
+            </div>
+        </div>
+        <% } %>
+
     </main>
 </div>
 
-<%- include('../partials/footer') %>
+<script>
+    // --- Mobile Sidebar Toggle ---
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+    });
+</script>
+
+<script src="/js/orders.js"></script>
+
+<%- include('../partials/footer') %> <!--[cite: 20] -->

@@ -1,288 +1,210 @@
 <%- include('../partials/header') %>
-
+<!-- Cropper.js & SweetAlert2 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<div class="page-wrapper">
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <div class="product-layout">
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
 
-        <div class="product-card">
-
-            <h2>Product Information</h2>
-
-            <form
-                action="/admin/product/add"
-                method="POST"
-                enctype="multipart/form-data"
-            >
-
-                <div class="form-group">
-                    <label>
-                        Product Name <span>*</span>
-                    </label>
-                    <input
-                        type="text"
-                        name="title"
-                        id="title"
-                        placeholder="Enter product name"
-                        value="<%= typeof product !== 'undefined' ? product.title : '' %>"
-                    >
-                    <span class="error-message" id="titleError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        Category <span>*</span>
-                    </label>
-                    <select
-                        name="category"
-                        id="category"
-                    >
-                        <option value="">
-                            Select category
-                        </option>
-                        <% categories.forEach(category => { %>
-                            <option 
-                                value="<%= category._id %>"
-                                <%= typeof product !== 'undefined' && product.category === category._id.toString() ? 'selected' : '' %>
-                            >
-                                <%= category.name %>
-                            </option>
-                        <% }) %>
-                    </select>
-                    <span class="error-message" id="categoryError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        Author <span>*</span>
-                    </label>
-                    <input
-                        type="text"
-                        name="author"
-                        id="author"
-                        placeholder="Enter author name"
-                        value="<%= typeof product !== 'undefined' ? product.author : '' %>"
-                    >
-                    <span class="error-message" id="authorError"></span>
-                </div>
-
-                <!-- NEW FIELDS START -->
-                <div class="row">
-                    <div class="form-group">
-                        <label>
-                            Publisher <span>*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="publisher"
-                            id="publisher"
-                            placeholder="Enter publisher"
-                            value="<%= typeof product !== 'undefined' ? product.publisher : '' %>"
-                        >
-                        <span class="error-message" id="publisherError"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            Language <span>*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="language"
-                            id="language"
-                            placeholder="Enter language"
-                            value="<%= typeof product !== 'undefined' ? product.language : '' %>"
-                        >
-                        <span class="error-message" id="languageError"></span>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group">
-                        <label>
-                            ISBN <span>*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="isbn"
-                            id="isbn"
-                            placeholder="Enter ISBN"
-                            value="<%= typeof product !== 'undefined' ? product.isbn : '' %>"
-                        >
-                        <span class="error-message" id="isbnError"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            Publication Date <span>*</span>
-                        </label>
-                        <input
-                            type="date"
-                            name="publicationDate"
-                            id="publicationDate"
-                            value="<%= typeof product !== 'undefined' && product.publicationDate ? new Date(product.publicationDate).toISOString().split('T')[0] : '' %>"
-                        >
-                        <span class="error-message" id="publicationDateError"></span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        Number of Pages <span>*</span>
-                    </label>
-                    <input
-                        type="number"
-                        name="pages"
-                        id="pages"
-                        placeholder="Enter number of pages"
-                        value="<%= typeof product !== 'undefined' ? product.pages : '' %>"
-                    >
-                    <span class="error-message" id="pagesError"></span>
-                </div>
-                <!-- NEW FIELDS END -->
-
-                <div class="form-group">
-                    <label>
-                        Description <span>*</span>
-                    </label>
-                    <textarea
-                        name="description"
-                        id="description"
-                        rows="5"
-                        placeholder="Enter product description"
-                    ><%= typeof product !== 'undefined' ? product.description : '' %></textarea>
-                    <span class="error-message" id="descriptionError"></span>
-                </div>
-
-                <div class="row">
-
-                    <div class="form-group">
-                        <label>
-                            Price <span>*</span>
-                        </label>
-                        <div class="input-box">
-                            <span>₹</span>
-                            <input
-                                type="number"
-                                name="price"
-                                id="price"
-                                placeholder="Enter price"
-                                value="<%= typeof product !== 'undefined' ? product.price : '' %>"
-                            >
-                        </div>
-                        <span class="error-message" id="priceError"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            Stock <span>*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="quantity"
-                            id="quantity"
-                            placeholder="Enter stock"
-                            value="<%= typeof product !== 'undefined' ? product.quantity : '' %>"
-                        >
-                        <span class="error-message" id="quantityError"></span>
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-                    <label>Status</label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input
-                                type="radio"
-                                name="status"
-                                value="active"
-                                <%= (typeof product === 'undefined' || product.status === 'active') ? 'checked' : '' %>
-                            >
-                            Active
-                        </label>
-                        <label class="radio-option">
-                            <input
-                                type="radio"
-                                name="status"
-                                value="inactive"
-                                <%= (typeof product !== 'undefined' && product.status === 'inactive') ? 'checked' : '' %>
-                            >
-                            Not Active
-                        </label>
-                    </div>
-                </div>
-
-                <div class="upload-card">
-                    <h3>Product Images</h3>
-                    <div
-                        class="upload-box"
-                        id="dropArea"
-                    >
-                        <input
-                            type="file"
-                            id="imageUpload"
-                            name="images"
-                            multiple
-                            accept="image/*"
-                            hidden
-                        >
-                        <div id="uploadContent">
-                            <div class="upload-icon">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                            </div>
-                            <h4>Click or Drag Images</h4>
-                            <p>Minimum 3 Images</p>
-                            <small>Maximum 5 Images</small>
-                        </div>
-                    </div>
-                    
-                    <span class="error-message" id="imageError" style="text-align: center; margin-top: 10px;"></span>
-
-                    <div
-                        id="previewContainer"
-                        class="preview-container"
-                    ></div>
-                </div>
-
-                <div class="button-group">
-                    <button
-                        type="submit"
-                        class="save-btn"
-                    >
-                        Save Product
-                    </button>
-                    <button
-                        type="button"
-                        class="reset-btn"
-                        onclick="window.location.href='/admin/products'"
-                    >
-                        Cancel
-                    </button>
-                </div>
-
-            </form>
-
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1>
         </div>
+        <ul class="menu">
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="/admin/products" class="active"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST">
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
 
-        <div class="sidebar-card">
-            <div class="tips-card">
-                <h3>💡 Quick Tips</h3>
-                <ul>
-                    <li>Enter accurate product information</li>
-                    <li>Upload minimum 3 images</li>
-                    <li>Use high-quality images</li>
-                    <li>Set correct stock quantity</li>
-                    <li>Check category before saving</li>
-                </ul>
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header-wrapper mb-4">
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                        <li><a href="/admin/products">Products</a></li>
+                        <li class="active">Add Product</li>
+                    </ol>
+                </nav>
+                <h2 class="page-title">Add New Product</h2>
             </div>
         </div>
 
-    </div>
+        <div class="product-layout">
+            <!-- Form Section -->
+            <div class="product-card card-custom">
+                <h3 class="section-title"><i class="fa-solid fa-circle-info me-2 text-primary"></i> Product Information</h3>
+                
+                <!-- ADDED ID HERE -->
+                <form id="productForm" action="/admin/product/add" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Product Name <span class="text-danger">*</span></label>
+                        <input type="text" name="title" id="title" class="form-control-custom" placeholder="Enter product name" value="<%= typeof product !== 'undefined' ? product.title : '' %>">
+                        <span class="error-message" id="titleError"></span>
+                    </div>
 
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Category <span class="text-danger">*</span></label>
+                            <select name="category" id="category" class="form-select-custom">
+                                <option value="">Select category</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category._id %>" <%= typeof product !== 'undefined' && product.category === category._id.toString() ? 'selected' : '' %>>
+                                        <%= category.name %>
+                                    </option>
+                                <% }) %>
+                            </select>
+                            <span class="error-message" id="categoryError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Author <span class="text-danger">*</span></label>
+                            <input type="text" name="author" id="author" class="form-control-custom" placeholder="Enter author name" value="<%= typeof product !== 'undefined' ? product.author : '' %>">
+                            <span class="error-message" id="authorError"></span>
+                        </div>
+                    </div>
+
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Publisher <span class="text-danger">*</span></label>
+                            <input type="text" name="publisher" id="publisher" class="form-control-custom" placeholder="Enter publisher" value="<%= typeof product !== 'undefined' ? product.publisher : '' %>">
+                            <span class="error-message" id="publisherError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Language <span class="text-danger">*</span></label>
+                            <input type="text" name="language" id="language" class="form-control-custom" placeholder="Enter language" value="<%= typeof product !== 'undefined' ? product.language : '' %>">
+                            <span class="error-message" id="languageError"></span>
+                        </div>
+                    </div>
+
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>ISBN <span class="text-danger">*</span></label>
+                            <input type="text" name="isbn" id="isbn" class="form-control-custom" placeholder="Enter ISBN" value="<%= typeof product !== 'undefined' ? product.isbn : '' %>">
+                            <span class="error-message" id="isbnError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Publication Date <span class="text-danger">*</span></label>
+                            <input type="date" name="publicationDate" id="publicationDate" class="form-control-custom" value="<%= typeof product !== 'undefined' && product.publicationDate ? new Date(product.publicationDate).toISOString().split('T')[0] : '' %>">
+                            <span class="error-message" id="publicationDateError"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of Pages <span class="text-danger">*</span></label>
+                        <input type="number" name="pages" id="pages" class="form-control-custom" placeholder="Enter number of pages" value="<%= typeof product !== 'undefined' ? product.pages : '' %>">
+                        <span class="error-message" id="pagesError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description <span class="text-danger">*</span></label>
+                        <textarea name="description" id="description" class="form-control-custom" rows="5" placeholder="Enter product description"><%= typeof product !== 'undefined' ? product.description : '' %></textarea>
+                        <span class="error-message" id="descriptionError"></span>
+                    </div>
+
+                    <div class="row-grid">
+                        <div class="form-group">
+                            <label>Price (₹) <span class="text-danger">*</span></label>
+                            <input type="number" name="price" id="price" class="form-control-custom" placeholder="Enter price" value="<%= typeof product !== 'undefined' ? product.price : '' %>">
+                            <span class="error-message" id="priceError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" id="quantity" class="form-control-custom" placeholder="Enter stock" value="<%= typeof product !== 'undefined' ? product.quantity : '' %>">
+                            <span class="error-message" id="quantityError"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Visibility Status</label>
+                        <div class="radio-group-modern">
+                            <label class="radio-card">
+                                <input type="radio" name="status" value="active" <%= (typeof product === 'undefined' || product.status === 'active') ? 'checked' : '' %>>
+                                <span class="radio-content">
+                                    <i class="fa-solid fa-eye text-success me-1"></i> Active
+                                </span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="status" value="inactive" <%= (typeof product !== 'undefined' && product.status === 'inactive') ? 'checked' : '' %>>
+                                <span class="radio-content">
+                                    <i class="fa-solid fa-eye-slash text-danger me-1"></i> Inactive
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="upload-section mt-4">
+                        <h3 class="section-title"><i class="fa-solid fa-images me-2 text-primary"></i> Product Images</h3>
+                        <div class="upload-box" id="dropArea">
+                            <input type="file" id="imageUpload" name="images" multiple accept="image/*" hidden>
+                            <div class="upload-content">
+                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                                <h4>Click or Drag Images Here</h4>
+                                <p class="text-muted">Minimum 3, Maximum 5 images required</p>
+                            </div>
+                        </div>
+                        <span class="error-message text-center mt-2" id="imageError"></span>
+                        <div id="previewContainer" class="preview-container mt-3"></div>
+                    </div>
+
+                    <div class="form-actions mt-5">
+                        <button type="button" class="btn-outline-pill" onclick="window.location.href='/admin/products'">Cancel</button>
+                        <button type="submit" class="btn-primary-pill"><i class="fa-solid fa-check me-1"></i> Save Product</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Sidebar / Tips -->
+            <div class="sidebar-card-wrapper">
+                <div class="tips-card card-custom highlight-card-soft">
+                    <h3 class="highlight-title"><i class="fa-regular fa-lightbulb me-2"></i> Quick Tips</h3>
+                    <ul class="tips-list">
+                        <li><i class="fa-solid fa-check text-success"></i> Use clear, high-resolution product images (1:1 aspect ratio recommended).</li>
+                        <li><i class="fa-solid fa-check text-success"></i> You must upload between <strong>3 and 5 images</strong>.</li>
+                        <li><i class="fa-solid fa-check text-success"></i> Use the crop tool to perfectly center the product.</li>
+                        <li><i class="fa-solid fa-check text-success"></i> Write detailed descriptions for better SEO.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
+
+<script src="/js/addProdcuts.js"></script>
+
+<!-- Mobile Sidebar Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+        }
+    });
+</script>
 
 <%- include('../partials/footer') %>

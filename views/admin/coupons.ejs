@@ -1,125 +1,168 @@
-<%- include('../partials/adminHeader') %>
+<%- include('../partials/header') %> <!--[cite: 25] -->
+<!-- FontAwesome & SweetAlert2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!--[cite: 25] -->
 
-<div class="container-fluid mt-4">
-    <h2><%= title %></h2>
-    
-    <%- include('../partials/flashMessages') %>
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
 
-    <div class="card my-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Create New Coupon</h5>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1> <!--[cite: 25] -->
         </div>
-        <div class="card-body">
-            <form action="/admin/coupons" method="POST">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label>Coupon Code</label>
-                        <input type="text" name="code" class="form-control" required style="text-transform:uppercase">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Discount Type</label>
-                        <select name="discountType" class="form-select" required>
-                            <option value="percentage">Percentage (%)</option>
-                            <option value="flat">Flat Amount (₹)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label>Discount Value</label>
-                        <input type="number" name="discountValue" class="form-control" required min="1">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Min Purchase Amount (₹)</label>
-                        <input type="number" name="minPurchaseAmount" class="form-control" required min="0">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Max Discount Amount (₹)</label>
-                        <input type="number" name="maxDiscountAmount" class="form-control">
-                        <small class="text-muted">Optional (for % discounts)</small>
-                    </div>
-                    <div class="col-md-4">
-                        <label>Expiry Date</label>
-                        <input type="date" name="expiryDate" class="form-control" required>
-                    </div>
+        <ul class="menu">
+            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/coupons" class="active"><i class="fa-solid fa-ticket"></i> Coupons</a></li> <!--[cite: 25] -->
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li> <!--[cite: 25] -->
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST"> <!--[cite: 25] -->
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout <!--[cite: 25] -->
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Breadcrumb & Header Section -->
+        <div class="page-header-wrapper">
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                        <li class="active">Coupon Management</li>
+                    </ol>
+                </nav>
+                <h2 class="page-title">Coupons</h2> <!--[cite: 25] -->
+                <p class="text-muted mb-0">Manage promo codes, usage limits, and discounts.</p>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/admin/coupons/add" class="btn-primary-pill"><i class="fa-solid fa-plus me-1"></i> Add New Coupon</a> <!--[cite: 25] -->
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container mt-4">
+            <form action="/admin/coupons" method="GET" id="searchForm" class="search-form"> <!--[cite: 25] -->
+                <div class="search-input-group">
+                    <i class="fa fa-search search-icon"></i>
+                    <input type="text" name="search" id="searchInput" placeholder="Search Code or Type..." value="<%= typeof search !== 'undefined' ? search : '' %>"> <!--[cite: 25] -->
+                    <% if (typeof search !== 'undefined' && search.length > 0) { %> <!--[cite: 25] -->
+                        <button type="button" class="clear-search-btn" title="Clear Search" onclick="window.location.href='/admin/coupons'"> <!--[cite: 25] -->
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    <% } %>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Create Coupon</button>
             </form>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Existing Coupons</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Discount</th>
-                        <th>Min Purchase</th>
-                        <th>Max Discount</th>
-                        <th>Expiry</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if(coupons.length === 0) { %>
-                        <tr><td colspan="7" class="text-center">No coupons found.</td></tr>
-                    <% } else { %>
-                        <% coupons.forEach(coupon => { %>
+        <!-- Coupons Table -->
+        <div class="table-custom-wrapper mt-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>No</th> <!--[cite: 25] -->
+                            <th>Coupon Code</th> <!--[cite: 25] -->
+                            <th>Discount</th> <!--[cite: 25] -->
+                            <th>Type</th> <!--[cite: 25] -->
+                            <th>Min Purchase</th> <!--[cite: 25] -->
+                            <th>Expiry Date</th> <!--[cite: 25] -->
+                            <th>Limit</th> <!--[cite: 25] -->
+                            <th>Status</th> <!--[cite: 25] -->
+                            <th class="text-center">Actions</th> <!--[cite: 25] -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (coupons && coupons.length > 0) { %> <!--[cite: 25] -->
+                            <% coupons.forEach((coupon, index) => { %> <!--[cite: 25] -->
                             <tr>
-                                <td><strong><%= coupon.code %></strong></td>
-                                <td><%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %></td>
-                                <td>₹<%= coupon.minPurchaseAmount %></td>
-                                <td><%= coupon.maxDiscountAmount ? '₹' + coupon.maxDiscountAmount : 'No Limit' %></td>
-                                <td><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
+                                <td class="text-muted fw-bold">#<%= index + 1 %></td> <!--[cite: 25] -->
                                 <td>
-                                    <% if(new Date() > new Date(coupon.expiryDate)) { %>
-                                        <span class="badge bg-danger">Expired</span>
-                                    <% } else if(coupon.isActive) { %>
-                                        <span class="badge bg-success">Active</span>
-                                    <% } else { %>
-                                        <span class="badge bg-warning text-dark">Inactive</span>
-                                    <% } %>
+                                    <span class="coupon-code-badge"><i class="fa-solid fa-ticket-simple me-1"></i> <%= coupon.code %></span> <!--[cite: 25] -->
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">Delete</button>
+                                    <span class="fw-bold text-success"><%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %></span> <!--[cite: 25] -->
+                                </td>
+                                <td>
+                                    <span class="badge badge-neutral" style="text-transform: capitalize;"><%= coupon.discountType %></span> <!--[cite: 25] -->
+                                </td>
+                                <td class="fw-bold">₹<%= coupon.minPurchaseAmount %></td> <!--[cite: 25] -->
+                                <td class="text-muted">
+                                    <i class="fa-regular fa-calendar me-1"></i> <%= new Date(coupon.expiryDate).toLocaleDateString() %> <!--[cite: 25] -->
+                                </td>
+                                <td><span class="badge badge-info"><%= coupon.usageLimit %></span></td> <!--[cite: 25] -->
+                                <td>
+                                    <span class="badge <%= coupon.isActive ? 'badge-success' : 'badge-danger' %>"> <!--[cite: 25] -->
+                                        <%= coupon.isActive ? 'Active' : 'Inactive' %> <!--[cite: 25] -->
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="/admin/coupons/edit/<%= coupon._id %>" class="action-btn btn-edit" title="Edit Coupon"> <!--[cite: 25] -->
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <button type="button" class="action-btn btn-delete delete-coupon-btn" data-id="<%= coupon._id %>" title="Delete Coupon"> <!--[cite: 25] -->
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
-                        <% }) %>
-                    <% } %>
-                </tbody>
-            </table>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="9" class="text-center py-5 text-muted"> <!--[cite: 25] -->
+                                    <i class="fa-solid fa-ticket fs-1 mb-3 d-block"></i>
+                                    No Coupons found matching your criteria. <!--[cite: 25] -->
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %> <!--[cite: 25] -->
+        <div class="pagination-wrapper mt-4">
+            <div class="pagination-custom">
+                <% if (currentPage > 1) { %> <!--[cite: 25] -->
+                    <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next"> <!--[cite: 25] -->
+                        <i class="fa-solid fa-chevron-left"></i> Prev
+                    </a>
+                <% } %>
+                
+                <% for(let i = 1; i <= totalPages; i++) { %> <!--[cite: 25] -->
+                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 25] -->
+                        <%= i %> <!--[cite: 25] -->
+                    </a>
+                <% } %>
+                
+                <% if (currentPage < totalPages) { %> <!--[cite: 25] -->
+                    <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>" class="page-link prev-next"> <!--[cite: 25] -->
+                        Next <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
+    </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function deleteCoupon(id) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/admin/coupons/${id}`, { method: 'DELETE' })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.success) {
-                            Swal.fire('Deleted!', data.message, 'success').then(() => location.reload());
-                        } else {
-                            Swal.fire('Error', data.message, 'error');
-                        }
-                    });
-            }
-        });
-    }
-</script>
 
-<%- include('../partials/adminFooter') %>
+<%- include('../partials/footer') %> <!--[cite: 25] -->
