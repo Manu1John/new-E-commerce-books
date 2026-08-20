@@ -1,44 +1,28 @@
 import Order from "../../models/Order.js";
-import User from "../../models/User.js"
+import User from "../../models/User.js";
+
 export const getAllOrdersService = async (page, limit, search, statusFilter) => {
-
     const skip = (page - 1) * limit;
-
     const filter = {};
 
     if (search && search.trim()) {
         const searchValue = search.trim();
         const users = await User.find({
-          email:{
-            $regex:searchValue,
-            $options:"i"
+          email: {
+            $regex: searchValue,
+            $options: "i"
           }
-        })
-        const userIds = users.map((user)=>user._Id)
+        });
+        
+        // FIX: Changed _Id to _id to correctly map MongoDB ObjectIds
+        const userIds = users.map((user) => user._id); 
+        
         filter.$or = [
-            {
-                orderId: {
-                    $regex: searchValue,
-                    $options: "i"
-                }
-            },
-            {
-                paymentMethod: {
-                    $regex: searchValue,
-                    $options: "i"
-                }
-            },
-            {
-                status: {
-                    $regex: searchValue,
-                    $options: "i"
-                }
-            },
-            {
-              users:{
-                $in:userIds
-              }
-            }
+            { orderId: { $regex: searchValue, $options: "i" } },
+            { paymentMethod: { $regex: searchValue, $options: "i" } },
+            { status: { $regex: searchValue, $options: "i" } },
+            // FIX: Changed 'users' to 'user' to match the Order schema reference
+            { user: { $in: userIds } } 
         ];
     }
 
@@ -73,38 +57,54 @@ export const updateOrderStatusService = async (orderId, status) => {
   const order = await Order.findById(orderId).populate("items.product");
   if (!order) throw new Error("Order not found");
   
-  // If status is changed to Returned, Refunded, or Cancelled
-  if (["Returned", "Refunded", "Cancelled"].includes(status) && !["Returned", "Refunded", "Cancelled"].includes(order.status)) {
-    
-    // 1. Increment Stock
+  // Track the transition states
+  const wasAlreadyInactive = ["Returned", "Refunded", "Cancelled"].includes(order.status);
+  const isBecomingInactive = ["Returned", "Refunded", "Cancelled"].includes(status);
+
+  // 1. Increment Stock ONLY if it wasn't already Cancelled/Returned previously
+  if (isBecomingInactive && !wasAlreadyInactive) {
     const Product = (await import("../../models/products.js")).default;
     for (const item of order.items) {
       await Product.findByIdAndUpdate(item.product._id, {
         $inc: { quantity: item.quantity }
       });
     }
-
-    // 2. Process Wallet Refund (Only if they actually paid)
-    if (order.paymentStatus === "Paid" || order.paymentMethod === "Wallet" || order.paymentMethod === "Wallet+Online") {
-      const Wallet = (await import("../../models/Wallet.js")).default;
-      let wallet = await Wallet.findOne({ user: order.user });
-      
-      if (!wallet) {
-        wallet = await Wallet.create({ user: order.user, balance: 0, transactions: [] });
-      }
-
-      wallet.balance += order.finalAmount;
-      wallet.transactions.push({
-        type: "credit",
-        amount: order.finalAmount,
-        description: `Refund for ${status} Order ${order.orderId}`
-      });
-      await wallet.save();
-      
-      order.paymentStatus = "Refunded";
-    }
   }
 
+  // 2. Process Wallet Refund securely
+  const isEligibleForRefund = order.paymentStatus === "Paid" || 
+                              order.paymentMethod === "Wallet" || 
+                              order.paymentMethod === "Wallet+Online";
+
+  // Check if we are moving to a refunded/cancelled state AND they haven't received a refund yet
+  if (isBecomingInactive && isEligibleForRefund && order.paymentStatus !== "Refunded") {
+    
+    const Wallet = (await import("../../models/Wallet.js")).default;
+    const UserAuthentication = (await import("../../models/User.js")).default; 
+    
+    let wallet = await Wallet.findOne({ user: order.user });
+    
+    // Auto-create wallet if it doesn't exist and link it to the User model
+    if (!wallet) {
+      wallet = await Wallet.create({ user: order.user, balance: 0, transactions: [] });
+      await UserAuthentication.findByIdAndUpdate(order.user, { wallet: wallet._id });
+    }
+
+    // Process the refund into the wallet
+    wallet.balance += order.finalAmount;
+    wallet.transactions.push({
+      type: "credit",
+      amount: order.finalAmount,
+      description: `Refund for Order ${order.orderId || order._id}`
+    });
+    
+    await wallet.save();
+    
+    // Update the payment status so they can't be refunded twice
+    order.paymentStatus = "Refunded";
+  }
+
+  // Finally, update the overarching order status
   order.status = status;
   await order.save();
   return order;

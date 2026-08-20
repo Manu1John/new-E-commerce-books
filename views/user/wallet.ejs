@@ -1,45 +1,186 @@
-<%- include('../partials/header') %> <!-- Assuming there's a header partial, adjust if different -->
+<%- include('../partials/header') %> 
 
-<main class="container my-5">
-    <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm border-0 bg-dark text-white rounded-4 p-4 text-center">
-                <div class="my-4">
-                    <h5 class="text-white-50 text-uppercase mb-2">Available Balance</h5>
-                    <h1 class="display-4 fw-bold mb-0">₹<%= wallet.balance.toFixed(2) %></h1>
-                </div>
-                <button class="btn btn-light rounded-pill px-4 py-2 mt-3 fw-medium">Add Funds</button>
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/<%= cssFile %>">
+    
+    <!-- Modal CSS -->
+    <style>
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+        }
+        .modal h2 { margin-top: 0; margin-bottom: 20px; font-family: 'Playfair Display', serif; }
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-submit-btn {
+            background-color: #c59f5f;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo">BOOKSAW</div>
+            <nav class="main-nav">
+                <a href="/">Home</a>
+                <a href="/#featured-books">Featured</a>
+                <a href="/#popular-books">Popular</a>
+                <a href="/#special-offer">Offer</a>
+                <a href="/#latest-blog">Articles</a>
+            </nav>
         </div>
+    </header>
 
-        <div class="col-lg-8">
-            <h3 class="mb-4">Transaction History</h3>
-            
-            <% if (wallet.transactions.length === 0) { %>
-                <div class="text-center py-5 border rounded bg-light">
-                    <p class="text-muted mb-0">No transactions found in your wallet.</p>
+    <main class="container">
+        
+        <section class="wallet-section">
+            <h2 class="section-title">My Wallet</h2>
+            <div class="wallet-grid">
+                <div class="wallet-card">
+                    <div class="wallet-value">$<%= wallet.balance.toFixed(2) %></div>
+                    <div class="wallet-label">Available Balance</div>
                 </div>
-            <% } else { %>
-                <div class="list-group list-group-flush shadow-sm rounded border">
-                    <% wallet.transactions.forEach(txn => { %>
-                        <div class="list-group-item p-4 d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1"><%= txn.description %></h6>
-                                <small class="text-muted"><%= new Date(txn.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></small>
-                            </div>
-                            <div>
-                                <% if (txn.type === 'credit') { %>
-                                    <span class="fs-5 fw-bold text-success">+₹<%= txn.amount.toFixed(2) %></span>
-                                <% } else { %>
-                                    <span class="fs-5 fw-bold text-danger">-₹<%= txn.amount.toFixed(2) %></span>
-                                <% } %>
-                            </div>
+                <div class="wallet-card">
+                    <!-- Placeholder: Update if you add points to schema -->
+                    <div class="wallet-value">1200</div> 
+                    <div class="wallet-label">Reward Points</div>
+                </div>
+                <div class="wallet-card">
+                    <div class="wallet-value">03</div>
+                    <div class="wallet-label">Saved Cards</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Linked Payment Methods (Static for now, make dynamic later if needed) -->
+        <section class="list-section">
+            <h3 class="section-subtitle">Linked Payment Methods</h3>
+            <div class="list-container">
+                <div class="list-item">
+                    <span class="item-name">BookSaw Wallet Credit</span>
+                    <span class="item-value">Active</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Recent Transactions -->
+        <section class="list-section">
+            <h3 class="section-subtitle">Recent Transactions</h3>
+            <div class="list-container">
+                <% if (wallet.transactions && wallet.transactions.length > 0) { %>
+                    <% wallet.transactions.forEach(transaction => { %>
+                        <div class="list-item">
+                            <span class="item-name"><%= transaction.description %></span>
+                            <span class="item-value gold-text">
+                                <%= transaction.type === 'credit' ? '+' : '-' %> $<%= transaction.amount.toFixed(2) %>
+                            </span>
                         </div>
                     <% }) %>
-                </div>
-            <% } %>
+                <% } else { %>
+                    <div class="list-item">
+                        <span class="item-name">No recent transactions</span>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <div class="bottom-actions">
+            <button class="btn btn-withdraw" onclick="openModal('withdrawModal')">Withdraw</button>
+            <button class="btn btn-add" onclick="openModal('addMoneyModal')">Add Money</button>
+        </div>
+
+    </main>
+
+    <!-- Add Money Modal -->
+    <div id="addMoneyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addMoneyModal')">&times;</span>
+            <h2>Add Money</h2>
+            <form action="/wallet/add-money" method="POST">
+                <label for="addAmount">Amount ($):</label>
+                <input type="number" id="addAmount" name="amount" min="1" step="0.01" required placeholder="Enter amount">
+                <button type="submit" class="modal-submit-btn">Add to Wallet</button>
+            </form>
         </div>
     </div>
-</main>
 
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('withdrawModal')">&times;</span>
+            <h2>Withdraw Money</h2>
+            <form action="/wallet/withdraw" method="POST">
+                <label for="withdrawAmount">Amount ($):</label>
+                <input type="number" id="withdrawAmount" name="amount" min="1" step="0.01" max="<%= wallet.balance %>" required placeholder="Enter amount">
+                <button type="submit" class="modal-submit-btn">Withdraw</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Logic -->
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
 <%- include('../partials/footer') %>

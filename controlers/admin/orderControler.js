@@ -7,7 +7,7 @@ import {
 export const getAllOrders = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = Number(req.query.limit)||5;
+    const limit = Number(req.query.limit) || 5;
     const search = req.query.search || "";
     const statusFilter = req.query.status || "";
     
@@ -15,8 +15,8 @@ export const getAllOrders = async (req, res, next) => {
     
     res.render("admin/orders", {
       title: "Order Management",
-      jsFile:"orders.js",
-      cssFile:"orders.css",
+      jsFile: "orders.js",
+      cssFile: "orders.css",
       orders,
       currentPage: page,
       totalPages,
@@ -24,7 +24,6 @@ export const getAllOrders = async (req, res, next) => {
       statusFilter,
       totalOrders,
       admin: req.session.admin,
-
     });
   } catch (error) {
     console.error("GET ALL ORDERS ERROR:", error);
@@ -38,8 +37,8 @@ export const getAdminOrderDetails = async (req, res, next) => {
     const order = await getAdminOrderDetailsService(orderId);
     res.render("admin/orderDetails", {
       title: "Order Details",
-      cssFile:"orderDetails.css",
-      jsFile:"orderDetails.js",
+      cssFile: "orderDetails.css",
+      jsFile: "orderDetails.js",
       order,
     });
   } catch (error) {
@@ -53,7 +52,6 @@ export const updateOrderStatus = async (req, res) => {
     const orderId = req.params.id;
     const { status } = req.body;
     
-    // FIX: Added the missing statuses from your EJS template 
     const validStatuses = ["Pending", "Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered", "Cancelled", "Returned", "Refunded"];
     
     if (!validStatuses.includes(status)) {
@@ -68,30 +66,24 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// NEW: Issue Refund Controller
 export const issueRefund = async (req, res) => {
     try {
         const orderId = req.params.id;
         
-        // Note: You will integrate your Payment Gateway refund logic here later.
-        
-        // Update database to mark as refunded
+        // This triggers the service logic which now accurately handles the wallet credit
         const order = await updateOrderStatusService(orderId, "Refunded");
         
-        return res.status(200).json({ success: true, message: "Refund processed successfully", order });
+        return res.status(200).json({ success: true, message: "Refund processed successfully and credited to wallet", order });
     } catch (error) {
         console.error("ISSUE REFUND ERROR:", error);
         return res.status(500).json({ success: false, error: "Failed to process refund" });
     }
 };
 
-// NEW: Download Invoice Controller
 export const downloadInvoice = async (req, res) => {
     try {
         const orderId = req.params.id;
         
-        // Note: You will integrate a PDF library (like pdfkit) here later.
-        // This is a placeholder response to prove the wiring works.
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.txt`);
         res.send(`Invoice data for Order ID: ${orderId}`);
@@ -101,6 +93,7 @@ export const downloadInvoice = async (req, res) => {
         res.status(500).send("Failed to generate invoice");
     }
 };
+
 export default {
   getAllOrders,
   getAdminOrderDetails,
