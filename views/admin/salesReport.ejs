@@ -9,7 +9,6 @@
         <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
     </div>
 
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <h1 class="logo">Admin Panel</h1>
@@ -25,17 +24,13 @@
             <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
             <li class="logout-item">
                 <form action="/admin/logout" method="POST">
-                    <button class="logout-btn" type="submit">
-                        <i class="fa-solid fa-right-from-bracket"></i> Logout
-                    </button>
+                    <button class="logout-btn" type="submit"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
                 </form>
             </li>
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
             <ol class="breadcrumb">
                 <li><a href="/admin/dashboard">Dashboard</a></li>
@@ -69,7 +64,6 @@
         <div class="filter-wrapper card-custom mb-4">
             <label class="filter-label">Filter Sales Data</label>
             <form action="/admin/sales-report" method="GET" id="filterForm" class="filter-form">
-                
                 <select name="filter" id="filterType" class="form-select-custom" onchange="toggleCustomDates()">
                     <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Time</option>
                     <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Today</option>
@@ -83,6 +77,11 @@
                     <span class="to-text">to</span>
                     <input type="date" name="endDate" class="form-control-custom" value="<%= endDate || '' %>">
                 </div>
+                
+                <input type="hidden" name="ordersSearch" value="<%= ordersSearch %>">
+                <input type="hidden" name="catSearch" value="<%= catSearch %>">
+                <input type="hidden" name="ordersPage" value="1">
+                <input type="hidden" name="catPage" value="1">
 
                 <div class="filter-actions">
                     <button type="submit" class="btn-primary-pill">Apply Filter</button>
@@ -93,17 +92,41 @@
 
         <!-- Detailed Sales Table -->
         <div class="table-custom-wrapper mb-5">
-            <div class="sales-report-header">
-                <h5>Detailed Sales Report</h5>
-                <div class="sales-report-actions">
-                    <a href="/admin/sales-report/excel?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>" class="btn-download excel-btn">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </a>
-                    <a href="/admin/sales-report/pdf?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>" class="btn-download pdf-btn">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </a>
+            <div class="sales-report-header d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h5 class="m-0">Detailed Sales Report</h5>
+                <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                    
+                    <!-- Orders Search Form with Clear Button -->
+                    <form action="/admin/sales-report" method="GET" class="d-flex">
+                        <input type="hidden" name="filter" value="<%= filter %>">
+                        <input type="hidden" name="startDate" value="<%= startDate || '' %>">
+                        <input type="hidden" name="endDate" value="<%= endDate || '' %>">
+                        <input type="hidden" name="catSearch" value="<%= catSearch %>">
+                        <input type="hidden" name="catPage" value="<%= catCurrentPage %>">
+                        
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="ordersSearch" class="form-control" placeholder="Search orders..." value="<%= ordersSearch %>">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                            <!-- Clear button appears only if there is an active search -->
+                            <% if (ordersSearch) { %>
+                                <a href="/admin/sales-report?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&catSearch=<%= catSearch %>&catPage=<%= catCurrentPage %>" class="btn btn-secondary text-white" title="Clear Search">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            <% } %>
+                        </div>
+                    </form>
+
+                    <div class="sales-report-actions ms-2">
+                        <a href="/admin/sales-report/excel?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>" class="btn-download excel-btn">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="/admin/sales-report/pdf?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>" class="btn-download pdf-btn">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
                 </div>
             </div>
+            
             <div class="table-responsive">
                 <table class="table-custom">
                     <thead>
@@ -139,49 +162,50 @@
                                 </tr>
                             <% }) %>
                         <% } else { %>
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">No orders found for the selected period.</td>
-                            </tr>
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No orders match your search.</td></tr>
                         <% } %>
                     </tbody>
                 </table>
+                
+                <% if (ordersTotalPages >= 1) { %>
+                <nav aria-label="Orders Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item <%= ordersCurrentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&catSearch=<%= catSearch %>&ordersPage=<%= ordersCurrentPage - 1 %>&catPage=<%= catCurrentPage %>">Previous</a>
+                        </li>
+                        <% for(let i = 1; i <= ordersTotalPages; i++) { %>
+                            <li class="page-item <%= i === ordersCurrentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&catSearch=<%= catSearch %>&ordersPage=<%= i %>&catPage=<%= catCurrentPage %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= ordersCurrentPage === ordersTotalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&catSearch=<%= catSearch %>&ordersPage=<%= ordersCurrentPage + 1 %>&catPage=<%= catCurrentPage %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                <% } %>
             </div>
         </div>
 
         <h4 class="section-divider-title mb-4">Analytics Dashboard</h4>
-
-        <!-- Charts Grid -->
+        
         <div class="charts-grid mb-4">
             <div class="card-custom">
                 <h5 class="chart-header">Monthly Revenue</h5>
-                <div class="chart-container">
-                    <canvas id="lineChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="lineChart"></canvas></div>
             </div>
             <div class="card-custom">
                 <h5 class="chart-header">Order Status</h5>
-                <div class="chart-container">
-                    <canvas id="donutChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="donutChart"></canvas></div>
             </div>
         </div>
 
-        <!-- Best Customers & Highlight Grid -->
         <div class="insights-grid mb-4">
             <div class="table-custom-wrapper m-0">
-                <div class="sales-report-header">
-                    <h5>Best Customers</h5>
-                </div>
+                <div class="sales-report-header"><h5>Best Customers</h5></div>
                 <div class="table-responsive">
                     <table class="table-custom">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Customer Name</th>
-                                <th>Total Orders</th>
-                                <th>Total Spend</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>User ID</th><th>Customer Name</th><th>Total Orders</th><th>Total Spend</th></tr></thead>
                         <tbody>
                             <% if(bestCustomers && bestCustomers.length > 0) { %>
                                 <% bestCustomers.forEach((customer) => { %>
@@ -199,7 +223,6 @@
                     </table>
                 </div>
             </div>
-
             <div class="highlight-wrapper">
                 <div class="highlight-card">
                     <h5 class="highlight-title">Most Ordered Category</h5>
@@ -216,9 +239,30 @@
 
         <!-- Category Performance Table -->
         <div class="table-custom-wrapper mb-5">
-            <div class="sales-report-header">
-                <h5>Category Performance Breakdown</h5>
+            <div class="sales-report-header d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h5 class="m-0">Category Performance Breakdown</h5>
+                
+                <!-- Category Search Form with Clear Button -->
+                <form action="/admin/sales-report" method="GET" class="d-flex mt-2 mt-md-0">
+                    <input type="hidden" name="filter" value="<%= filter %>">
+                    <input type="hidden" name="startDate" value="<%= startDate || '' %>">
+                    <input type="hidden" name="endDate" value="<%= endDate || '' %>">
+                    <input type="hidden" name="ordersSearch" value="<%= ordersSearch %>">
+                    <input type="hidden" name="ordersPage" value="<%= ordersCurrentPage %>">
+                    
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="catSearch" class="form-control" placeholder="Search categories..." value="<%= catSearch %>">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                        <!-- Clear button appears only if there is an active search -->
+                        <% if (catSearch) { %>
+                            <a href="/admin/sales-report?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&ordersPage=<%= ordersCurrentPage %>" class="btn btn-secondary text-white" title="Clear Search">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        <% } %>
+                    </div>
+                </form>
             </div>
+            
             <div class="table-responsive">
                 <table class="table-custom">
                     <thead>
@@ -240,17 +284,34 @@
                             </tr>
                             <% }) %>
                         <% } else { %>
-                            <tr><td colspan="4" class="text-center py-4 text-muted">No category data available for this period.</td></tr>
+                            <tr><td colspan="4" class="text-center py-4 text-muted">No categories match your search.</td></tr>
                         <% } %>
                     </tbody>
                 </table>
+                
+                <% if (catTotalPages >= 1) { %>
+                <nav aria-label="Category Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item <%= catCurrentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&catSearch=<%= catSearch %>&ordersPage=<%= ordersCurrentPage %>&catPage=<%= catCurrentPage - 1 %>">Previous</a>
+                        </li>
+                        <% for(let i = 1; i <= catTotalPages; i++) { %>
+                            <li class="page-item <%= i === catCurrentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&catSearch=<%= catSearch %>&ordersPage=<%= ordersCurrentPage %>&catPage=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= catCurrentPage === catTotalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&ordersSearch=<%= ordersSearch %>&catSearch=<%= catSearch %>&ordersPage=<%= ordersCurrentPage %>&catPage=<%= catCurrentPage + 1 %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                <% } %>
             </div>
         </div>
 
     </main>
 </div>
 <script>
-    // Pass the data from the server to the browser safely
     window.salesChartData = <%- JSON.stringify(chartData || {}) %>;
 </script>
 
