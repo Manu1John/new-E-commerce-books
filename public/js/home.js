@@ -64,6 +64,15 @@ tabs.forEach(tab => {
 });
 
 // Dynamic actions (AJAX Cart/Wishlist calls)
+function updateCartCountBadge(count) {
+    document.querySelectorAll('.js-cart-count').forEach(el => {
+        el.textContent = count;
+    });
+    document.querySelectorAll('.js-cart-label').forEach(el => {
+        el.textContent = `Cart:(${count})`;
+    });
+}
+
 function addToCart(productId) {
     fetch('/cart/add', {
         method: 'POST',
@@ -79,9 +88,7 @@ function addToCart(productId) {
               draggable: true
             });
             // Update badge count
-            document.querySelectorAll('.cart span').forEach(el => {
-                el.textContent = 'Cart:(' + data.cartCount + ')';
-            });
+            updateCartCountBadge(data.cartCount);
         } else {
             if (data.error === "Unauthorized" || !data.success && data.error && data.error.includes("log")) {
                 window.location.href = '/login';

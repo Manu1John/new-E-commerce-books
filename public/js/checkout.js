@@ -7,6 +7,79 @@ function selectAddress(element) {
     element.querySelector('input[type="radio"]').checked = true;
 }
 
+function renderCheckoutAddress(address) {
+    const list = document.getElementById('checkoutAddressList');
+    if (!list) return;
+
+    const card = document.createElement('div');
+    card.className = 'address-card selected';
+    card.onclick = () => selectAddress(card, address._id);
+    card.innerHTML = `
+        <input type="radio" name="selectedAddr" value="${address._id}" checked>
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <strong class="fs-6">${address.fullName}</strong>
+            <span class="badge-type">${address.addressType}</span>
+        </div>
+        <div class="address-text">
+            <p class="mb-1">${address.addressLine}</p>
+            ${address.landmark ? `<p class="mb-1 text-dark-50">Landmark: ${address.landmark}</p>` : ''}
+            <p class="mb-2">${address.city}, ${address.state} - ${address.pincode}</p>
+            <p class="mb-0 text-dark fw-500" style="font-size: 0.88rem;">Phone: ${address.phone}</p>
+        </div>
+    `;
+
+    document.querySelectorAll('.address-card').forEach(existingCard => existingCard.classList.remove('selected'));
+    document.querySelectorAll('input[name="selectedAddr"]').forEach(radio => { radio.checked = false; });
+    list.prepend(card);
+
+    const emptyState = document.getElementById('emptyAddressState');
+    if (emptyState) emptyState.classList.add('d-none');
+
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    if (placeOrderBtn) {
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.classList.remove('opacity-50');
+        placeOrderBtn.textContent = 'Place Order';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const addressForm = document.getElementById('checkoutAddressForm');
+    if (!addressForm) return;
+
+    addressForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = Object.fromEntries(new FormData(addressForm).entries());
+
+        try {
+            const response = await fetch('/address?returnTo=checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+
+            if (!data.success) {
+                Swal.fire('Error', data.error || 'Failed to save address.', 'error');
+                return;
+            }
+
+            renderCheckoutAddress(data.address);
+            addressForm.reset();
+            const modalEl = document.getElementById('checkoutAddressModal');
+            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.hide();
+            Swal.fire({ icon: 'success', title: 'Address added', timer: 1300, showConfirmButton: false });
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'Server Error', 'error');
+        }
+    });
+});
+
 // Coupon Logic
 async function applyCoupon() {
     const code = document.getElementById("couponCode").value;
@@ -79,7 +152,7 @@ async function placeOrder() {
             // If COD or Fully paid by Wallet
             if (data.walletOnly || data.isCOD) {
                 Swal.fire('Success', 'Order Placed!', 'success').then(() => {
-                    window.location.href = '/payment/success';
+                    window.location.href = data.redirectUrl || '/payment/success';
                 });
                 return;
             }
@@ -107,7 +180,7 @@ async function placeOrder() {
                         });
                         const verifyData = await verifyRes.json();
                         if (verifyData.success) {
-                            window.location.href = '/payment/success';
+                            window.location.href = verifyData.redirectUrl || '/payment/success';
                         } else {
                             window.location.href = '/payment/failure';
                         }

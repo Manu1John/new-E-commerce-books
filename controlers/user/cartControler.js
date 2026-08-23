@@ -5,7 +5,8 @@ import {getCartService,
   removeItemFromCartService,
   getCheckoutDetailsService,
   placeOrderService,
-  AddToCartService
+  AddToCartService,
+  clearCartService
 } from "../../services/user/cartService.js"
 // Load user's cart
 const getCart = async (req, res, next) => {
@@ -127,6 +128,18 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
+export const clearCart = async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    const result = await clearCartService({ userId });
+
+    return res.status(200).json({ ...result, message: "Cart cleared." });
+  } catch (error) {
+    console.error("CLEAR CART ERROR:", error);
+    return res.status(500).json({ success: false, error: "Internal Server Error." });
+  }
+};
+
 export const getCheckout = async (req, res, next) => {
   try {
     const userId = getUserId(req);
@@ -236,6 +249,7 @@ export default {
   addToCart,
   updateQuantity,
   removeFromCart,
+  clearCart,
   getCheckout,
   placeOrder,
   applyCoupon

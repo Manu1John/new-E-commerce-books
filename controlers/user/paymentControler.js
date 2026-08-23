@@ -4,7 +4,7 @@ import Order from "../../models/Order.js";
 import Cart from "../../models/Cart.js";
 import Wallet from "../../models/Wallet.js";
 import Product from "../../models/products.js";
-import Offer from "../../models/Offer.js";
+import { getItemPricing, roundMoney } from "../../services/user/pricingService.js";
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -12,51 +12,53 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET || "dummy_secret"
 });
 
-// Helper function to calculate largest offer and cart total
 const calculateCartTotal = async (cart, couponDiscount = 0) => {
   let subtotal = 0;
   let totalOfferDiscount = 0;
-  
   const items = [];
 
   for (const item of cart.items) {
     const product = await Product.findById(item.product).populate('category');
     if (!product) continue;
-
-    const basePrice = product.price;
-    const quantity = item.quantity;
-    
-    // Fetch active offers
-    const productOffers = await Offer.find({ type: "product", productRef: product._id, isActive: true, expiryDate: { $gt: new Date() } });
-    const categoryOffers = product.category 
-      ? await Offer.find({ type: "category", categoryRef: product.category._id, isActive: true, expiryDate: { $gt: new Date() } }) 
-      : [];
-
-    // Combine and find largest percentage
-    const allOffers = [...productOffers, ...categoryOffers];
-    let bestDiscountPercentage = 0;
-    
-    if (allOffers.length > 0) {
-      bestDiscountPercentage = Math.max(...allOffers.map(o => o.discountPercentage));
+    if (product.isDeleted || product.status !== "active") {
+      throw new Error(`"${product.title || "A product"}" is no longer available`);
+    }
+    if (product.quantity < item.quantity) {
+      throw new Error(`"${product.title}" has only ${product.quantity} units available`);
     }
 
-    const itemTotalBase = basePrice * quantity;
-    const itemOfferDiscountAmount = (itemTotalBase * bestDiscountPercentage) / 100;
+    const itemPricing = await getItemPricing(product, item.quantity);
 
-    subtotal += itemTotalBase;
-    totalOfferDiscount += itemOfferDiscountAmount;
+    subtotal += itemPricing.originalSubtotal;
+    totalOfferDiscount += itemPricing.discountSubtotal;
 
     items.push({
       product: product._id,
-      quantity,
-      price: basePrice
+      quantity: item.quantity,
+      price: itemPricing.finalPrice,
+      originalPrice: itemPricing.originalPrice,
+      discountPercentage: itemPricing.discountPercentage,
+      discountAmount: itemPricing.discountAmount,
+      finalPrice: itemPricing.finalPrice,
+      subtotal: itemPricing.subtotal,
+      status: "Confirmed"
     });
   }
 
-  // Final Amount: Subtotal - (Offer Discount) - (Coupon Discount)
-  const finalAmount = Math.max(0, subtotal - totalOfferDiscount - couponDiscount);
+  const finalAmount = roundMoney(Math.max(0, subtotal - totalOfferDiscount - couponDiscount));
   
-  return { subtotal, totalOfferDiscount, finalAmount, items };
+  return {
+    subtotal: roundMoney(subtotal),
+    totalOfferDiscount: roundMoney(totalOfferDiscount),
+    finalAmount,
+    items
+  };
+};
+
+const decrementOrderStock = async (order) => {
+  for (const item of order.items) {
+    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } });
+  }
 };
 
 const paymentControler = {
@@ -96,6 +98,11 @@ const paymentControler = {
         }
       }
 
+      const initialItemStatus = amountToPay === 0 || paymentMethod === "COD" ? "Confirmed" : "Pending";
+      items.forEach((item) => {
+        item.status = initialItemStatus;
+      });
+
       const newOrder = await Order.create({
         orderId: "ORD" + Date.now(),
         user: userId,
@@ -124,14 +131,18 @@ const paymentControler = {
            });
            await wallet.save();
         }
+
+        await decrementOrderStock(newOrder);
         
         await Cart.findOneAndDelete({ user: userId }); // Clear cart
+        req.session.lastOrderId = newOrder._id.toString();
         
         return res.json({ 
             success: true, 
             walletOnly: paymentMethod === "Wallet", 
             isCOD: paymentMethod === "COD", 
-            orderId: newOrder.orderId 
+            orderId: newOrder.orderId,
+            redirectUrl: `/orders/success/${newOrder._id}`
         });
       }
 
@@ -172,9 +183,15 @@ const paymentControler = {
       if (razorpay_signature === expectedSign) {
         // Payment is mathematically verified
         const order = await Order.findById(order_id);
+        const wasAlreadyPaid = order.paymentStatus === "Paid";
         
         order.paymentStatus = "Paid";
         order.status = "Confirmed";
+        order.items.forEach((item) => {
+          if (!item.status || item.status === "Ordered" || item.status === "Pending") {
+            item.status = "Confirmed";
+          }
+        });
         
         // Safely deduct wallet ONLY using the securely stored 'walletUsed' amount
         if (order.paymentMethod === "Wallet+Online") {
@@ -190,11 +207,19 @@ const paymentControler = {
         }
         
         await order.save();
+        if (!wasAlreadyPaid) {
+          await decrementOrderStock(order);
+        }
         
         // Clear the user's cart
         await Cart.findOneAndDelete({ user: userId });
+        req.session.lastOrderId = order._id.toString();
 
-        res.json({ success: true, message: "Payment verified successfully" });
+        res.json({
+          success: true,
+          message: "Payment verified successfully",
+          redirectUrl: `/orders/success/${order._id}`
+        });
       } else {
         res.status(400).json({ success: false, message: "Invalid signature" });
       }
@@ -205,7 +230,8 @@ const paymentControler = {
   },
 
   paymentSuccess: (req, res) => {
-    res.render("user/payment/success", { title: "Payment Successful" });
+    const redirectUrl = req.session?.lastOrderId ? `/orders/success/${req.session.lastOrderId}` : "/orders";
+    res.redirect(redirectUrl);
   },
 
   paymentFailure: (req, res) => {

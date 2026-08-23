@@ -1,5 +1,6 @@
 import Order from "../../models/Order.js";
 import User from "../../models/User.js";
+import { prepareOrderForView } from "../user/orderService.js";
 
 export const getAllOrdersService = async (page, limit, search, statusFilter) => {
     const skip = (page - 1) * limit;
@@ -50,7 +51,7 @@ export const getAdminOrderDetailsService = async (orderId) => {
     .populate("user", "firstName lastName email phone")
     .populate("items.product")
     .populate("shippingAddress");
-  return order;
+  return prepareOrderForView(order);
 };         
 
 export const updateOrderStatusService = async (orderId, status) => {
@@ -65,9 +66,20 @@ export const updateOrderStatusService = async (orderId, status) => {
   if (isBecomingInactive && !wasAlreadyInactive) {
     const Product = (await import("../../models/products.js")).default;
     for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.product._id, {
-        $inc: { quantity: item.quantity }
-      });
+      const itemStatus = item.status || order.status;
+      if (!["Cancelled", "Returned", "Refunded"].includes(itemStatus)) {
+        item.status = status;
+        await Product.findByIdAndUpdate(item.product._id, {
+          $inc: { quantity: item.quantity }
+        });
+      }
+    }
+  } else {
+    for (const item of order.items) {
+      const itemStatus = item.status || order.status;
+      if (!["Cancelled", "Returned", "Refunded"].includes(itemStatus)) {
+        item.status = status;
+      }
     }
   }
 
@@ -107,5 +119,5 @@ export const updateOrderStatusService = async (orderId, status) => {
   // Finally, update the overarching order status
   order.status = status;
   await order.save();
-  return order;
+  return prepareOrderForView(order);
 };

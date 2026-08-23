@@ -39,15 +39,15 @@
 					<!-- 1. Logo (Always left) -->
 					<div class="col-auto order-1">
 						<div class="main-logo m-0">
-							<a href="/home"><img src="images/main-logo.png" alt="logo" style="max-height: 40px;"></a>
+							<a href="<%= (typeof user !== 'undefined' && user) ? '/home' : '/' %>"><img src="images/main-logo.png" alt="logo" style="max-height: 40px;"></a>
 						</div>
 					</div>
 
-					<!-- 2. Main Navigation & Mobile Search (Hidden on mobile, drops to bottom via order-3) -->
+					<!-- 2. Main Navigation & Mobile Search -->
 					<div class="col-12 col-md collapse d-md-flex flex-column flex-md-row justify-content-center order-3 order-md-2 mt-3 mt-md-0" id="mobileMenu">
 						
-						<!-- MOBILE SEARCH FORM: Visible only inside the hamburger menu on smaller screens -->
-						<form role="search" method="get" action="/home" class="d-md-none w-100 mb-3 px-2 mt-3">
+						<!-- MOBILE SEARCH FORM: Dynamic Action -->
+						<form role="search" method="get" action="<%= (typeof user !== 'undefined' && user) ? '/home' : '/' %>" class="d-md-none w-100 mb-3 px-2 mt-3">
 							<% if (typeof query !== 'undefined' && query.sort) { %><input type="hidden" name="sort" value="<%= query.sort %>"><% } %>
 							<% if (typeof query !== 'undefined' && query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
 							<% if (typeof query !== 'undefined' && query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
@@ -73,11 +73,11 @@
 						</nav>
 					</div>
 
-					<!-- 3. Desktop Search & User Actions (Always right) -->
+					<!-- 3. Desktop Search & User Actions -->
 					<div class="col-auto d-flex align-items-center gap-3 gap-lg-4 order-2 order-md-3">
 						
-						<!-- DESKTOP SEARCH FORM: Hidden on mobile, visible on desktop -->
-						<form role="search" method="get" action="/home" id="searchFormHome" class="navbar-search-form d-none d-lg-flex m-0" style="width: 230px;">
+						<!-- DESKTOP SEARCH FORM: Dynamic Action -->
+						<form role="search" method="get" action="<%= (typeof user !== 'undefined' && user) ? '/home' : '/' %>" id="searchFormHome" class="navbar-search-form d-none d-lg-flex m-0" style="width: 230px;">
 							<% if (typeof query !== 'undefined' && query.sort) { %><input type="hidden" name="sort" value="<%= query.sort %>"><% } %>
 							<% if (typeof query !== 'undefined' && query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
 							<% if (typeof query !== 'undefined' && query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
@@ -92,31 +92,37 @@
 
 						<!-- User Actions Icons -->
 						<div class="user-actions d-flex align-items-center gap-3 fs-5">
-							<a href="/profile/user" class="text-dark action-hover text-decoration-none" title="Account"><i class="icon icon-user"></i></a>
-							<a href="/cart" class="text-dark action-hover text-decoration-none position-relative" title="Cart">
-								<i class="icon icon-clipboard"></i>
-								<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 0.55rem; transform: translate(-30%, -30%) !important;">
-									<%= cartCount %>
-								</span>
-							</a>
+                            <% if (typeof user !== 'undefined' && user) { %>
+                                <a href="/profile/user" class="text-dark action-hover text-decoration-none" title="Account"><i class="icon icon-user"></i></a>
+                                <a href="/cart" class="text-dark action-hover text-decoration-none position-relative" title="Cart">
+                                    <i class="icon icon-clipboard"></i>
+                                    <span class="js-cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 0.55rem; transform: translate(-30%, -30%) !important;">
+                                        <%= typeof cartCount !== 'undefined' ? cartCount : 0 %>
+                                    </span>
+                                </a>
 
-                            <a href="/wishlist" class="text-dark action-hover text-decoration-none position-relative" title="Wishlist">
-                                <!-- Inline Heart SVG -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: text-bottom;">
-                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                </svg>
-                                
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 0.55rem; transform: translate(-30%, -30%) !important;">
-                                    <%= typeof wishlistCount !== 'undefined' ? wishlistCount : 0 %>
-                                </span>
-                            </a>
+                                <a href="/wishlist" class="text-dark action-hover text-decoration-none position-relative" title="Wishlist">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: text-bottom;">
+                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                    </svg>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 0.55rem; transform: translate(-30%, -30%) !important;">
+                                        <%= typeof wishlistCount !== 'undefined' ? wishlistCount : 0 %>
+                                    </span>
+                                </a>
 
-							<form action="/logout" method="POST" class="m-0">
-								<button type="submit" class="btn btn-link text-dark p-0 border-0 fs-5 action-hover" title="Logout"><i class="icon icon-login"></i></button>
-							</form>
+                                <form action="/logout" method="POST" class="m-0">
+                                    <button type="submit" class="btn btn-link text-dark p-0 border-0 fs-5 action-hover" title="Logout"><i class="icon icon-login"></i></button>
+                                </form>
+                            <% } else { %>
+                                <a href="/login" class="text-dark action-hover text-decoration-none" title="Login"><i class="icon icon-login"></i></a>
+                                <a href="/cart" class="text-dark action-hover text-decoration-none position-relative" title="Cart">
+                                    <i class="icon icon-clipboard"></i>
+                                    <span class="js-cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 0.55rem; transform: translate(-30%, -30%) !important;">0</span>
+                                </a>
+                            <% } %>
 						</div>
 						
-						<!-- Mobile Hamburger Menu (Native Bootstrap Trigger) -->
+						<!-- Mobile Hamburger Menu -->
 						<div class="hamburger d-md-none ms-3 d-flex flex-column justify-content-center align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#mobileMenu" aria-expanded="false" aria-controls="mobileMenu" style="width: 35px; height: 35px;">
 							<span class="bar d-block bg-dark rounded" style="width: 25px; height: 3px; margin-bottom: 5px;"></span>
 							<span class="bar d-block bg-dark rounded" style="width: 25px; height: 3px; margin-bottom: 5px;"></span>
@@ -195,7 +201,6 @@
 								<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
 									<div class="product-item">
 										<figure class="product-style position-relative">
-                                            <!-- Wishlist Icon Button -->
                                             <button class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 35px; height: 35px; z-index: 10;" onclick="addToWishlist('<%= product._id %>', this)" title="Add to Wishlist">
                                                 <i class="fa-regular fa-heart text-dark" style="font-size: 1.1rem;"></i>
                                             </button>
@@ -213,7 +218,15 @@
 										<figcaption>
 											<h3><%= product.title %></h3>
 											<span><%= product.author %></span>
-											<div class="item-price">₹<%= product.price %></div>
+											<div class="item-price">
+												<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+													<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+													₹<%= product.pricing.finalPrice %>
+													<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+												<% } else { %>
+													₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
+												<% } %>
+											</div>
 										</figcaption>
 									</div>
 								</div>
@@ -285,7 +298,7 @@
 					</div>
 
 					<div class="filter-sort-bar mb-4 p-3 bg-light rounded border" data-aos="fade-up">
-						<form method="get" action="/home" class="row g-3 align-items-end">
+						<form method="get" action="<%= (typeof user !== 'undefined' && user) ? '/home' : '/' %>" class="row g-3 align-items-end">
 							<% if (typeof query !== 'undefined' && query.search) { %>
 								<input type="hidden" name="search" value="<%= query.search %>">
 							<% } %>
@@ -325,7 +338,7 @@
 
 							<div class="col-lg-2 col-md-6 d-flex gap-2">
 								<button type="submit" class="btn btn-dark btn-sm flex-grow-1 m-0" style="height: 31px;">Apply</button>
-								<a href="/home?activeTab=all-genre#popular-books" class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center" style="height: 31px;">Clear</a>
+								<a href="<%= (typeof user !== 'undefined' && user) ? '/home?activeTab=all-genre#popular-books' : '/?activeTab=all-genre#popular-books' %>" class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center" style="height: 31px;">Clear</a>
 							</div>
 						</form>
 					</div>
@@ -350,7 +363,6 @@
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
 											<div class="product-item">
 												<figure class="product-style position-relative">
-                                                    <!-- Wishlist Icon Button -->
                                                     <button class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 35px; height: 35px; z-index: 10;" onclick="addToWishlist('<%= product._id %>', this)" title="Add to Wishlist">
                                                         <i class="fa-regular fa-heart text-dark" style="font-size: 1.1rem;"></i>
                                                     </button>
@@ -368,7 +380,15 @@
 												<figcaption>
 													<h3><%= product.title %></h3>
 													<span><%= product.author %></span>
-													<div class="item-price">₹<%= product.price %></div>
+													<div class="item-price">
+														<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+															<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+															₹<%= product.pricing.finalPrice %>
+															<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+														<% } else { %>
+															₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
+														<% } %>
+													</div>
 												</figcaption>
 											</div>
 										</div>
@@ -406,7 +426,6 @@
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
 											<div class="product-item">
 												<figure class="product-style position-relative">
-                                                    <!-- Wishlist Icon Button -->
                                                     <button class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 35px; height: 35px; z-index: 10;" onclick="addToWishlist('<%= product._id %>', this)" title="Add to Wishlist">
                                                         <i class="fa-regular fa-heart text-dark" style="font-size: 1.1rem;"></i>
                                                     </button>
@@ -424,7 +443,15 @@
 												<figcaption>
 													<h3><%= product.title %></h3>
 													<span><%= product.author %></span>
-													<div class="item-price">₹<%= product.price %></div>
+													<div class="item-price">
+														<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+															<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+															₹<%= product.pricing.finalPrice %>
+															<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+														<% } else { %>
+															₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
+														<% } %>
+													</div>
 												</figcaption>
 											</div>
 										</div>
@@ -482,7 +509,6 @@
 								<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
 									<div class="product-item">
 										<figure class="product-style position-relative">
-                                            <!-- Wishlist Icon Button -->
                                             <button class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 35px; height: 35px; z-index: 10;" onclick="addToWishlist('<%= product._id %>', this)" title="Add to Wishlist">
                                                 <i class="fa-regular fa-heart text-dark" style="font-size: 1.1rem;"></i>
                                             </button>
@@ -499,10 +525,13 @@
 											<h3><%= product.title %></h3>
 											<span><%= product.author %></span>
 											<div class="item-price">
-												<% if (product.oldPrice) { %>
-													<span class="prev-price">₹<%= product.oldPrice %></span>
+												<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+													<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+													₹<%= product.pricing.finalPrice %>
+													<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+												<% } else { %>
+													₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
 												<% } %>
-												₹<%= product.price %>
 											</div>
 										</figcaption>
 									</div>

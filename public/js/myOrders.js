@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Extract data from the clicked button
             const status = btn.getAttribute('data-status');
+            const items = JSON.parse(btn.getAttribute('data-items') || '[]');
             const dateStr = btn.getAttribute('data-date');
             const date = new Date(dateStr).toLocaleDateString();
             
@@ -23,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Update Timeline Logic
             const timeline = document.getElementById('tracking-timeline');
-            timeline.innerHTML = generateTimelineHTML(status, date);
+            timeline.innerHTML = generateTimelineHTML(status, date, items);
             
             // On mobile devices, smoothly scroll down to the tracking column
             if (window.innerWidth < 900) {
@@ -33,15 +34,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Helper function to build the timeline UI based on current order status
-    function generateTimelineHTML(status, date) {
+    function generateTimelineHTML(status, date, items = []) {
+        if (items.length > 1) {
+            return items.map(item => `
+                <div class="timeline-item active">
+                    <div class="dot" style="background-color: ${["Cancelled", "Returned", "Refunded"].includes(item.status) ? '#d9534f' : '#556b2f'};"></div>
+                    <div class="content">
+                        <strong>${item.title}</strong>
+                        <p>${item.status}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // Handle negative statuses separately
-        if (["Cancelled", "Returned", "Refunded"].includes(status)) {
+        if (["Cancelled", "Returned", "Refunded", "Partially Cancelled"].includes(status)) {
             return `
                 <div class="timeline-item active">
                     <div class="dot" style="background-color: #d9534f;"></div>
                     <div class="content">
-                        <strong style="color: #d9534f;">Order ${status}</strong>
-                        <p>${date} - This order has been ${status.toLowerCase()}.</p>
+                        <strong style="color: #d9534f;">${status}</strong>
+                        <p>${date} - Current database status: ${status}.</p>
                     </div>
                 </div>
             `;
@@ -50,15 +63,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // Define the standard progression
         const stages = [
             { label: "Order Confirmed", desc: "Your order has been placed successfully." },
+            { label: "Processing", desc: "Your order is being prepared." },
             { label: "Packed", desc: "Seller packed your items carefully." },
             { label: "Shipped", desc: "Shipment is on the way." },
+            { label: "Out for Delivery", desc: "Your order is out for delivery." },
             { label: "Delivered", desc: "Order has been delivered." }
         ];
 
         // Map textual statuses to an index level (0 to 4)
         const statusMap = {
-            "Pending": 0, "Confirmed": 1, "Processing": 1, 
-            "Packed": 2, "Shipped": 3, "Out for Delivery": 3, "Delivered": 4
+            "Ordered": 0, "Pending": 0, "Confirmed": 1, "Processing": 2, 
+            "Packed": 3, "Shipped": 4, "Out for Delivery": 5, "Delivered": 6
         };
         
         let currentIndex = statusMap[status] || 0;

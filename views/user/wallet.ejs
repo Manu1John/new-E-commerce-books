@@ -6,74 +6,53 @@
     <title><%= title %></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome added for Search, Profile, Cart, and Heart icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="/css/<%= cssFile %>">
     
     <!-- Modal CSS -->
-    <style>
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.5); 
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .close-btn {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-btn:hover,
-        .close-btn:focus {
-            color: black;
-        }
-        .modal h2 { margin-top: 0; margin-bottom: 20px; font-family: 'Playfair Display', serif; }
-        .modal input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .modal-submit-btn {
-            background-color: #c59f5f;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            width: 100%;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-    </style>
+
 </head>
 <body>
 
-    <header class="main-header">
+    <!-- Updated Header with sticky class, search, and icons -->
+    <header class="main-header sticky-top">
         <div class="container header-container">
             <div class="logo">BOOKSAW</div>
-            <nav class="main-nav">
-                <a href="/">Home</a>
-                <a href="/#featured-books">Featured</a>
-                <a href="/#popular-books">Popular</a>
-                <a href="/#special-offer">Offer</a>
-                <a href="/#latest-blog">Articles</a>
+            
+            <!-- Hamburger Button -->
+            <button class="hamburger" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <nav class="main-nav" id="main-nav">
+                <a href="/">HOME</a>
+                <a href="/#featured-books">FEATURED</a>
+                <a href="/#popular-books">POPULAR</a>
+                <a href="/#special-offer">OFFER</a>
+                <a href="/#latest-blog">ARTICLES</a>
             </nav>
+
+            <!-- Header Tools (Search & Icons) -->
+            <div class="header-tools" id="header-tools">
+
+                
+                <div class="icon-group">
+                    <a href="/profile/user" class="icon-link"><i class="far fa-user"></i></a>
+                    <a href="/cart" class="icon-link badge-wrapper">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge">0</span>
+                    </a>
+                    <a href="/wishlist" class="icon-link badge-wrapper">
+                        <i class="far fa-heart"></i>
+                        <span class="badge">0</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -87,7 +66,6 @@
                     <div class="wallet-label">Available Balance</div>
                 </div>
                 <div class="wallet-card">
-                    <!-- Placeholder: Update if you add points to schema -->
                     <div class="wallet-value">1200</div> 
                     <div class="wallet-label">Reward Points</div>
                 </div>
@@ -98,7 +76,7 @@
             </div>
         </section>
 
-        <!-- Linked Payment Methods (Static for now, make dynamic later if needed) -->
+        <!-- Linked Payment Methods -->
         <section class="list-section">
             <h3 class="section-subtitle">Linked Payment Methods</h3>
             <div class="list-container">
@@ -140,6 +118,7 @@
 
     <!-- Add Money Modal -->
     <div id="addMoneyModal" class="modal">
+        <!-- Modal Content ... -->
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('addMoneyModal')">&times;</span>
             <h2>Add Money</h2>
@@ -153,6 +132,7 @@
 
     <!-- Withdraw Modal -->
     <div id="withdrawModal" class="modal">
+        <!-- Modal Content ... -->
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('withdrawModal')">&times;</span>
             <h2>Withdraw Money</h2>
@@ -164,22 +144,43 @@
         </div>
     </div>
 
-    <!-- Modal Logic -->
+    <!-- Logic for Modals & Hamburger Menu -->
     <script>
+        // Modal Logic
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
         }
-
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
-
-        // Close modal if user clicks outside of it
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = "none";
             }
         }
+
+        // Hamburger Menu Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const mainNav = document.getElementById('main-nav');
+            const headerTools = document.getElementById('header-tools');
+            
+            if (hamburgerBtn && mainNav && headerTools) {
+                hamburgerBtn.addEventListener('click', () => {
+                    mainNav.classList.toggle('active');
+                    headerTools.classList.toggle('active');
+                    
+                    const icon = hamburgerBtn.querySelector('i');
+                    if (mainNav.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+            }
+        });
     </script>
 
 </body>

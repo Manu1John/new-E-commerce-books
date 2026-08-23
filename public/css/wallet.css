@@ -32,6 +32,7 @@ body {
     padding-bottom: 50px;
 }
 
+/* Base Container (Applies to main content, overridden for header) */
 .container {
     max-width: 900px;
     margin: 0 auto;
@@ -57,37 +58,140 @@ body {
     color: var(--gold-text);
 }
 
-/* --- Header --- */
+/* --- Header & Navigation --- */
 .main-header {
     background-color: var(--bg-color);
     border-bottom: 1px solid var(--border-color);
-    padding: 15px 0;
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+/* Make Navbar Sticky */
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .header-container {
+    max-width: 1200px; /* Wider container for the new layout */
+    margin: 0 auto;
+    padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .logo {
     font-family: var(--font-serif);
-    font-size: 1.2rem;
+    font-size: 2rem;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1;
     color: #111;
+    letter-spacing: 1.5px;
 }
 
 .main-nav {
     display: flex;
-    gap: 25px;
+    gap: 30px;
+    align-items: center;
 }
 
 .main-nav a {
     text-decoration: none;
-    color: var(--text-main);
+    color: #004d80; /* Matches the dark blueish tint in the image */
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+}
+
+.main-nav a:hover {
+    color: var(--gold-text);
+}
+
+/* Header Tools (Search & Icons) */
+.header-tools {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+/* Search Box matching the image */
+.search-box {
+    display: flex;
+    align-items: center;
+    background-color: #f6f6f6;
+    border: 1px solid #eaeaea;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    padding: 10px 20px;
+    font-family: var(--font-sans);
     font-size: 0.9rem;
-    font-weight: 500;
+    outline: none;
+    color: #333;
+    width: 180px;
+}
+
+.search-box button {
+    background-color: #111;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-box button:hover {
+    background-color: #333;
+}
+
+/* Icons */
+.icon-group {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+.icon-link {
+    color: #111;
+    font-size: 1.25rem;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.icon-link:hover {
+    color: var(--gold-text);
+}
+
+.badge-wrapper .badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background-color: #222;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border-radius: 50%;
+    padding: 3px 6px;
+    line-height: 1;
+}
+
+/* Hamburger Menu Button */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #111;
+    cursor: pointer;
 }
 
 /* --- Wallet Section --- */
@@ -118,7 +222,7 @@ body {
     color: var(--text-muted);
 }
 
-/* --- List Sections (Payment & Transactions) --- */
+/* --- List Sections --- */
 .list-container {
     display: flex;
     flex-direction: column;
@@ -151,114 +255,6 @@ body {
     font-size: 0.95rem;
 }
 
-/* --- Referral Section --- */
-.referral-card {
-    background-color: var(--referral-bg);
-    border: 1px solid var(--referral-border);
-    border-radius: 12px;
-    padding: 30px;
-}
-
-.referral-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 30px;
-}
-
-.referral-info h3 {
-    font-size: 1.3rem;
-    color: #222;
-    margin-bottom: 8px;
-}
-
-.referral-info p {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    max-width: 300px;
-}
-
-.referral-info strong {
-    color: var(--text-main);
-}
-
-.total-earned {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    padding: 15px 30px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-}
-
-.earned-label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-}
-
-.earned-value {
-    display: block;
-    font-family: var(--font-serif);
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--gold-text);
-}
-
-.referral-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.stat-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    text-align: center;
-    border-radius: 8px;
-}
-
-.stat-value {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--gold-text);
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-.code-label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #222;
-}
-
-.input-group {
-    display: flex;
-    margin-bottom: 20px;
-}
-
-.input-group input {
-    flex-grow: 1;
-    padding: 15px 20px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px 0 0 6px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #222;
-    outline: none;
-    letter-spacing: 1px;
-}
-
 /* --- Buttons --- */
 .btn {
     border: none;
@@ -271,21 +267,6 @@ body {
 
 .btn:hover {
     opacity: 0.9;
-}
-
-.btn-copy {
-    background-color: var(--btn-copy);
-    padding: 0 25px;
-    border-radius: 0 6px 6px 0;
-    font-size: 0.9rem;
-}
-
-.btn-share {
-    width: 100%;
-    background-color: var(--btn-share);
-    padding: 16px;
-    border-radius: 6px;
-    font-size: 1rem;
 }
 
 .bottom-actions {
@@ -310,26 +291,31 @@ body {
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-        gap: 15px;
+@media (max-width: 992px) {
+    /* Show Hamburger on smaller tablets/mobile */
+    .hamburger {
+        display: block;
     }
-    
-    .wallet-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .referral-top {
+
+    /* Hide standard nav elements initially */
+    .main-nav, .header-tools {
+        display: none; 
         flex-direction: column;
+        width: 100%;
+        margin-top: 15px;
         gap: 20px;
     }
     
-    .total-earned {
-        width: 100%;
+    /* Reveal when JS adds 'active' class */
+    .main-nav.active, .header-tools.active {
+        display: flex;
     }
     
-    .referral-stats {
+    .search-box input {
+        width: 100%; /* Fill space on mobile */
+    }
+    
+    .wallet-grid {
         grid-template-columns: 1fr;
     }
     
@@ -341,3 +327,53 @@ body {
         width: 100%;
     }
 }
+
+.modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+        }
+        .modal h2 { margin-top: 0; margin-bottom: 20px; font-family: 'Playfair Display', serif; }
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-submit-btn {
+            background-color: #c59f5f;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }

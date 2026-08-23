@@ -1,6 +1,6 @@
 // Adjust the import path depending on your folder structure
 import offerService from "../../services/admin/offerService.js"; 
-
+ 
 const offerController = {
   
   // 1. List all offers (Dashboard View with Pagination & Search)

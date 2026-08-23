@@ -14,6 +14,55 @@ const orderItemSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true
+  },
+  originalPrice: {
+    type: Number,
+    default: 0
+  },
+  discountPercentage: {
+    type: Number,
+    default: 0
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
+  finalPrice: {
+    type: Number,
+    default: 0
+  },
+  subtotal: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String,
+    enum: [
+      "Ordered",
+      "Pending",
+      "Confirmed",
+      "Processing",
+      "Packed",
+      "Shipped",
+      "Out for Delivery",
+      "Delivered",
+      "Cancelled",
+      "Returned",
+      "Refunded"
+    ],
+    default: "Ordered"
+  },
+  cancellationReason: {
+    type: String,
+    default: null
+  },
+  cancelledAt: {
+    type: Date,
+    default: null
+  },
+  refundedAmount: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -87,6 +136,7 @@ const orderSchema = new mongoose.Schema(
         // Update this array to include ALL valid statuses
         enum: [
             "Pending", 
+            "Ordered",
             "Confirmed", 
             "Processing", 
             "Packed", 

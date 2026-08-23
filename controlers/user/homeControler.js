@@ -3,9 +3,8 @@ import {
   getCartCountService, 
   getProductDetailsService,
   getWishlistCountService
-} from "../../services/user/homeService.js"; // Adjust the path as needed
+} from "../../services/user/homeService.js";
 
-// URL parameters helper for pagination and tabs
 const buildPageUrl = (query, paramName, paramValue, hash = "", activeTab = "") => {
   const urlParams = new URLSearchParams(query);
   urlParams.set(paramName, paramValue);
@@ -53,10 +52,8 @@ const getHome = async (req, res, next) => {
     }
 
     const data = await getIndexAndHomeProductsService(req.query);
-    
     const userId = req.session?.user?._id || req.session?.user?.id;
     
-    // Fetch both cart and wishlist counts
     const cartCount = await getCartCountService(userId);
     const wishlistCount = await getWishlistCountService(userId);
 
@@ -75,8 +72,7 @@ const getHome = async (req, res, next) => {
       offerTotalPages: data.offerTotalPages,
       query: req.query,
       cartCount,
-      wishlistCount, // Passing wishlistCount to the view
-      
+      wishlistCount, 
       activeTabId: req.query.activeTab || "all",
       getPageUrl: (paramName, paramValue, hash = "", activeTab = "") => 
         buildPageUrl(req.query, paramName, paramValue, hash, activeTab)
@@ -87,21 +83,18 @@ const getHome = async (req, res, next) => {
   }
 };
 
-// GET PRODUCT DETAILS PAGE
 const getProductDetails = async (req, res, next) => {
   try {
     const productId = req.params.id;
+    const userId = req.session?.user?._id || req.session?.user?.id; // Grab userId
     
-    const serviceResult = await getProductDetailsService(productId);
+    const serviceResult = await getProductDetailsService(productId, userId); // Pass userId
 
     if (!serviceResult.success) {
       req.flash("error", serviceResult.error);
       return res.redirect(req.session?.user ? "/home" : "/");
     }
-
-    const userId = req.session?.user?._id || req.session?.user?.id;
     
-    // Fetch both cart and wishlist counts
     const cartCount = await getCartCountService(userId);
     const wishlistCount = await getWishlistCountService(userId);
 
@@ -109,9 +102,13 @@ const getProductDetails = async (req, res, next) => {
       title: serviceResult.product.title,
       product: serviceResult.product,
       relatedProducts: serviceResult.relatedProducts,
+      reviews: serviceResult.reviews,
+      reviewStats: serviceResult.reviewStats,
+      canReview: serviceResult.canReview,
+      userReview: serviceResult.userReview,
       user: req.session?.user,
       cartCount,
-      wishlistCount, // Passing wishlistCount to the view
+      wishlistCount, 
       success: req.flash("success"),
       error: req.flash("error")
     });

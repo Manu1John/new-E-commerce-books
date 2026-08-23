@@ -11,7 +11,13 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">BOOKSAW</div>
-        <div class="nav-links">
+        
+        <!-- Hamburger Button Added Here -->
+        <button class="hamburger" id="hamburger-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-links" id="nav-links">
             <a href="/">Home</a>
             <a href="/#featured-books">Featured</a>
             <a href="/#popular-books">Popular</a>
@@ -34,27 +40,28 @@
             <div class="left-col">
                 <h2 class="section-title">Ordered Items</h2>
 
-                 <%orders.forEach((order)=>{%>
-                <div class="order-card">
-                    <%order.items.forEach((item)=>{%>
+                <% orders.forEach((order, index) => { %>
+                <div class="order-card <%= index >= 3 ? 'hidden-order' : '' %>">
+                    <% order.items.forEach((item) => { %>
                     <div class="product-info">
                         
                         <div class="product-image">
-                            <img src="https://via.placeholder.com/80x100?text=Book+Cover" alt="Book Cover">
+                            <img src="<%= item.product?.images?.length ? '/uploads/' + item.product.images[0] : 'https://via.placeholder.com/80x100?text=Book+Cover' %>" alt="Book Cover">
                         </div>
                         <div class="product-details">
                             <h3>Title: <%=item.product.title%></h3>
                             <p>Author: <%=item.product.author%></p>
                             <p>Quantity: <%=item.quantity%></p>
-                            <p class="price">Price: $<%=item.price%></p>
+                            <p class="price">Price: ₹<%=item.finalPrice || item.price%></p>
+                            <p>Status: <%= item.status || order.status %></p>
                         </div>
                         
                     </div>
-                    <%})%>
+                    <% }) %>
                     
                     <div class="order-meta">
                         <strong><%=order.orderId%></strong>
-                        <span class="badge badge-shipped"><%=order.status%></span>
+                        <span class="badge badge-shipped"><%=order.displayStatus || order.status%></span>
                     </div>    
                     
                     <div class="order-grid">
@@ -64,7 +71,7 @@
                         </div>
                         <div class="grid-item">
                             <label>Total Amount</label>
-                            <strong>$<%=order.finalAmount%></strong>
+                            <strong>₹<%=order.money ? order.money.finalTotal : order.finalAmount%></strong>
                         </div>
                         <div class="grid-item">
                             <label>Payment Method</label>
@@ -73,15 +80,18 @@
                     </div>
 
                     <div class="action-buttons dual">
-                        <% if (order.status === "Delivered") { %>
+                        <a href="/orders/<%= order._id %>" class="btn btn-dark">VIEW DETAILS</a>
+                        <a href="/orders/<%= order._id %>/invoice" class="btn btn-olive">INVOICE</a>
+                        <% if ((order.displayStatus || order.status) === "Delivered") { %>
                             <button type="button" class="btn btn-red open-return-modal" data-order-id="<%=order._id%>">RETURN ORDER</button>
-                        <% } else if (order.status !== "Cancelled" && order.status !== "Returned" && order.status !== "Refunded") { %>
+                        <% } else if (!["Cancelled", "Returned", "Refunded"].includes(order.displayStatus || order.status)) { %>
                             <button type="button" class="btn btn-dark open-cancel-modal" data-order-id="<%=order._id%>">CANCEL ORDER</button>
                         <% } %>
                         
                         <!-- Dynamic Track Order Button -->
                         <button type="button" class="btn btn-olive track-order-btn" 
-                            data-status="<%=order.status%>"
+                            data-status="<%=order.displayStatus || order.status%>"
+                            data-items='<%- JSON.stringify(order.items.map(item => ({ title: item.product?.title || "Product", status: item.status || order.status }))) %>'
                             data-date="<%=order.createdAt%>"
                             data-total="<%=order.totalAmount%>"
                             data-shipping="<%=order.shippingFee%>"
@@ -91,7 +101,12 @@
                         >Track Order</button>
                     </div>
                 </div>
-                <%})%>                
+                <% }) %>                
+
+                <!-- View All Button -->
+                <% if (orders && orders.length > 3) { %>
+                    <button type="button" class="btn btn-dark view-all-btn" id="viewAllOrdersBtn">View All <%= orders.length %> Orders</button>
+                <% } %>
 
             </div>
 
@@ -205,5 +220,42 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hamburger Menu Logic
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const navLinks = document.getElementById('nav-links');
+            
+            if (hamburgerBtn && navLinks) {
+                hamburgerBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    // Toggle icon between bars and close
+                    const icon = hamburgerBtn.querySelector('i');
+                    if (navLinks.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+            }
+
+            // View All Orders Logic
+            const viewAllBtn = document.getElementById('viewAllOrdersBtn');
+            if (viewAllBtn) {
+                viewAllBtn.addEventListener('click', () => {
+                    const hiddenOrders = document.querySelectorAll('.hidden-order');
+                    hiddenOrders.forEach(order => {
+                        order.style.display = 'block'; 
+                        // Small timeout to allow CSS transition
+                        setTimeout(() => order.style.opacity = '1', 10);
+                    });
+                    viewAllBtn.style.display = 'none'; // Hide button after clicking
+                });
+            }
+        });
+    </script>
 
 <%- include('../partials/footer') %>

@@ -51,7 +51,7 @@
                         <i class="icon icon-heart-o"></i><span>Wishlist</span>
                     </a>
                     <a href="/cart" class="text-decoration-none text-dark d-flex align-items-center gap-1 hover-opacity">
-                        <i class="icon icon-clipboard"></i><span>Cart:(<%= cartCount %>)</span>
+                        <i class="icon icon-clipboard"></i><span class="js-cart-label">Cart:(<%= cartCount %>)</span>
                     </a>
                     <form action="/logout" method="POST" class="m-0 p-0">
                         <button type="submit" class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1">
@@ -134,7 +134,13 @@
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            ₹<%= item.product ? item.product.price : 0 %>
+                                            <% if (item.pricing && item.pricing.discountPercentage > 0) { %>
+                                                <div><del class="text-muted">₹<%= item.pricing.originalPrice %></del></div>
+                                                <strong>₹<%= item.pricing.finalPrice %></strong>
+                                                <small class="d-block text-success"><%= item.pricing.discountPercentage %>% off</small>
+                                            <% } else { %>
+                                                ₹<%= item.pricing ? item.pricing.finalPrice : (item.product ? item.product.price : 0) %>
+                                            <% } %>
                                         </td>
                                         <td class="text-center">
                                             <% if (item.product && !item.isUnavailable) { %>
@@ -189,6 +195,7 @@
                                 Proceed to Checkout
                             </a>
                         <% } %>
+                        <button type="button" class="btn btn-outline-danger w-100 mt-3" onclick="clearCart()">Clear Cart</button>
                     </div>
                 </div>
             </div>

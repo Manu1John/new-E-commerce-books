@@ -60,7 +60,7 @@
                     </a>
                     <span class="text-muted d-none d-lg-inline">|</span>
                     <a href="/cart" class="text-decoration-none text-dark d-flex align-items-center gap-1 fw-bold">
-                        <i class="icon icon-clipboard"></i><span>Cart (<%= cartCount %>)</span>
+                        <i class="icon icon-clipboard"></i><span>Cart (<span class="js-cart-count"><%= cartCount %></span>)</span>
                     </a>
                     <span class="text-muted d-none d-lg-inline">|</span>
                     <form action="/logout" method="POST" class="m-0 p-0">
@@ -88,12 +88,12 @@
                 </div>
                 
                 <% if (addresses.length === 0) { %>
-                    <div class="text-center py-5 px-4 rounded-4 border" style="background-color: #fff; border-style: dashed !important;">
+                    <div id="emptyAddressState" class="text-center py-5 px-4 rounded-4 border" style="background-color: #fff; border-style: dashed !important;">
                         <p class="text-muted mb-4">You don't have any saved delivery addresses yet.</p>
-                        <a href="/address/new" class="btn btn-brand-dark btn-sm">Add New Address</a>
+                        <button type="button" class="btn btn-brand-dark btn-sm" data-bs-toggle="modal" data-bs-target="#checkoutAddressModal">Add New Address</button>
                     </div>
                 <% } else { %>
-                    <div class="address-container">
+                    <div class="address-container" id="checkoutAddressList">
                         <% addresses.forEach((addr, idx) => { %>
                             <div class="address-card <%= idx === 0 ? 'selected' : '' %>" onclick="selectAddress(this, '<%= addr._id %>')">
                                 <input type="radio" name="selectedAddr" value="<%= addr._id %>" <%= idx === 0 ? 'checked' : '' %>>
@@ -102,7 +102,7 @@
                                     <span class="badge-type"><%= addr.addressType %></span>
                                 </div>
                                 <div class="address-text">
-                                    <p class="mb-1"><%= addr.house %>, <%= addr.area %></p>
+                                    <p class="mb-1"><%= addr.addressLine %></p>
                                     <% if (addr.landmark) { %>
                                         <p class="mb-1 text-dark-50">Landmark: <%= addr.landmark %></p>
                                     <% } %>
@@ -113,8 +113,11 @@
                         <% }) %>
                     </div>
                     <div class="mt-4">
-                        <a href="/address/new" class="btn btn-brand-outline"><i class="icon icon-plus me-1"></i> Add Another Address</a>
+                        <button type="button" class="btn btn-brand-outline" data-bs-toggle="modal" data-bs-target="#checkoutAddressModal"><i class="icon icon-plus me-1"></i> Add Another Address</button>
                     </div>
+                <% } %>
+                <% if (addresses.length === 0) { %>
+                    <div class="address-container mt-4" id="checkoutAddressList"></div>
                 <% } %>
             </div>
 
@@ -130,9 +133,14 @@
                             <div class="d-flex justify-content-between align-items-center item-row">
                                 <div class="pe-3">
                                     <h6 class="mb-1 text-truncate fw-semibold" style="max-width: 240px; font-family: var(--font-body); font-size: 0.95rem;"><%= item.product.title %></h6>
-                                    <small class="text-muted">Qty: <%= item.quantity %> &times; ₹<%= item.product.price %></small>
+                                    <small class="text-muted">
+                                        Qty: <%= item.quantity %> &times; ₹<%= item.pricing ? item.pricing.finalPrice : item.product.price %>
+                                        <% if (item.pricing && item.pricing.discountPercentage > 0) { %>
+                                            <span class="text-success">(<%= item.pricing.discountPercentage %>% off)</span>
+                                        <% } %>
+                                    </small>
                                 </div>
-                                <span class="fw-semibold text-dark fs-6">₹<%= item.product.price * item.quantity %></span>
+                                <span class="fw-semibold text-dark fs-6">₹<%= item.itemTotal || (item.product.price * item.quantity) %></span>
                             </div>
                         <% }) %>
                     </div>
@@ -197,11 +205,11 @@
                     </div>
 
                     <% if (addresses.length > 0) { %>
-                        <button class="btn btn-brand-dark w-100 py-3 text-uppercase" onclick="placeOrder()">
+                        <button id="placeOrderBtn" class="btn btn-brand-dark w-100 py-3 text-uppercase" onclick="placeOrder()">
                             Place Order
                         </button>
                     <% } else { %>
-                        <button class="btn btn-brand-dark w-100 py-3 text-uppercase opacity-50" disabled>
+                        <button id="placeOrderBtn" class="btn btn-brand-dark w-100 py-3 text-uppercase opacity-50" disabled>
                             Add Address to Checkout
                         </button>
                     <% } %>
@@ -213,6 +221,66 @@
             </div>
         </div>
     </main>
+
+    <div class="modal fade" id="checkoutAddressModal" tabindex="-1" aria-labelledby="checkoutAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="checkoutAddressModalLabel">Add New Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="checkoutAddressForm">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full name</label>
+                                <input class="form-control" name="fullName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input class="form-control" name="phone" pattern="[6-9][0-9]{9}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">House / Building</label>
+                                <input class="form-control" name="house" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Area / Street</label>
+                                <input class="form-control" name="area" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Landmark</label>
+                                <input class="form-control" name="landmark">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input class="form-control" name="city" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">State</label>
+                                <input class="form-control" name="state" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Pincode</label>
+                                <input class="form-control" name="pincode" pattern="[0-9]{6}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" name="addressType" required>
+                                    <option value="Home">Home</option>
+                                    <option value="Office">Office</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-brand-dark">Save Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 <!-- Footer -->
 	<footer id="footer" class="bg-dark text-white py-5 mt-5">

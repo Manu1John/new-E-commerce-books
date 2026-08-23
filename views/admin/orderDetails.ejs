@@ -109,10 +109,12 @@
                             <thead>
                                 <tr>
                                     <th>Product</th>
-                                    <th>ISBN/Lang</th>
                                     <th>Qty</th>
-                                    <th>Price</th>
+                                    <th>Original</th>
+                                    <th>Discount</th>
+                                    <th>Final</th>
                                     <th>Total</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,27 +123,24 @@
                                     <td>
                                         <div class="product-cell">
                                             <div class="product-img-wrapper">
-                                                <% if (item.product.images && item.product.images.length > 0) { %>
+                                                <% if (item.product && item.product.images && item.product.images.length > 0) { %>
                                                     <img src="/uploads/<%= item.product.images[0] %>" alt="<%= item.product.title %>" class="product-thumbnail">
                                                 <% } else { %>
                                                     <div class="product-placeholder"><i class="fa-solid fa-image"></i></div>
                                                 <% } %>
                                             </div>
                                             <div>
-                                                <span class="fw-bold product-title"><%=item.product.title%></span>
-                                                <span class="text-muted" style="font-size: 0.75rem;"><%=item.product.author%></span>
+                                                <span class="fw-bold product-title"><%=item.product?.title || 'Unavailable product'%></span>
+                                                <span class="text-muted" style="font-size: 0.75rem;"><%=item.product?.author || ''%></span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div class="text-muted" style="font-size: 0.8rem;">
-                                            <div><%=item.product.isbn%></div>
-                                            <div><%=item.product.language%></div>
-                                        </div>
-                                    </td>
                                     <td class="fw-bold">x<%=item.quantity%></td>
-                                    <td class="text-muted">₹<%=item.product.price%></td>
-                                    <td class="fw-bold text-dark">₹<%=item.product.price * item.quantity%></td>
+                                    <td class="text-muted">₹<%=item.originalPrice%></td>
+                                    <td class="text-success"><%=item.discountPercentage%>% / ₹<%=item.discountAmount * item.quantity%></td>
+                                    <td class="text-muted">₹<%=item.finalPrice%></td>
+                                    <td class="fw-bold text-dark">₹<%=item.subtotal%></td>
+                                    <td><span class="badge <%= item.status === 'Cancelled' ? 'badge-danger' : 'badge-success' %>"><%=item.status%></span></td>
                                 </tr>
                                 <%})%>
                             </tbody>
@@ -154,16 +153,16 @@
                     <div class="card-custom">
                         <h3 class="section-title"><i class="fa-solid fa-route me-1 text-primary"></i> Timeline</h3>
                         <div class="timeline">
-                            <% if (["Cancelled", "Returned", "Refunded"].includes(order.status)) { %>
+                            <% if (["Cancelled", "Returned", "Refunded"].includes(order.displayStatus || order.status)) { %>
                                 <div class="timeline-item last">
                                     <div class="timeline-icon bg-danger text-white"><i class="fa-solid fa-xmark"></i></div>
                                     <div class="timeline-content">
-                                        <strong class="text-danger">Order <%= order.status %></strong>
+                                        <strong class="text-danger">Order <%= order.displayStatus || order.status %></strong>
                                     </div>
                                 </div>
                             <% } else { %>
                                 <% 
-                                    const s = order.status;
+                                    const s = order.displayStatus || order.status;
                                     const passedConfirmed = ["Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered"].includes(s);
                                     const passedPacked = ["Packed", "Shipped", "Out for Delivery", "Delivered"].includes(s);
                                     const passedShipped = ["Shipped", "Out for Delivery", "Delivered"].includes(s);
@@ -219,6 +218,11 @@
                                 %>
                                 <p class="fw-bold text-success m-0"><%= formattedEstDate %></p>
                             </div>
+                            <div class="info-group mb-2">
+                                <label>Created / Updated</label>
+                                <p class="fw-bold text-dark m-0"><%= new Date(order.createdAt).toLocaleString() %></p>
+                                <p class="text-muted m-0"><%= new Date(order.updatedAt).toLocaleString() %></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -233,29 +237,29 @@
                     <div class="summary-list">
                         <div class="summary-row">
                             <span class="text-muted">Subtotal</span>
-                            <span class="fw-bold text-dark">₹<%= order.items.reduce((acc, item) => acc + (item.product.price * item.quantity), 0) %></span>
+                            <span class="fw-bold text-dark">₹<%= order.money.subtotal %></span>
                         </div>
                         <div class="summary-row">
                             <span class="text-muted">Coupon Discount</span>
-                            <span class="fw-bold text-success">-₹<%= order.couponDiscount || 0 %></span>
+                            <span class="fw-bold text-success">-₹<%= order.money.couponDiscount || 0 %></span>
                         </div>
                         <div class="summary-row">
                             <span class="text-muted">Offer Discount</span>
-                            <span class="fw-bold text-success">-₹<%= order.offerDiscount || 0 %></span>
+                            <span class="fw-bold text-success">-₹<%= order.money.offerDiscount || 0 %></span>
                         </div>
                         <div class="summary-row">
                             <span class="text-muted">Shipping</span>
-                            <span class="fw-bold text-dark">₹40</span>
+                            <span class="fw-bold text-dark">₹<%= order.money.shippingCharge %></span>
                         </div>
                         <div class="summary-row">
                             <span class="text-muted">Tax (GST)</span>
-                            <span class="fw-bold text-dark">₹18</span>
+                            <span class="fw-bold text-dark">₹<%= order.tax || 0 %></span>
                         </div>
                     </div>
                     <hr class="summary-divider">
                     <div class="summary-row total-row">
                         <span class="fw-bold text-dark">Total</span>
-                        <span class="fw-bold text-primary" style="font-size: 1.3rem;">₹<%= order.finalAmount %></span>
+                        <span class="fw-bold text-primary" style="font-size: 1.3rem;">₹<%= order.money.finalTotal %></span>
                     </div>
                     <div class="mt-2 text-center">
                         <span class="badge <%= order.paymentMethod === 'COD' ? 'badge-warning' : 'badge-success' %> px-2 py-1 w-100">

@@ -3,6 +3,7 @@ import {
   getAdminOrderDetailsService,
   updateOrderStatusService
 } from "../../services/admin/orderService.js";
+import { generateInvoicePDF } from "../../services/user/orderService.js";
 
 export const getAllOrders = async (req, res, next) => {
   try {
@@ -51,7 +52,6 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const orderId = req.params.id;
     const { status } = req.body;
-    
     const validStatuses = ["Pending", "Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered", "Cancelled", "Returned", "Refunded"];
     
     if (!validStatuses.includes(status)) {
@@ -83,10 +83,10 @@ export const issueRefund = async (req, res) => {
 export const downloadInvoice = async (req, res) => {
     try {
         const orderId = req.params.id;
+        const order = await getAdminOrderDetailsService(orderId);
+        if (!order) return res.status(404).send("Order not found");
         
-        res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.txt`);
-        res.send(`Invoice data for Order ID: ${orderId}`);
+        generateInvoicePDF(order, res);
         
     } catch (error) {
         console.error("DOWNLOAD INVOICE ERROR:", error);

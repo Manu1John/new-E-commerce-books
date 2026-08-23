@@ -5,9 +5,10 @@ import Category from "../../models/category.js";
 import Address from "../../models/address.js";
 import Order from "../../models/Order.js";
 import mongoose from "mongoose";
+import { getItemPricing, roundMoney } from "./pricingService.js";
 // Ensure you import your models: Product, Cart, Category, Address
 export async function getCartService({userId}) {
-    const cart = await Cart.findOne({user:userId}).populate({
+    let cart = await Cart.findOne({user:userId}).populate({
       path: "items.product",
       populate: { path: "category" }
     })
@@ -47,22 +48,24 @@ for (let item of cart.items) {
           stockError = `Only ${product.quantity} units available`;
           hasStockIssues = true;
         } else {
-          cartSubtotal += product.price * item.quantity;
+          const itemPricing = await getItemPricing(product, item.quantity);
+          cartSubtotal += itemPricing.subtotal;
         }
       }
+      const itemPricing = product ? await getItemPricing(product, item.quantity) : null;
       items.push({
         product: product,
+        pricing: itemPricing,
         quantity: item.quantity,
         isUnavailable,
         stockError,
-        itemTotal: product ? product.price * item.quantity : 0
+        itemTotal: itemPricing ? itemPricing.subtotal : 0
       });
   }
-    // FIX: Changed from quantity sum to array length (unique items)
-    const cartCount = cart.items.length;
+    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
     return{
         items,
-      cartSubtotal,
+      cartSubtotal: roundMoney(cartSubtotal),
       hasUnavailableItems,
       hasStockIssues,
       cartCount,
@@ -133,8 +136,7 @@ export async function AddToCartService({ userId, productId, quantity }) {
     { $pull: { products: productId } }
   );
 
-  // Return the count of unique items in the cart
-  const cartCount = cart.items.length;
+  const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return { success: true, cartCount };
 }
@@ -142,15 +144,16 @@ export async function AddToCartService({ userId, productId, quantity }) {
 // Helper to recalculate cart subtotal and count
 const calculateCartTotals = async (userId) => {
   const cart = await Cart.findOne({ user: userId }).populate("items.product");
-  const cartCount = cart.items.length;
+  const cartCount = cart ? cart.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
   let cartSubtotal = 0;
 
-  for (let item of cart.items) {
+  for (let item of cart?.items || []) {
     if (item.product && !item.product.isDeleted && item.product.status === "active") {
-      cartSubtotal += item.product.price * item.quantity;
+      const itemPricing = await getItemPricing(item.product, item.quantity);
+      cartSubtotal += itemPricing.subtotal;
     }
   }
-  return { cartCount, cartSubtotal, cart };
+  return { cartCount, cartSubtotal: roundMoney(cartSubtotal), cart };
 };
 
 export const updateItemQuantityService = async ({ userId, productId, action }) => {
@@ -186,12 +189,13 @@ export const updateItemQuantityService = async ({ userId, productId, action }) =
   await cart.save();
 
   const { cartCount, cartSubtotal } = await calculateCartTotals(userId);
+  const itemPricing = await getItemPricing(product, currentQty);
 
   return {
     success: true,
     cartCount,
     cartSubtotal,
-    itemTotal: product.price * currentQty,
+    itemTotal: itemPricing.subtotal,
     quantity: currentQty
   };
 };
@@ -239,9 +243,26 @@ export const getCheckoutDetailsService = async (userId) => {
   }
 
   const addresses = await Address.find({ userId });
-  const cartSubtotal = cart.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  let cartSubtotal = 0;
+  const checkoutItems = [];
+  for (let item of cart.items) {
+    const itemPricing = await getItemPricing(item.product, item.quantity);
+    cartSubtotal += itemPricing.subtotal;
+    checkoutItems.push({
+      product: item.product,
+      quantity: item.quantity,
+      pricing: itemPricing,
+      itemTotal: itemPricing.subtotal
+    });
+  }
 
-  return { success: true, items: cart.items, cartSubtotal, addresses, cartCount: cart.items.length };
+  return {
+    success: true,
+    items: checkoutItems,
+    cartSubtotal: roundMoney(cartSubtotal),
+    addresses,
+    cartCount: cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  };
 };
 
 export const placeOrderService = async ({ userId, addressId }) => {
@@ -270,23 +291,31 @@ export const placeOrderService = async ({ userId, addressId }) => {
         item.product._id,
         { $inc: { quantity: -item.quantity } }
       );
-      totalAmount += item.product.price * item.quantity;
+      const itemPricing = await getItemPricing(item.product, item.quantity);
+      totalAmount += itemPricing.subtotal;
       orderItems.push({
         product: item.product._id,
         quantity: item.quantity,
-        price: item.product.price
+        price: itemPricing.finalPrice,
+        originalPrice: itemPricing.originalPrice,
+        discountPercentage: itemPricing.discountPercentage,
+        discountAmount: itemPricing.discountAmount,
+        finalPrice: itemPricing.finalPrice,
+        subtotal: itemPricing.subtotal,
+        status: "Confirmed"
       });
     }
 
     const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    const finalAmount = totalAmount; // Add tax, shipping, discount logic here later if needed
+    const finalAmount = roundMoney(totalAmount); // Add tax, shipping, discount logic here later if needed
 
     const newOrder = new Order({
       orderId,
       user: userId,
       items: orderItems,
       shippingAddress: addressId,
-      totalAmount,
+      totalAmount: finalAmount,
+      offerDiscount: roundMoney(orderItems.reduce((sum, item) => sum + item.discountAmount * item.quantity, 0)),
       finalAmount,
       paymentMethod: "COD",
       status: "Pending"
@@ -301,4 +330,14 @@ export const placeOrderService = async ({ userId, addressId }) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const clearCartService = async ({ userId }) => {
+  const cart = await Cart.findOne({ user: userId });
+  if (!cart) return { success: true, cartCount: 0, cartSubtotal: 0 };
+
+  cart.items = [];
+  await cart.save();
+
+  return { success: true, cartCount: 0, cartSubtotal: 0 };
 };

@@ -48,10 +48,44 @@ const addAddress = async (req, res) => {
         const userId = req.session?.user?._id || req.session?.user?.id;
         const returnTo = req.query.returnTo; // Capture the flag
         const redirectUrl = returnTo === 'checkout' ? '/checkout' : '/address'; // Determine routing
+        const wantsJson = req.xhr || req.headers.accept?.includes("application/json") || req.headers["content-type"]?.includes("application/json");
+
+        const requiredFields = ["fullName", "phone", "house", "area", "city", "state", "pincode", "addressType"];
+        const missingFields = requiredFields.filter((field) => !req.body?.[field] || !String(req.body[field]).trim());
+        if (missingFields.length) {
+            if (wantsJson) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Missing required fields: ${missingFields.join(", ")}`
+                });
+            }
+            return res.render("user/addAddress", {
+                title: "Add Address",
+                cssFile: "addAddress.css",
+                jsFile: "addAddress.js",
+                user: req.session?.user,
+                error: "Please fill all required address fields.",
+                returnTo
+            });
+        }
+
+        if (!/^[6-9]\d{9}$/.test(String(req.body.phone).trim())) {
+            if (wantsJson) return res.status(400).json({ success: false, error: "Enter a valid 10 digit phone number." });
+        }
+
+        if (!/^\d{6}$/.test(String(req.body.pincode).trim())) {
+            if (wantsJson) return res.status(400).json({ success: false, error: "Enter a valid 6 digit pincode." });
+        }
 
         const {existingAddress,newAddress} = await addAddressService(userId,req.body);
         
         if (existingAddress) {
+            if (wantsJson) {
+                return res.status(409).json({
+                    success: false,
+                    error: "This address already exists in your saved addresses."
+                });
+            }
             return res.render("user/addAddress", {
                 title: "Add Address",
                 cssFile: "addAddress.css",
@@ -62,12 +96,21 @@ const addAddress = async (req, res) => {
             });
         }
         if (req.flash) req.flash("success", "Address added successfully");
+        if (wantsJson) {
+            return res.status(201).json({
+                success: true,
+                message: "Address added successfully",
+                address: newAddress
+            });
+        }
         
         // Redirect dynamically
         return res.redirect(redirectUrl);
 
     } catch (error) {
         console.log("ADD ADDRESS ERROR:", error);
+        const wantsJson = req.xhr || req.headers.accept?.includes("application/json") || req.headers["content-type"]?.includes("application/json");
+        if (wantsJson) return res.status(500).json({ success: false, error: "Failed to save address." });
         return res.redirect("/address/new");
     }
 };

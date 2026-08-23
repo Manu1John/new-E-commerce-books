@@ -8,6 +8,7 @@ router.get("/cart", authenticatedUser, disableCache, cartControler.getCart);
 router.post("/cart/add", authenticatedUser, cartControler.addToCart);
 router.post("/cart/update", authenticatedUser, cartControler.updateQuantity);
 router.post("/cart/remove", authenticatedUser, cartControler.removeFromCart);
+router.post("/cart/clear", authenticatedUser, cartControler.clearCart);
 
 router.get("/checkout", authenticatedUser, disableCache, cartControler.getCheckout);
 router.post("/checkout/place", authenticatedUser, cartControler.placeOrder);
