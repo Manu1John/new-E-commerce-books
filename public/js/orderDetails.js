@@ -3,31 +3,35 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('active'));
     }
-    const updateStatusBtn = document.getElementById("updateStatusBtn"); //[cite: 44]
-    const downloadInvoiceBtn = document.getElementById("downloadInvoiceBtn"); //[cite: 44]
-    const printInvoiceBtn = document.getElementById("printInvoiceBtn"); //[cite: 44]
-    const issueRefundBtn = document.getElementById("issueRefundBtn"); //[cite: 44]
-    const statusDropdown = document.getElementById("orderStatus"); //[cite: 44]
+    const updateItemBtns = document.querySelectorAll(".update-item-btn");
+    const downloadInvoiceBtn = document.getElementById("downloadInvoiceBtn"); 
+    const printInvoiceBtn = document.getElementById("printInvoiceBtn"); 
+    const issueRefundBtn = document.getElementById("issueRefundBtn"); 
 
-    if (updateStatusBtn && statusDropdown) { //[cite: 44]
-        updateStatusBtn.addEventListener("click", async () => { //[cite: 44]
-            const orderId = statusDropdown.getAttribute("data-order-id");
-            const selectedStatus = statusDropdown.value; //[cite: 44]
+    updateItemBtns.forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const orderId = btn.getAttribute("data-order-id");
+            const itemId = btn.getAttribute("data-item-id");
+            const statusDropdown = document.getElementById(`status-${itemId}`);
+            const selectedStatus = statusDropdown.value;
+
             try {
-                const response = await fetch(`/admin/orders/${orderId}/status`, { //[cite: 44]
-                    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: selectedStatus }) //[cite: 44]
+                const response = await fetch(`/admin/orders/${orderId}/item/${itemId}/status`, {
+                    method: "PATCH", 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ status: selectedStatus }) 
                 });
-                const result = await response.json(); //[cite: 44]
-                if (result.success) { //[cite: 44]
-                    Swal.fire({ icon: 'success', title: 'Success!', text: result.message, timer: 2000, showConfirmButton: false }).then(() => window.location.reload()); //[cite: 44]
+                const result = await response.json(); 
+                if (result.success) { 
+                    Swal.fire({ icon: 'success', title: 'Success!', text: result.message, timer: 2000, showConfirmButton: false }).then(() => window.location.reload()); 
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Failed', text: result.error || "Failed to update status" }); //[cite: 44]
+                    Swal.fire({ icon: 'error', title: 'Failed', text: result.error || "Failed to update status" }); 
                 }
-            } catch (error) { //[cite: 44]
-                console.error("Error:", error); Swal.fire({ icon: 'error', title: 'Server Error', text: 'A server error occurred while updating the status.' }); //[cite: 44]
+            } catch (error) { 
+                console.error("Error:", error); Swal.fire({ icon: 'error', title: 'Server Error', text: 'A server error occurred while updating the status.' }); 
             }
         });
-    }
+    });
 
     if (printInvoiceBtn) printInvoiceBtn.addEventListener("click", () => window.print()); //[cite: 44]
 

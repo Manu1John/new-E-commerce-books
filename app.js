@@ -49,6 +49,8 @@ connectDB();
 
 // routes
 app.use(methodOverride("_method"));
+// Mark all admin requests so the user navbar is suppressed
+app.use('/admin', (req, res, next) => { res.locals.isAdmin = true; next(); });
 app.use('/admin', session(adminSessionConfig), adminRoutes);
 app.use(session(userSessionConfig));
 app.use(flash());

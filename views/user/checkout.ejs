@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
     <link rel="stylesheet" type="text/css" href="/css/index.css">
     <link rel="stylesheet" type="text/css" href="/css/checkout.css">
+    <link rel="stylesheet" href="/css/navbar.css">
     <script defer src="/js/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -25,53 +26,7 @@
 </head>
 <body>
 
-    <nav id="header-wrap" class="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-3">
-        <div class="container">
-            <!-- Brand Logo -->
-            <a class="navbar-brand m-0 p-0" href="/home">
-                <img src="/images/main-logo.png" alt="logo" height="35">
-            </a>
-
-            <!-- Mobile Hamburger Toggle -->
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Collapsible Single-Line Content -->
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                
-                <!-- Center Navigation Links -->
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 fw-medium">
-                    <li class="nav-item"><a class="nav-link text-dark" href="/home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="/home#featured-books">Featured</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="/home#popular-books">Popular</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="/home#special-offer">Offer</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="/home#latest-blog">Articles</a></li>
-                </ul>
-
-                <!-- Right-Side User Actions -->
-                <div class="d-flex align-items-center gap-3 right-element mt-3 mt-lg-0 flex-wrap">
-                    <a href="/profile/user" class="text-decoration-none text-dark d-flex align-items-center gap-1">
-                        <i class="icon icon-user"></i><span>Account</span>
-                    </a>
-                    <span class="text-muted d-none d-lg-inline">|</span>
-                    <a href="/wishlist" class="text-decoration-none text-dark d-flex align-items-center gap-1">
-                        <i class="icon icon-heart"></i><span>Wishlist</span>
-                    </a>
-                    <span class="text-muted d-none d-lg-inline">|</span>
-                    <a href="/cart" class="text-decoration-none text-dark d-flex align-items-center gap-1 fw-bold">
-                        <i class="icon icon-clipboard"></i><span>Cart (<span class="js-cart-count"><%= cartCount %></span>)</span>
-                    </a>
-                    <span class="text-muted d-none d-lg-inline">|</span>
-                    <form action="/logout" method="POST" class="m-0 p-0">
-                        <button type="submit" class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1">
-                            <i class="icon icon-login"></i><span>Logout</span>
-                        </button>
-                    </form>  
-                </div>
-            </div>
-        </div>
-    </nav>
+<%- include('../partials/navbar') %>
 
     <main class="container my-5">
         <div class="row">
@@ -162,6 +117,31 @@
                             </span>
                             <span class="text-success fw-medium" id="couponDiscountAmount">-₹0</span>
                         </div>
+                        
+                        <!-- Available Coupons Section -->
+                        <% if (typeof coupons !== 'undefined' && coupons.length > 0) { %>
+                            <div class="available-coupons mt-3 mb-3 p-3 bg-light border rounded">
+                                <h6 class="mb-2 text-dark" style="font-size: 0.9rem;"><i class="icon icon-tag"></i> Available Coupons</h6>
+                                <div class="d-flex flex-column gap-2" style="max-height: 150px; overflow-y: auto;">
+                                    <% coupons.forEach(coupon => { %>
+                                        <div class="coupon-item border p-2 rounded bg-white d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong class="d-block text-uppercase" style="font-size: 0.85rem;"><%= coupon.code %></strong>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                    <% if (coupon.discountType === 'flat') { %>
+                                                        Flat ₹<%= coupon.discountValue %> OFF
+                                                    <% } else { %>
+                                                        <%= coupon.discountValue %>% OFF
+                                                    <% } %>
+                                                    <br>Min. Purchase: ₹<%= coupon.minPurchaseAmount %>
+                                                </small>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-dark" onclick="fillAndApplyCoupon('<%= coupon.code %>')" style="font-size: 0.75rem; padding: 4px 8px;">Apply</button>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        <% } %>
 
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-muted">Shipping</span>

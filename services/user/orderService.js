@@ -204,6 +204,37 @@ export const returnOrderService = async (userId, orderId, returnReason) => {
   return prepareOrderForView(order);
 };
 
+export const getTrackOrderItemService = async (userId, orderId, itemId) => {
+  const order = await Order.findOne({ _id: orderId, user: userId })
+    .populate("items.product")
+    .populate("shippingAddress");
+    
+  if (!order) throw new Error("Order not found");
+  
+  const item = order.items.id(itemId);
+  if (!item) throw new Error("Order item not found");
+  
+  // ensure we have default status history if none exists
+  if (!item.statusHistory || item.statusHistory.length === 0) {
+     item.statusHistory = [
+       { status: "Ordered", date: order.createdAt, notes: "Order placed successfully" }
+     ];
+     // if it's already beyond ordered, let's add its current status
+     if (item.status && item.status !== "Ordered") {
+       item.statusHistory.push({
+         status: item.status,
+         date: order.updatedAt,
+         notes: "Status updated"
+       });
+     }
+  }
+
+  return {
+    order: prepareOrderForView(order),
+    item: normalizeOrderItem(item, order.status)
+  };
+};
+
 export const generateInvoicePDF = (order, res) => {
   const orderData = prepareOrderForView(order);
   const doc = new PDFDocument({ margin: 45 });

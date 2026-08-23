@@ -1,7 +1,8 @@
 import {
   getAllOrdersService,
   getAdminOrderDetailsService,
-  updateOrderStatusService
+  updateOrderStatusService,
+  updateOrderItemStatusService
 } from "../../services/admin/orderService.js";
 import { generateInvoicePDF } from "../../services/user/orderService.js";
 
@@ -66,6 +67,24 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
+export const updateOrderItemStatus = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+    const { status } = req.body;
+    const validStatuses = ["Pending", "Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered", "Cancelled", "Returned", "Refunded"];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, error: "Invalid status" });
+    }
+    
+    const order = await updateOrderItemStatusService(orderId, itemId, status);
+    return res.status(200).json({ success: true, message: "Item status updated successfully", order });
+  } catch (error) {
+    console.error("UPDATE ORDER ITEM STATUS ERROR:", error);
+    return res.status(400).json({ success: false, error: error.message });
+  }
+};
+
 export const issueRefund = async (req, res) => {
     try {
         const orderId = req.params.id;
@@ -98,6 +117,7 @@ export default {
   getAllOrders,
   getAdminOrderDetails,
   updateOrderStatus,
+  updateOrderItemStatus,
   issueRefund,
   downloadInvoice
 };

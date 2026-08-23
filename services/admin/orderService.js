@@ -121,3 +121,83 @@ export const updateOrderStatusService = async (orderId, status) => {
   await order.save();
   return prepareOrderForView(order);
 };
+
+export const updateOrderItemStatusService = async (orderId, itemId, status) => {
+  const order = await Order.findById(orderId).populate("items.product");
+  if (!order) throw new Error("Order not found");
+  
+  const item = order.items.id(itemId);
+  if (!item) throw new Error("Order item not found");
+  
+  // Track the transition states for the item
+  const wasAlreadyInactive = ["Returned", "Refunded", "Cancelled"].includes(item.status);
+  const isBecomingInactive = ["Returned", "Refunded", "Cancelled"].includes(status);
+
+  // 1. Increment Stock ONLY if it wasn't already Cancelled/Returned previously
+  if (isBecomingInactive && !wasAlreadyInactive) {
+    const Product = (await import("../../models/products.js")).default;
+    await Product.findByIdAndUpdate(item.product._id, {
+      $inc: { quantity: item.quantity }
+    });
+  } else if (!isBecomingInactive && wasAlreadyInactive) {
+    // If somehow reversing a cancellation, decrement stock
+    const Product = (await import("../../models/products.js")).default;
+    await Product.findByIdAndUpdate(item.product._id, {
+      $inc: { quantity: -item.quantity }
+    });
+  }
+
+  // Process item-level wallet refund if becoming inactive and order is paid/wallet
+  const isEligibleForRefund = order.paymentStatus === "Paid" || 
+                              order.paymentMethod === "Wallet" || 
+                              order.paymentMethod === "Wallet+Online";
+
+  if (isBecomingInactive && isEligibleForRefund && !wasAlreadyInactive) {
+    const Wallet = (await import("../../models/Wallet.js")).default;
+    const UserAuthentication = (await import("../../models/User.js")).default; 
+    
+    let wallet = await Wallet.findOne({ user: order.user });
+    if (!wallet) {
+      wallet = await Wallet.create({ user: order.user, balance: 0, transactions: [] });
+      await UserAuthentication.findByIdAndUpdate(order.user, { wallet: wallet._id });
+    }
+
+    const refundAmount = item.finalPrice * item.quantity;
+    wallet.balance += refundAmount;
+    wallet.transactions.push({
+      type: "credit",
+      amount: refundAmount,
+      description: `Refund for Item Cancelled/Returned in Order ${order.orderId || order._id}`
+    });
+    await wallet.save();
+    item.refundedAmount = refundAmount;
+  }
+
+  // Update status and history
+  item.status = status;
+  if (!item.statusHistory) item.statusHistory = [];
+  item.statusHistory.push({
+    status: status,
+    date: new Date(),
+    notes: `Status updated to ${status} by Admin`
+  });
+
+  // Calculate order-level status if needed
+  // Check if all items are delivered/cancelled/returned
+  const allDelivered = order.items.every(i => i.status === "Delivered");
+  const allCancelled = order.items.every(i => ["Cancelled", "Returned", "Refunded"].includes(i.status));
+  
+  if (allDelivered) {
+    order.status = "Delivered";
+  } else if (allCancelled) {
+    order.status = "Cancelled";
+  } else {
+    // Just keep order status as Processing or whatever it was
+    if (order.status === "Delivered" && !allDelivered) {
+        order.status = "Processing"; // rollback
+    }
+  }
+
+  await order.save();
+  return prepareOrderForView(order);
+};

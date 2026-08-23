@@ -302,7 +302,10 @@ export const placeOrderService = async ({ userId, addressId }) => {
         discountAmount: itemPricing.discountAmount,
         finalPrice: itemPricing.finalPrice,
         subtotal: itemPricing.subtotal,
-        status: "Confirmed"
+        status: "Confirmed",
+        statusHistory: [
+          { status: "Confirmed", date: new Date(), notes: "Order placed successfully" }
+        ]
       });
     }
 

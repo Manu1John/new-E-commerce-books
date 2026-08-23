@@ -160,7 +160,8 @@ export const getProductDetailsService = async (productId, userId) => {
   }).limit(4);
 
   // --- REVIEW FETCH & DISTRIBUTION LOGIC ---
-  const reviews = await Review.find({ product: productId }).populate('user', 'firstName lastName profileImage').sort({ createdAt: -1 });
+  let reviews = await Review.find({ product: productId }).populate('user', 'firstName lastName profileImage').sort({ createdAt: -1 });
+  reviews = reviews.filter(r => r.user && r.user._id);
   
   const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
   let totalRating = 0;

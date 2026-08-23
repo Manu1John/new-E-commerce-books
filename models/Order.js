@@ -63,7 +63,14 @@ const orderItemSchema = new mongoose.Schema({
   refundedAmount: {
     type: Number,
     default: 0
-  }
+  },
+  statusHistory: [
+    {
+      status: { type: String },
+      date: { type: Date, default: Date.now },
+      notes: { type: String }
+    }
+  ]
 });
 
 const orderSchema = new mongoose.Schema(

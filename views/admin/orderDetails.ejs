@@ -56,20 +56,13 @@
                     <h2 class="page-title">Order #<%= order.orderId %></h2>
                     <p class="text-muted mb-3"><i class="fa-regular fa-calendar me-1"></i> <%= new Date(order.createdAt).toLocaleString() %></p>
                 </div>
-                <div class="status-dropdown mt-auto">
-                    <label class="text-muted fw-bold mb-1" style="font-size: 0.75rem;">UPDATE STATUS</label>
-                    <select id="orderStatus" class="form-select-custom" data-order-id="<%= order._id %>">
-                        <option value="Pending" <%= order.status === "Pending" ? "selected" : "" %>>Pending</option>
-                        <option value="Confirmed" <%= order.status === "Confirmed" ? "selected" : "" %>>Confirmed</option>
-                        <option value="Processing" <%= order.status === "Processing" ? "selected" : "" %>>Processing</option>
-                        <option value="Packed" <%= order.status === "Packed" ? "selected" : "" %>>Packed</option>
-                        <option value="Shipped" <%= order.status === "Shipped" ? "selected" : "" %>>Shipped</option>
-                        <option value="Out for Delivery" <%= order.status === "Out for Delivery" ? "selected" : "" %>>Out for Delivery</option>
-                        <option value="Delivered" <%= order.status === "Delivered" ? "selected" : "" %>>Delivered</option>
-                        <option value="Cancelled" <%= order.status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
-                        <option value="Returned" <%= order.status === "Returned" ? "selected" : "" %>>Returned</option>
-                        <option value="Refunded" <%= order.status === "Refunded" ? "selected" : "" %>>Refunded</option>
-                    </select>
+                <div class="status-dropdown mt-auto text-end">
+                    <label class="text-muted fw-bold mb-1" style="font-size: 0.75rem;">OVERALL STATUS</label>
+                    <div>
+                        <span class="badge <%= ['Cancelled', 'Returned', 'Refunded'].includes(order.status) ? 'bg-danger' : (order.status === 'Delivered' ? 'bg-success' : 'bg-primary') %> fs-6 px-3 py-2">
+                            <%= order.status %>
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -114,7 +107,7 @@
                                     <th>Discount</th>
                                     <th>Final</th>
                                     <th>Total</th>
-                                    <th>Status</th>
+                                    <th>Update Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -140,7 +133,25 @@
                                     <td class="text-success"><%=item.discountPercentage%>% / ₹<%=item.discountAmount * item.quantity%></td>
                                     <td class="text-muted">₹<%=item.finalPrice%></td>
                                     <td class="fw-bold text-dark">₹<%=item.subtotal%></td>
-                                    <td><span class="badge <%= item.status === 'Cancelled' ? 'badge-danger' : 'badge-success' %>"><%=item.status%></span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <select class="form-select form-select-sm item-status-select" id="status-<%=item._id%>" style="width: 130px; border-radius: 6px; border: 1px solid #ced4da;">
+                                                <option value="Ordered" <%= item.status === "Ordered" ? "selected" : "" %>>Ordered</option>
+                                                <option value="Confirmed" <%= item.status === "Confirmed" ? "selected" : "" %>>Confirmed</option>
+                                                <option value="Processing" <%= item.status === "Processing" ? "selected" : "" %>>Processing</option>
+                                                <option value="Packed" <%= item.status === "Packed" ? "selected" : "" %>>Packed</option>
+                                                <option value="Shipped" <%= item.status === "Shipped" ? "selected" : "" %>>Shipped</option>
+                                                <option value="Out for Delivery" <%= item.status === "Out for Delivery" ? "selected" : "" %>>Out for Delivery</option>
+                                                <option value="Delivered" <%= item.status === "Delivered" ? "selected" : "" %>>Delivered</option>
+                                                <option value="Cancelled" <%= item.status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
+                                                <option value="Returned" <%= item.status === "Returned" ? "selected" : "" %>>Returned</option>
+                                                <option value="Refunded" <%= item.status === "Refunded" ? "selected" : "" %>>Refunded</option>
+                                            </select>
+                                            <button class="btn btn-sm btn-primary update-item-btn" data-item-id="<%=item._id%>" data-order-id="<%=order._id%>" style="border-radius: 6px;">
+                                                <i class="fa-solid fa-check"></i>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <%})%>
                             </tbody>
@@ -272,9 +283,6 @@
                 <div class="card-custom">
                     <h3 class="section-title"><i class="fa-solid fa-bolt me-1 text-primary"></i> Actions</h3>
                     <div class="action-buttons-stack">
-                        <button id="updateStatusBtn" class="btn-primary-pill w-100 mb-2" data-order-id="<%= order._id %>">
-                            <i class="fa-solid fa-rotate me-1"></i> Save Status
-                        </button>
                         <button id="downloadInvoiceBtn" class="btn-outline-pill w-100 mb-2" data-order-id="<%= order._id %>">
                             <i class="fa-solid fa-download me-1"></i> Invoice
                         </button>

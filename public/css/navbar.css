@@ -1,0 +1,136 @@
+/* ============================================================
+   navbar.css  –  Unified Navbar Styles
+   Applies to every user-facing page via partials/navbar.ejs
+   ============================================================ */
+
+/* ---------- wrapper ---------- */
+.unified-header {
+  z-index: 1030;
+}
+
+/* ---------- nav link hover: scale + sliding underline ---------- */
+.nav-link-item {
+  text-decoration: none;
+  color: #111;
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
+  transition: transform 0.2s ease, color 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.nav-link-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 0;
+  background: #b88c44;
+  transition: width 0.3s ease;
+}
+
+.nav-link-item:hover {
+  transform: scale(1.06);
+  color: #b88c44;
+}
+
+.nav-link-item:hover::after {
+  width: 100%;
+}
+
+/* ---------- action icons (user / logout / account) ---------- */
+.action-hover {
+  transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+}
+
+.action-hover:hover {
+  transform: scale(1.12);
+  color: #b88c44 !important;
+  opacity: 0.9;
+}
+
+/* ---------- glass‑morphism search bar ---------- */
+.unified-search-form {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 24px;
+  padding: 2px 4px;
+  gap: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.unified-search-form:focus-within {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  border-color: rgba(0,0,0,0.22);
+}
+
+.unified-search-input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #111;
+  flex: 1;
+  font-size: 0.9rem;
+  border-radius: 20px 0 0 20px !important;
+  padding: 7px 14px !important;
+}
+
+.unified-search-input::placeholder {
+  color: #888;
+  font-size: 0.88rem;
+}
+
+.search-btn,
+.clear-search-btn {
+  border: none;
+  border-radius: 0 20px 20px 0;
+  padding: 7px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.search-btn       { background: #111; color: #fff; }
+.search-btn:hover { background: #333; transform: scale(1.03); }
+
+.clear-search-btn       { background: #dc3545; color: #fff; font-size: 18px; line-height: 1; }
+.clear-search-btn:hover { background: #b02a37; transform: scale(1.03); }
+
+/* ---------- badge ---------- */
+.js-cart-count,
+.js-wishlist-count {
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ---------- hamburger cursor ---------- */
+.hamburger { cursor: pointer; }
+
+/* ---------- mobile menu shadow tweak ---------- */
+#unifiedMobileMenu.show {
+  border-top: 1px solid rgba(0,0,0,0.07);
+  padding-top: 8px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 767.98px) {
+  .menu-list {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 12px 16px !important;
+  }
+
+  .unified-search-form {
+    width: 100% !important;
+  }
+}

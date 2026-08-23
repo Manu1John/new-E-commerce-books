@@ -6,7 +6,8 @@ import {
   cancelOrder,
   cancelOrderItem,
   returnOrder,
-  downloadInvoice
+  downloadInvoice,
+  trackOrderItem
 } from "../../controlers/user/orderControler.js";
 import { authenticatedUser, disableCache } from "../../middleware/authMiddleware.js";
 
@@ -28,6 +29,9 @@ router.post("/orders/:id/items/:itemId/cancel", authenticatedUser, cancelOrderIt
 
 // Return an order
 router.post("/orders/:id/return", authenticatedUser, returnOrder);
+
+// Track a single order item
+router.get("/orders/:orderId/track/:itemId", authenticatedUser, disableCache, trackOrderItem);
 
 // Download PDF invoice
 router.get("/orders/:id/invoice", authenticatedUser, downloadInvoice);

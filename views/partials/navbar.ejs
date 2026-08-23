@@ -1,0 +1,178 @@
+<% if ((typeof isAdmin === 'undefined' || !isAdmin) && (typeof authFlowGuard === 'undefined' || !authFlowGuard)) { %>
+<%
+  /* Unified Navbar Partial
+     Variables (all optional, safe via typeof):
+       user          - logged-in user object (falsy = guest)
+       cartCount     - cart badge count
+       wishlistCount - wishlist badge count
+       query         - req.query object
+  */
+  var _base = (typeof user !== 'undefined' && user) ? '/home' : '/';
+  var _searchVal = (typeof query !== 'undefined' && query.search) ? query.search : '';
+  var _showClear  = (typeof query !== 'undefined' && query.search) ? 'block' : 'none';
+  var _showSearch = (typeof query !== 'undefined' && query.search) ? 'none'  : 'block';
+%>
+
+<!-- ===== UNIFIED STICKY NAVBAR ===== -->
+<div id="header-wrap" class="unified-header sticky-top bg-white shadow-sm py-2">
+    <header id="header" class="p-0 border-0 bg-transparent shadow-none" style="position:static !important;">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center justify-content-between flex-wrap flex-md-nowrap g-0">
+
+                <!-- 1. LOGO -->
+                <div class="col-auto order-1">
+                    <div class="main-logo m-0">
+                        <a href="<%= _base %>">
+                            <img src="/images/main-logo.png" alt="BookSaw logo" style="max-height:40px;">
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. NAV LINKS + MOBILE SEARCH -->
+                <div class="col-12 col-md collapse d-md-flex flex-column flex-md-row justify-content-center order-3 order-md-2 mt-3 mt-md-0" id="unifiedMobileMenu">
+
+                    <!-- Mobile Search -->
+                    <form role="search" method="get" action="<%= _base %>" class="d-md-none w-100 mb-3 px-2 mt-2">
+                        <% if (typeof query !== 'undefined' && query.sort)     { %><input type="hidden" name="sort"     value="<%= query.sort %>"><% } %>
+                        <% if (typeof query !== 'undefined' && query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
+                        <% if (typeof query !== 'undefined' && query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
+                        <% if (typeof query !== 'undefined' && query.maxPrice) { %><input type="hidden" name="maxPrice" value="<%= query.maxPrice %>"><% } %>
+                        <div class="d-flex align-items-center w-100">
+                            <input class="form-control border border-secondary-subtle bg-light w-100"
+                                   placeholder="Search books..." type="text" name="search"
+                                   value="<%= _searchVal %>"
+                                   style="border-radius:20px 0 0 20px; padding:8px 15px;">
+                            <button type="submit" class="btn border-0 text-white"
+                                    style="background:#111; border-radius:0 20px 20px 0; padding:8px 18px;">
+                                <i class="icon icon-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Main Nav Links -->
+                    <nav id="navbar" class="w-100">
+                        <div class="main-menu stellarnav m-0 p-0">
+                            <ul class="menu-list mb-0 d-flex flex-column flex-md-row gap-4 list-unstyled fw-medium text-uppercase align-items-center py-3 py-md-0" style="letter-spacing:0.05em">
+                                <li class="menu-item"><a href="<%= _base + '#home' %>"          class="nav-link-item">Home</a></li>
+                                <li class="menu-item"><a href="<%= _base + '#featured-books' %>" class="nav-link-item">Featured</a></li>
+                                <li class="menu-item"><a href="<%= _base + '#popular-books' %>"  class="nav-link-item">Popular</a></li>
+                                <li class="menu-item"><a href="<%= _base + '#special-offer' %>"  class="nav-link-item">Offer</a></li>
+                                <li class="menu-item"><a href="<%= _base + '#latest-blog' %>"    class="nav-link-item">Articles</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- 3. DESKTOP SEARCH + USER ACTIONS -->
+                <div class="col-auto d-flex align-items-center gap-3 gap-lg-4 order-2 order-md-3">
+
+                    <!-- Desktop Search -->
+                    <form role="search" method="get" action="<%= _base %>"
+                          id="unifiedSearchForm"
+                          class="unified-search-form d-none d-lg-flex m-0"
+                          style="width:230px;">
+                        <% if (typeof query !== 'undefined' && query.sort)     { %><input type="hidden" name="sort"     value="<%= query.sort %>"><% } %>
+                        <% if (typeof query !== 'undefined' && query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
+                        <% if (typeof query !== 'undefined' && query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
+                        <% if (typeof query !== 'undefined' && query.maxPrice) { %><input type="hidden" name="maxPrice" value="<%= query.maxPrice %>"><% } %>
+
+                        <input id="unifiedSearchInput"
+                               class="form-control unified-search-input border border-secondary-subtle bg-light"
+                               placeholder="Search..." type="text" name="search"
+                               value="<%= _searchVal %>"
+                               style="border-radius:20px 0 0 20px; padding:8px 15px;">
+
+                        <button type="button" id="unifiedClearBtn"
+                                class="clear-search-btn border-0 text-white"
+                                style="background:#dc3545; border-radius:0 20px 20px 0; padding:8px 18px; font-size:18px; line-height:1; display:<%= _showClear %>">
+                            &times;
+                        </button>
+                        <button type="submit" id="unifiedSearchBtn"
+                                class="search-btn border-0 text-white"
+                                style="background:#111; border-radius:0 20px 20px 0; padding:8px 18px; display:<%= _showSearch %>">
+                            <i class="icon icon-search"></i>
+                        </button>
+                    </form>
+
+                    <!-- User Action Icons -->
+                    <div class="user-actions d-flex align-items-center gap-3 fs-5">
+                        <% if (typeof user !== 'undefined' && user) { %>
+                            <a href="/profile/user" class="text-dark action-hover text-decoration-none" title="Account">
+                                <i class="icon icon-user"></i>
+                            </a>
+
+                            <a href="/cart" class="text-dark action-hover text-decoration-none position-relative" title="Cart">
+                                <i class="icon icon-clipboard"></i>
+                                <span class="js-cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark"
+                                      style="font-size:0.55rem; transform:translate(-30%,-30%) !important;">
+                                    <%= typeof cartCount !== 'undefined' ? cartCount : 0 %>
+                                </span>
+                            </a>
+
+                            <a href="/wishlist" class="text-dark action-hover text-decoration-none position-relative" title="Wishlist">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:text-bottom;">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                </svg>
+                                <span class="js-wishlist-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark"
+                                      style="font-size:0.55rem; transform:translate(-30%,-30%) !important;">
+                                    <%= typeof wishlistCount !== 'undefined' ? wishlistCount : 0 %>
+                                </span>
+                            </a>
+
+                            <form action="/logout" method="POST" class="m-0">
+                                <button type="submit" class="btn btn-link text-dark p-0 border-0 fs-5 action-hover" title="Logout">
+                                    <i class="icon icon-login"></i>
+                                </button>
+                            </form>
+                        <% } else { %>
+                            <!-- Guest: Login only -->
+                            <a href="/login" class="text-dark action-hover text-decoration-none d-flex align-items-center gap-1" title="Login">
+                                <i class="icon icon-user"></i>
+                                <span class="fs-6 fw-semibold d-none d-sm-inline">Login</span>
+                            </a>
+                        <% } %>
+                    </div>
+
+                    <!-- Mobile Hamburger -->
+                    <div class="hamburger d-md-none ms-2 d-flex flex-column justify-content-center align-items-center"
+                         style="width:35px; height:35px; cursor:pointer;"
+                         data-bs-toggle="collapse"
+                         data-bs-target="#unifiedMobileMenu"
+                         aria-expanded="false"
+                         aria-controls="unifiedMobileMenu">
+                        <span class="bar d-block bg-dark rounded" style="width:25px; height:3px; margin-bottom:5px;"></span>
+                        <span class="bar d-block bg-dark rounded" style="width:25px; height:3px; margin-bottom:5px;"></span>
+                        <span class="bar d-block bg-dark rounded" style="width:25px; height:3px;"></span>
+                    </div>
+
+                </div><!-- /col-auto -->
+
+            </div><!-- /row -->
+        </div><!-- /container-fluid -->
+    </header>
+</div>
+<!-- ===== END UNIFIED NAVBAR ===== -->
+
+<script>
+(function () {
+    var input     = document.getElementById('unifiedSearchInput');
+    var clearBtn  = document.getElementById('unifiedClearBtn');
+    var searchBtn = document.getElementById('unifiedSearchBtn');
+    if (!input) return;
+    input.addEventListener('input', function () {
+        var hasVal = this.value.trim().length > 0;
+        if (clearBtn)  clearBtn.style.display  = hasVal ? 'block' : 'none';
+        if (searchBtn) searchBtn.style.display = hasVal ? 'none'  : 'block';
+    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            input.value = '';
+            this.style.display = 'none';
+            if (searchBtn) searchBtn.style.display = 'block';
+            input.focus();
+            document.getElementById('unifiedSearchForm').submit();
+        });
+    }
+})();
+</script>
+<% } %>

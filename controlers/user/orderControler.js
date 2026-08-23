@@ -5,7 +5,8 @@ import {
   cancelOrderItemService,
   cancelOrderService,
   returnOrderService,
-  generateInvoicePDF
+  generateInvoicePDF,
+  getTrackOrderItemService
 } from "../../services/user/orderService.js";
 
 const getUserId = (req) => req.session?.user?._id || req.session?.user?.id;
@@ -166,4 +167,23 @@ export default {
   cancelOrderItem,
   returnOrder,
   downloadInvoice
+};
+
+export const trackOrderItem = async (req, res, next) => {
+  try {
+    const userId = getUserId(req);
+    const { orderId, itemId } = req.params;
+    const { order, item } = await getTrackOrderItemService(userId, orderId, itemId);
+    
+    res.render("user/trackItem", {
+      title: "Track Item",
+      cssFile: "trackItem.css",
+      jsFile: null,
+      user: req.session.user,
+      order,
+      item
+    });
+  } catch (error) {
+    next(error);
+  }
 };

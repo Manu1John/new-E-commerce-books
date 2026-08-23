@@ -1,0 +1,313 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/trackItem.css">
+
+<main class="container py-5 mt-4">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/orders" class="text-decoration-none">My Orders</a></li>
+                <li class="breadcrumb-item"><a href="/orders/<%= order._id %>" class="text-decoration-none">Order #<%= order.orderId %></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Track Item</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold">Track Order Item</h1>
+    </div>
+
+    <!-- Professional Horizontal Tracker -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4 p-md-5">
+            <% 
+                const isInactive = ['Cancelled', 'Returned', 'Refunded'].includes(item.status);
+                const steps = [
+                    { key: "Ordered", icon: "fa-cart-shopping", label: "Ordered" },
+                    { key: "Confirmed", icon: "fa-check", label: "Confirmed" },
+                    { key: "Processing", icon: "fa-box-open", label: "Processing" },
+                    { key: "Shipped", icon: "fa-truck-fast", label: "Shipped" },
+                    { key: "Delivered", icon: "fa-house", label: "Delivered" }
+                ];
+                
+                // Determine current progression
+                let currentStepIndex = -1;
+                if (!isInactive) {
+                    const progressionList = ["Ordered", "Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered"];
+                    const realIndex = progressionList.indexOf(item.status);
+                    if (realIndex >= 0 && realIndex <= 1) currentStepIndex = realIndex; // Ordered, Confirmed
+                    else if (realIndex >= 2 && realIndex <= 3) currentStepIndex = 2; // Processing, Packed -> Processing step
+                    else if (realIndex >= 4 && realIndex <= 5) currentStepIndex = 3; // Shipped, Out for Delivery -> Shipped step
+                    else if (realIndex === 6) currentStepIndex = 4; // Delivered
+                }
+
+                // calculate progress bar width
+                let progressWidth = 0;
+                if (currentStepIndex >= 0) {
+                    progressWidth = (currentStepIndex / (steps.length - 1)) * 100;
+                }
+            %>
+
+            <% if (isInactive) { %>
+                <div class="text-center py-4">
+                    <div class="tracker-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.5rem; background:#dc3545; color:#fff; border-color:#dc3545;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                    <h4 class="text-danger fw-bold">Item <%= item.status %></h4>
+                    <% if (item.cancellationReason) { %><p class="text-muted"><%= item.cancellationReason %></p><% } %>
+                    <% if (order.returnReason) { %><p class="text-muted"><%= order.returnReason %></p><% } %>
+                </div>
+            <% } else { %>
+                <div class="horizontal-tracker">
+                    <div class="tracker-progress-bar" style="width: <%= progressWidth %>%;"></div>
+                    
+                    <% steps.forEach((step, index) => { 
+                        let stepState = "";
+                        if (index < currentStepIndex) stepState = "completed";
+                        else if (index === currentStepIndex) stepState = "current";
+                        
+                        // find the date for this step if it exists
+                        let stepDateStr = "";
+                        if (item.statusHistory) {
+                            let historyEntry;
+                            if (index === 0) historyEntry = item.statusHistory.find(h => h.status === 'Ordered');
+                            if (index === 1) historyEntry = item.statusHistory.find(h => h.status === 'Confirmed');
+                            if (index === 2) historyEntry = item.statusHistory.find(h => ['Processing', 'Packed'].includes(h.status));
+                            if (index === 3) historyEntry = item.statusHistory.find(h => ['Shipped', 'Out for Delivery'].includes(h.status));
+                            if (index === 4) historyEntry = item.statusHistory.find(h => h.status === 'Delivered');
+                            
+                            if (historyEntry) {
+                                stepDateStr = new Date(historyEntry.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+                            } else if (index === 4 && item.status !== 'Delivered') {
+                                // Estimated delivery
+                                let estDate = new Date(order.createdAt);
+                                estDate.setDate(estDate.getDate() + 5);
+                                stepDateStr = "Est. " + estDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+                            }
+                        }
+                    %>
+                        <div class="tracker-step <%= stepState %>">
+                            <div class="tracker-icon"><i class="fa-solid <%= step.icon %>"></i></div>
+                            <div class="tracker-label"><%= step.label %></div>
+                            <div class="tracker-date"><%= stepDateStr %></div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Item Info -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold border-bottom pb-3 mb-4">Item Details</h5>
+                    
+                    <div class="d-flex gap-3 mb-4">
+                        <img src="<%= item.product?.images?.length ? '/uploads/' + item.product.images[0] : '/images/product-item1.jpg' %>" 
+                             alt="<%= item.product?.title %>" 
+                             class="rounded" style="width: 80px; height: 100px; object-fit: cover;">
+                        <div>
+                            <h6 class="fw-bold mb-1"><%= item.product?.title %></h6>
+                            <p class="text-muted small mb-2"><%= item.product?.author %></p>
+                            <span class="badge bg-secondary">Qty: <%= item.quantity %></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted d-block text-uppercase fw-bold mb-1">Status</small>
+                        <span class="badge fs-6 px-3 py-2 <%= ['Cancelled', 'Returned', 'Refunded'].includes(item.status) ? 'bg-danger' : 'bg-success' %>"><%= item.status %></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted d-block text-uppercase fw-bold mb-1">Price Paid</small>
+                        <strong class="fs-5">₹<%= item.subtotal %></strong>
+                    </div>
+
+                    <% if (item.status === 'Cancelled' && item.cancellationReason) { %>
+                        <div class="alert alert-danger mt-3 mb-0">
+                            <strong>Cancellation Reason:</strong><br>
+                            <%= item.cancellationReason %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (item.status === 'Returned' && order.returnReason) { %>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <strong>Return Reason:</strong><br>
+                            <%= order.returnReason %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Timeline and Map -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h5 class="card-title fw-bold mb-5 border-bottom pb-3">Tracking Timeline</h5>
+                    
+                    <% if (item.statusHistory && item.statusHistory.length > 0) { %>
+                        <div class="tracking-timeline">
+                            <% 
+                            // reverse the history to show newest at top
+                            const history = [...item.statusHistory].reverse(); 
+                            history.forEach((entry, index) => { 
+                                const isLatest = index === 0;
+                            %>
+                                <div class="timeline-step <%= isLatest ? 'latest' : '' %>">
+                                    <div class="step-indicator">
+                                        <div class="step-dot <%= isLatest ? 'active' : '' %>"></div>
+                                        <% if (index < history.length - 1) { %>
+                                            <div class="step-line"></div>
+                                        <% } %>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="mb-0 fw-bold <%= isLatest ? 'text-primary' : 'text-dark' %>"><%= entry.status %></h6>
+                                            <span class="text-muted small"><%= new Date(entry.date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></span>
+                                        </div>
+                                        <% if (entry.notes) { %>
+                                            <p class="text-muted small mb-0"><%= entry.notes %></p>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-clock-rotate-left fa-3x text-muted mb-3"></i>
+                            <p class="text-muted fw-bold">No tracking history available yet.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Live Tracking Map -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h5 class="card-title fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-map-location-dot text-primary me-2"></i>Live Tracking Map</h5>
+                    
+                    <% if (['Cancelled', 'Returned', 'Refunded'].includes(item.status)) { %>
+                        <div class="alert alert-secondary text-center">
+                            Map tracking is unavailable because the item is inactive (<%= item.status %>).
+                        </div>
+                    <% } else { %>
+                        <div id="trackingMap" style="height: 400px; border-radius: 8px; z-index: 1;"></div>
+                        <p class="text-muted small mt-3 mb-0 text-center"><i class="fa-solid fa-circle-info me-1"></i> Simulated tracking map based on shipping address.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const mapContainer = document.getElementById('trackingMap');
+    if (!mapContainer) return;
+
+    // Use user's shipping address to get location
+    const city = "<%= order.shippingAddress ? order.shippingAddress.city : 'Delhi' %>";
+    const state = "<%= order.shippingAddress ? order.shippingAddress.state : 'Delhi' %>";
+    const addressQuery = encodeURIComponent(city + ", " + state + ", India");
+    
+    // Status context
+    const currentStatus = "<%= item.status %>";
+
+    // Initial map setup (centered on India)
+    const map = L.map('trackingMap').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Default origins (e.g. major warehouses)
+    const warehouses = [
+        { name: "Delhi Hub", lat: 28.7041, lng: 77.1025 },
+        { name: "Mumbai Hub", lat: 19.0760, lng: 72.8777 },
+        { name: "Bangalore Hub", lat: 12.9716, lng: 77.5946 }
+    ];
+    // Randomly pick an origin to simulate a dispatch center
+    const origin = warehouses[Math.floor(Math.random() * warehouses.length)];
+
+    const originIcon = L.divIcon({
+        html: '<div style="background-color:#0d6efd; width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>',
+        className: '',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+
+    const destIcon = L.divIcon({
+        html: '<div style="background-color:#198754; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-house" style="color:white; font-size:10px;"></i></div>',
+        className: '',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+
+    const truckIcon = L.divIcon({
+        html: '<div style="background-color:#ffc107; width:28px; height:28px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-truck-fast" style="color:#000; font-size:12px;"></i></div>',
+        className: '',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+    });
+
+    // Geocode destination
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + addressQuery)
+        .then(res => res.json())
+        .then(data => {
+            let destLat, destLng;
+            if (data && data.length > 0) {
+                destLat = parseFloat(data[0].lat);
+                destLng = parseFloat(data[0].lon);
+            } else {
+                // Fallback to center of India if geocoding fails
+                destLat = 22.9074;
+                destLng = 79.0730;
+            }
+
+            // Origin marker
+            L.marker([origin.lat, origin.lng], { icon: originIcon }).addTo(map).bindPopup('<b>Origin Hub</b><br>' + origin.name);
+            
+            // Destination marker
+            L.marker([destLat, destLng], { icon: destIcon }).addTo(map).bindPopup('<b>Destination</b><br>' + city + ', ' + state);
+
+            // Draw polyline connecting origin and destination
+            const latlngs = [
+                [origin.lat, origin.lng],
+                [destLat, destLng]
+            ];
+            
+            const routeLine = L.polyline(latlngs, {
+                color: '#0d6efd',
+                weight: 4,
+                opacity: 0.6,
+                dashArray: '10, 10'
+            }).addTo(map);
+
+            map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+            // Determine truck position based on status
+            let truckFraction = 0.1; // Default just left origin
+            if (currentStatus === 'Ordered' || currentStatus === 'Confirmed' || currentStatus === 'Processing' || currentStatus === 'Packed') {
+                truckFraction = 0.0; // Still at origin
+            } else if (currentStatus === 'Shipped') {
+                truckFraction = 0.5; // Halfway there
+            } else if (currentStatus === 'Out for Delivery') {
+                truckFraction = 0.9; // Almost there
+            } else if (currentStatus === 'Delivered') {
+                truckFraction = 1.0; // Arrived
+            }
+
+            if (truckFraction > 0 && truckFraction < 1) {
+                const truckLat = origin.lat + (destLat - origin.lat) * truckFraction;
+                const truckLng = origin.lng + (destLng - origin.lng) * truckFraction;
+                L.marker([truckLat, truckLng], { icon: truckIcon }).addTo(map).bindPopup('<b>In Transit</b><br>Currently ' + currentStatus);
+            }
+        })
+        .catch(err => console.error('Map Geocoding Error:', err));
+});
+</script>
+
+<%- include('../partials/footer') %>

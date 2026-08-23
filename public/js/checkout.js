@@ -81,6 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Coupon Logic
+function fillAndApplyCoupon(code) {
+    document.getElementById("couponCode").value = code;
+    applyCoupon();
+}
+
 async function applyCoupon() {
     const code = document.getElementById("couponCode").value;
     if (!code) return Swal.fire('Error', 'Please enter a coupon code', 'error');

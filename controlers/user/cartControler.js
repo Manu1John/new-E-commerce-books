@@ -154,6 +154,15 @@ export const getCheckout = async (req, res, next) => {
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
 
+    const Coupon = (await import("../../models/Coupon.js")).default;
+    const coupons = await Coupon.find({
+      isActive: true,
+      isDeleted: false,
+      expiryDate: { $gt: new Date() },
+      startDate: { $lte: new Date() },
+      usedBy: { $ne: userId }
+    });
+
     return res.render("user/checkout", {
       title: "Checkout Order",
       items: result.items,
@@ -161,7 +170,8 @@ export const getCheckout = async (req, res, next) => {
       addresses: result.addresses,
       user: req.session.user,
       cartCount: result.cartCount,
-      walletBalance
+      walletBalance,
+      coupons
     });
   } catch (error) {
     console.error("GET CHECKOUT ERROR:", error);
