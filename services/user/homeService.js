@@ -35,14 +35,8 @@ export const getListingParamsService = async (query) => {
   }
 
   if (searchQuery) {
-    const safeSearch = escapeRegex(searchQuery);
-    baseCondition.$or = [
-      { title: { $regex: safeSearch, $options: "i" } },
-      { author: { $regex: safeSearch, $options: "i" } },
-      { publisher: { $regex: safeSearch, $options: "i" } },
-      { isbn: { $regex: safeSearch, $options: "i" } },
-      { description: { $regex: safeSearch, $options: "i" } }
-    ];
+    // Utilize MongoDB Text Index for highly accurate, ranked search results
+    baseCondition.$text = { $search: searchQuery };
   }
 
   if (minPrice > 0 || maxPrice < Infinity) {

@@ -64,6 +64,12 @@ function addToCart(productId) {
     });
 }
 
+function updateWishlistCountBadge(count) {
+    document.querySelectorAll('.js-wishlist-count').forEach(el => {
+        el.textContent = count;
+    });
+}
+
 function addToWishlist(productId) {
     fetch('/wishlist/add', {
         method: 'POST',
@@ -78,6 +84,10 @@ function addToWishlist(productId) {
             icon: "success",
             draggable: true
             });
+            // Update badge count
+            if (data.wishlistCount !== undefined) {
+                updateWishlistCountBadge(data.wishlistCount);
+            }
         } else {
             alert(data.error || 'Failed to add to wishlist.');
         }

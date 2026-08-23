@@ -73,6 +73,12 @@ function updateCartCountBadge(count) {
     });
 }
 
+function updateWishlistCountBadge(count) {
+    document.querySelectorAll('.js-wishlist-count').forEach(el => {
+        el.textContent = count;
+    });
+}
+
 function addToCart(productId) {
     fetch('/cart/add', {
         method: 'POST',
@@ -90,7 +96,7 @@ function addToCart(productId) {
             // Update badge count
             updateCartCountBadge(data.cartCount);
         } else {
-            if (data.error === "Unauthorized" || !data.success && data.error && data.error.includes("log")) {
+            if (data.error === "Unauthorized" || (!data.success && data.error && data.error.includes("log"))) {
                 window.location.href = '/login';
             } else {
                 alert(data.error || 'Failed to add item to cart.');
@@ -99,10 +105,9 @@ function addToCart(productId) {
     })
     .catch(err => {
         console.error(err);
-        // If server redirects due to auth middleware
         window.location.href = '/login';
     });
-} // <--- FIX: Closed the addToCart function here!
+}
 
 async function addToWishlist(productId, buttonElement) {
     try {
@@ -122,8 +127,15 @@ async function addToWishlist(productId, buttonElement) {
             const icon = buttonElement.querySelector('i');
             
             // Toggle classes to make the heart solid and red
-            icon.classList.remove('fa-regular', 'text-dark');
-            icon.classList.add('fa-solid', 'text-danger'); 
+            if(icon) {
+                icon.classList.remove('fa-regular', 'text-dark');
+                icon.classList.add('fa-solid', 'text-danger'); 
+            }
+            
+            // Update badge count
+            if (result.wishlistCount !== undefined) {
+                updateWishlistCountBadge(result.wishlistCount);
+            }
             
             Swal.fire({
                 toast: true,

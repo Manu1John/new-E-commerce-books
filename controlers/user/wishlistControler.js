@@ -46,15 +46,20 @@ export const addToWishlist = async (req, res) => {
       return res.status(400).json({ success: false, error: "This product is currently unavailable." });
     }
 
+    // Get updated wishlist count
+    const updatedWishlist = await mongoose.model("Wishlist").findOne({ user: userId });
+    const wishlistCount = updatedWishlist ? updatedWishlist.products.length : 0;
+
     // 2. If it's already in the wishlist
     if (alreadyInWishlist) {
-      return res.status(200).json({ success: true, message: "Product is already in your wishlist." });
+      return res.status(200).json({ success: true, message: "Product is already in your wishlist.", wishlistCount });
     }
 
     // 3. Success
     return res.status(200).json({
       success: true,
-      message: "Product added to wishlist successfully."
+      message: "Product added to wishlist successfully.",
+      wishlistCount
     });
   } catch (error) {
     console.error("ADD TO WISHLIST ERROR:", error);
@@ -75,9 +80,15 @@ const removeFromWishlist = async (req, res) => {
     if (!wishlist) {
       return res.status(400).json({ success: false, error: "Wishlist not found." });
     }
+    
+    // Get updated wishlist count
+    const updatedWishlist = await mongoose.model("Wishlist").findOne({ user: userId });
+    const wishlistCount = updatedWishlist ? updatedWishlist.products.length : 0;
+    
     return res.status(200).json({
       success: true,
-      message: "Product removed from wishlist."
+      message: "Product removed from wishlist.",
+      wishlistCount
     });
   } catch (error) {
     console.error("REMOVE WISHLIST ERROR:", error);

@@ -73,6 +73,22 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+// Add Text Search Index for improved search accuracy
+productSchema.index({
+  title: 'text',
+  author: 'text',
+  publisher: 'text',
+  isbn: 'text'
+}, {
+  weights: {
+    title: 10,
+    author: 5,
+    publisher: 3,
+    isbn: 2
+  },
+  name: "ProductTextIndex"
+});
+
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;
