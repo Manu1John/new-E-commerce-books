@@ -25,9 +25,9 @@
         <div class="profile-content">
             <!-- STATS -->
             <div class="stats-box">
-                <div class="stat"><h2>24</h2><p>Books Ordered</p></div>
-                <div class="stat"><h2>08</h2><p>Wishlist Items</p></div>
-                <div class="stat"><h2>04</h2><p>Reviews Posted</p></div>
+                <div class="stat"><h2><%= String(booksOrdered).padStart(2, '0') %></h2><p>Books Ordered</p></div>
+                <div class="stat"><h2><%= String(wishlistItems).padStart(2, '0') %></h2><p>Wishlist Items</p></div>
+                <div class="stat"><h2><%= String(reviewsPosted).padStart(2, '0') %></h2><p>Reviews Posted</p></div>
             </div>
 
             <!-- PERSONAL INFO -->

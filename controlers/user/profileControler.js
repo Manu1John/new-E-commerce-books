@@ -11,19 +11,25 @@ const getUserProfile = async (req, res) => {
         }
         // Safely extract the ID depending on how you structured your session data
         const userId = req.session.user._id || req.session.user.id || req.session.user;
-        const user = await getUserProfileService(userId);
+        const result = await getUserProfileService(userId);
         // If the session exists but the user was deleted from the database
-        if (!user) {
+        if (!result || !result.user) {
             req.session.destroy(); // Clear the invalid session
             return res.redirect("/");
         }
+        
+        const { user, booksOrdered, wishlistItems, reviewsPosted } = result;
+        
         return res.render(
             "user/userProfile",
             {
                 title: "User Profile",
                 cssFile: "userProfile.css",
                 jsFile:"userProfile.js",
-                user
+                user,
+                booksOrdered,
+                wishlistItems,
+                reviewsPosted
             }
         );
 
