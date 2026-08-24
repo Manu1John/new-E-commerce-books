@@ -1,8 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('active'));
-    }
+
     const updateItemBtns = document.querySelectorAll(".update-item-btn");
     const downloadInvoiceBtn = document.getElementById("downloadInvoiceBtn"); 
     const printInvoiceBtn = document.getElementById("printInvoiceBtn"); 

@@ -25,13 +25,17 @@ export const updateUserProfileService = async(userData,userId)=>{
            const {
                 firstName,
                 lastName,
-                phone
+                phone,
+                profileImage
             } = userData;
       const updateData = {
             firstName,
             lastName,
             phone
         };
+        if(profileImage){
+             updateData.profileImage = profileImage;
+        }
     return  await User.findByIdAndUpdate(
             userId,
             updateData

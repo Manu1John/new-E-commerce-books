@@ -49,13 +49,14 @@ async (req, res) => {
             lastName,
             phone
         } = req.body;
-        await updateUserProfileService(req.body,userId)
         // image upload
         if (req.file) {
-            updateData.profileImage =
+            req.body.profileImage =
                 "/uploads/" +
                 req.file.filename;
         }
+        await updateUserProfileService(req.body,userId)
+
         return res.redirect(
             "/profile/user"
         );

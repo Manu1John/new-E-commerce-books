@@ -104,7 +104,15 @@
 										<figcaption>
 											<h3><%= product.title %></h3>
 											<span><%= product.author %></span>
-											<div class="item-price">₹<%= product.price %></div>
+											<div class="item-price">
+												<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+													<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+													₹<%= product.pricing.finalPrice %>
+													<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+												<% } else { %>
+													₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
+												<% } %>
+											</div>
 										</figcaption>
 									</div>
 								</div>
@@ -255,7 +263,15 @@
 												<figcaption>
 													<h3><%= product.title %></h3>
 													<span><%= product.author %></span>
-													<div class="item-price">₹<%= product.price %></div>
+													<div class="item-price">
+														<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+															<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+															₹<%= product.pricing.finalPrice %>
+															<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+														<% } else { %>
+															₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
+														<% } %>
+													</div>
 												</figcaption>
 											</div>
 										</div>
@@ -307,7 +323,15 @@
 												<figcaption>
 													<h3><%= product.title %></h3>
 													<span><%= product.author %></span>
-													<div class="item-price">₹<%= product.price %></div>
+													<div class="item-price">
+														<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+															<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+															₹<%= product.pricing.finalPrice %>
+															<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+														<% } else { %>
+															₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
+														<% } %>
+													</div>
 												</figcaption>
 											</div>
 										</div>
@@ -378,10 +402,13 @@
 											<h3><%= product.title %></h3>
 											<span><%= product.author %></span>
 											<div class="item-price">
-												<% if (product.oldPrice) { %>
-													<span class="prev-price">₹<%= product.oldPrice %></span>
+												<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
+													<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+													₹<%= product.pricing.finalPrice %>
+													<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
+												<% } else { %>
+													₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
 												<% } %>
-												₹<%= product.price %>
 											</div>
 										</figcaption>
 									</div>

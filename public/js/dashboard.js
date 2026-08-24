@@ -1,12 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Sidebar Toggle Logic for Mobile
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
-    }
+
 
     // Safely pull the chart data we injected via the EJS window variable
     const chartData = window.dashboardChartData || {}; 

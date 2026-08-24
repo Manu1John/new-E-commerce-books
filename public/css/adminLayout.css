@@ -1,0 +1,84 @@
+/* Universal Responsive Overrides for Admin Panel */
+
+/* Tablet & Mobile Layout for Sidebar & Main Content */
+@media (max-width: 992px) {
+    /* Main Content adjustments */
+    .dashboard-container .main-content, 
+    body .main-content { 
+        margin-left: 0 !important; 
+        padding: 1.5rem 1rem !important;
+        padding-top: 5rem !important; /* Make room for mobile header */
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Mobile Header adjustments */
+    .mobile-header { 
+        display: flex !important; 
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Sidebar hide */
+    .sidebar { 
+        transform: translateX(-100%) !important; 
+        width: 260px !important; 
+    }
+
+    /* Sidebar show */
+    .sidebar.active { 
+        transform: translateX(0) !important; 
+    }
+    
+    /* Charts and Tables grid adjustments */
+    .charts-grid, 
+    .tables-grid { 
+        grid-template-columns: 1fr !important; 
+    }
+}
+
+/* Mobile specific overrides */
+@media (max-width: 768px) {
+    /* Grids & Forms */
+    .row-grid, 
+    .product-layout,
+    .stats-grid { 
+        grid-template-columns: 1fr !important; 
+        gap: 1rem !important; 
+    }
+
+    /* Headers and Search wrappers */
+    .page-header-wrapper { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+    }
+    .search-wrapper { 
+        max-width: 100% !important; 
+        width: 100% !important; 
+        margin-top: 1rem !important;
+    }
+    
+    /* Action Buttons */
+    .form-actions { 
+        flex-direction: column !important; 
+    }
+    .form-actions .btn-primary-pill, 
+    .form-actions .btn-outline-pill { 
+        width: 100% !important; 
+        text-align: center !important; 
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Table Responsiveness Insurance */
+    .table-custom-wrapper {
+        border-radius: 8px !important;
+        padding: 0 !important;
+    }
+    
+    .table-responsive {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}

@@ -1,12 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // --- Mobile Sidebar Toggle ---
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
-    }
-
     // --- Dynamic Usage Limit Logic ---
     const startDateInput = document.getElementById('startDate');
     const expiryDateInput = document.getElementById('expiryDate');

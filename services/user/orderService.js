@@ -101,7 +101,7 @@ const ensureWallet = async (userId) => {
 };
 
 const refundOrderItemIfNeeded = async (order, item) => {
-  const isPaid = ["Paid", "Refunded"].includes(order.paymentStatus) || ["Wallet", "Wallet+Online"].includes(order.paymentMethod);
+  const isPaid = ["Paid", "Refunded"].includes(order.paymentStatus);
   if (!isPaid || item.refundedAmount > 0) return 0;
 
   const refundAmount = roundMoney((item.finalPrice || item.price || 0) * item.quantity);

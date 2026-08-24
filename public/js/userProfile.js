@@ -38,6 +38,10 @@ profileImage.addEventListener("change", function () {
     const file = this.files[0];
     if (file) {
         previewImage.src = URL.createObjectURL(file);
+        // Automatically enter edit mode so the user sees the 'Save' button
+        if (!editMode) {
+            editBtn.click();
+        }
     }
 });
 

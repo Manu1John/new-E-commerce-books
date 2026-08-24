@@ -69,16 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Mobile Sidebar Toggle ---
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    
-    // Added safety check to ensure elements exist before attaching listeners
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-        });
-    }
 
     // --- Search Form Submission Logic ---
     const searchForm = document.getElementById("searchForm");

@@ -6,6 +6,7 @@ import Review from "../../models/Review.js";
 import Order from "../../models/Order.js";
 import mongoose from "mongoose";
 import { attachPricingToProduct, attachPricingToProducts } from "./pricingService.js";
+import Offer from "../../models/Offer.js";
 
 const escapeRegex = (value = "") => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -102,14 +103,41 @@ export const getIndexAndHomeProductsService = async (query) => {
   const totalFeatured = await Products.countDocuments(baseCondition);
   const featuredTotalPages = Math.ceil(totalFeatured / standardLimit) || 1;
 
+  const now = new Date();
+  const activeOffers = await Offer.find({
+    isActive: true,
+    isDeleted: false,
+    startDate: { $lte: now },
+    expiryDate: { $gt: now },
+  }).lean();
+
+  const offerProductIds = [];
+  const offerCategoryIds = [];
+
+  activeOffers.forEach(offer => {
+    if (offer.type === 'product' && offer.productRef) {
+      offerProductIds.push(offer.productRef);
+    } else if (offer.type === 'category' && offer.categoryRef) {
+      offerCategoryIds.push(offer.categoryRef);
+    }
+  });
+
+  const offerCondition = { ...baseCondition };
+  if (offerProductIds.length > 0 || offerCategoryIds.length > 0) {
+    offerCondition.$or = [];
+    if (offerProductIds.length > 0) offerCondition.$or.push({ _id: { $in: offerProductIds } });
+    if (offerCategoryIds.length > 0) offerCondition.$or.push({ category: { $in: offerCategoryIds } });
+  } else {
+    offerCondition._id = null; // No offers match
+  }
+
   const offerPage = parseInt(query.page_offer) || 1;
   const offerSkip = (offerPage - 1) * standardLimit;
 
-  const offerProductDocs = await Products.find({ ...baseCondition }).populate("category").sort({ price: 1 }).skip(offerSkip).limit(standardLimit);
-  const offerProductsAll = await attachPricingToProducts(offerProductDocs);
-  const offerProducts = offerProductsAll.filter((product) => product.pricing.discountPercentage > 0);
+  const offerProductDocs = await Products.find(offerCondition).populate("category").sort({ price: 1 }).skip(offerSkip).limit(standardLimit);
+  const offerProducts = await attachPricingToProducts(offerProductDocs);
 
-  const totalOffers = await Products.countDocuments({ ...baseCondition });
+  const totalOffers = await Products.countDocuments(offerCondition);
   const offerTotalPages = Math.ceil(totalOffers / standardLimit) || 1;
 
   return {

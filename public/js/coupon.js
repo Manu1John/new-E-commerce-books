@@ -1,12 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // --- Mobile Sidebar Toggle ---
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
-    }
-
     // --- Search Form Submission Logic ---
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");

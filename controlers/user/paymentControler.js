@@ -234,6 +234,35 @@ const paymentControler = {
     res.redirect(redirectUrl);
   },
 
+  paymentFailureCallback: async (req, res) => {
+    try {
+      const { order_id } = req.body;
+      if (!order_id) return res.status(400).json({ success: false });
+
+      const order = await Order.findById(order_id);
+      if (order && order.paymentStatus === "Pending") {
+        order.paymentStatus = "Failed";
+        order.status = "Payment Failed";
+        order.items.forEach(item => {
+          if (!item.status || item.status === "Pending") {
+            item.status = "Payment Failed";
+          }
+        });
+        await order.save();
+        
+        // Also ensure cart is cleared so they don't have duplicate items if they retry from orders page
+        // Wait, if they retry, they might need the cart? Actually it's better to clear it
+        // since the order is already in "My Orders".
+        const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
+        await Cart.findOneAndDelete({ user: userId });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Payment Failure Callback Error:", error);
+      res.status(500).json({ success: false });
+    }
+  },
+
   paymentFailure: (req, res) => {
     res.render("user/payment/failure", { title: "Payment Failed" });
   }

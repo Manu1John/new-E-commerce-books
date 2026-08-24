@@ -194,7 +194,16 @@ async function placeOrder() {
                 };
                 
                 const rzp = new window.Razorpay(options);
-                rzp.on('payment.failed', function (response){
+                rzp.on('payment.failed', async function (response){
+                    try {
+                        await fetch('/payment/failure-callback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ order_id: data.orderId })
+                        });
+                    } catch(err) {
+                        console.error("Failed to notify backend of payment failure", err);
+                    }
                     window.location.href = '/payment/failure';
                 });
                 rzp.open();
