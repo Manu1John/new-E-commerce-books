@@ -36,8 +36,10 @@ export const getListingParamsService = async (query) => {
   }
 
   if (searchQuery) {
-    // Utilize MongoDB Text Index for highly accurate, ranked search results
-    baseCondition.$text = { $search: searchQuery };
+    baseCondition.$or = [
+      { title: { $regex: searchQuery, $options: "i" } },
+      { author: { $regex: searchQuery, $options: "i" } }
+    ];
   }
 
   if (minPrice > 0 || maxPrice < Infinity) {

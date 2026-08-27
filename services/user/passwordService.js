@@ -28,6 +28,14 @@ export const changeUserPasswordService = async (userId, currentPassword, newPass
         return { success: false, status: "NOT_FOUND" };
     }
 
+    if (!user.password) {
+        return { 
+            success: false, 
+            error: "Users registered via Google cannot change their password", 
+            user 
+        };
+    }
+
     // Current password check
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {

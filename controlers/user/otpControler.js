@@ -3,8 +3,10 @@ import {
     createVerifiedUserService,
     validateNewEmailService,
     updateEmailAndFetchUserService
-} from "../../services/user/otpService.js"; // Adjust path as needed
+} from "../../services/user/otpService.js";
+import { getUserProfileService } from "../../services/user/profileService.js";
 import User from "../../models/User.js";
+import bcrypt from "bcrypt";
 
 // GET VERIFY OTP PAGE
 const getVerifyOtp = (req, res, next) => {
@@ -238,17 +240,36 @@ const resendOtp = async (req, res) => {
 const sendEmailOtp = async (req, res) => {
     try {
         const userId = req.session.user.id;
-        const { newEmail } = req.body;
+        const { newEmail, password } = req.body;
 
-        if (!newEmail?.trim()) {
-            const user = await User.findById(userId); // Fallback fetch for view render
+        // Helper: render userProfile with all required template variables
+        const renderProfile = async (userDoc, extras = {}) => {
+            const profileData = await getUserProfileService(userId);
             return res.render("user/userProfile", {
                 title: "User Profile",
                 cssFile: "userProfile.css",
                 jsFile: "userProfile.js",
-                user,
-                emailError: "Please enter email"
+                user: userDoc || profileData?.user,
+                booksOrdered: profileData?.booksOrdered ?? 0,
+                wishlistItems: profileData?.wishlistItems ?? 0,
+                reviewsPosted: profileData?.reviewsPosted ?? 0,
+                ...extras
             });
+        };
+
+        const user = await User.findById(userId);
+
+        if (!user.password) {
+            return renderProfile(user, { emailError: "Users registered via Google cannot change their email" });
+        }
+
+        if (!newEmail?.trim()) {
+            return renderProfile(user, { emailError: "Please enter email" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return renderProfile(user, { emailError: "Incorrect password" });
         }
 
         // Call Service to validate email rules
@@ -258,13 +279,7 @@ const sendEmailOtp = async (req, res) => {
             if (validationResult.status === "NOT_FOUND") {
                 return res.redirect("/user-profile");
             }
-            return res.render("user/userProfile", {
-                title: "User Profile",
-                cssFile: "userProfile.css",
-                jsFile: "userProfile.js",
-                user: validationResult.user,
-                emailError: validationResult.error
-            });
+            return renderProfile(validationResult.user, { emailError: validationResult.error });
         }
 
         const otp = AuthService.generateOtp();
@@ -276,13 +291,8 @@ const sendEmailOtp = async (req, res) => {
 
         await AuthService.sendVerificationEmail(validationResult.normalizedEmail, otp);
 
-        return res.render("user/userProfile", {
-            title: "User Profile",
-            cssFile: "userProfile.css",
-            jsFile: "userProfile.js",
-            user: validationResult.user,
-            emailSuccess: "OTP sent to your email"
-        });
+        return renderProfile(validationResult.user, { emailSuccess: "OTP sent to your new email" });
+
     } catch (error) {
         console.error("SEND EMAIL OTP ERROR:", error);
         return res.redirect("/user-profile");
@@ -295,6 +305,21 @@ const verifyEmailOtp = async (req, res) => {
         const userId = req.session.user.id;
         const { otp } = req.body;
 
+        // Helper: render userProfile with all required template variables
+        const renderProfile = async (userDoc, extras = {}) => {
+            const profileData = await getUserProfileService(userId);
+            return res.render("user/userProfile", {
+                title: "User Profile",
+                cssFile: "userProfile.css",
+                jsFile: "userProfile.js",
+                user: userDoc || profileData?.user,
+                booksOrdered: profileData?.booksOrdered ?? 0,
+                wishlistItems: profileData?.wishlistItems ?? 0,
+                reviewsPosted: profileData?.reviewsPosted ?? 0,
+                ...extras
+            });
+        };
+
         const user = await User.findById(userId);
         if (!user) {
             return res.redirect("/user-profile");
@@ -302,24 +327,12 @@ const verifyEmailOtp = async (req, res) => {
 
         // Expiry check
         if (!req.session.emailOtpExpire || Date.now() > req.session.emailOtpExpire) {
-            return res.render("user/userProfile", {
-                title: "User Profile",
-                cssFile: "userProfile.css",
-                jsFile: "userProfile.js",
-                user,
-                emailError: "OTP expired"
-            });
+            return renderProfile(user, { emailError: "OTP expired" });
         }
 
         // OTP check
         if (String(otp).trim() !== String(req.session.emailOtp).trim()) {
-            return res.render("user/userProfile", {
-                title: "User Profile",
-                cssFile: "userProfile.css",
-                jsFile: "userProfile.js",
-                user,
-                emailError: "Invalid OTP"
-            });
+            return renderProfile(user, { emailError: "Invalid OTP" });
         }
 
         // Call Service to commit the email update
@@ -333,13 +346,8 @@ const verifyEmailOtp = async (req, res) => {
         delete req.session.newEmail;
         delete req.session.emailOtpExpire;
 
-        return res.render("user/userProfile", {
-            title: "User Profile",
-            cssFile: "userProfile.css",
-            jsFile: "userProfile.js",
-            user: updatedUser,
-            emailSuccess: "Email updated successfully"
-        });
+        return renderProfile(updatedUser, { emailSuccess: "Email updated successfully" });
+
     } catch (error) {
         console.error("VERIFY EMAIL OTP ERROR:", error);
         return res.redirect("/user-profile");

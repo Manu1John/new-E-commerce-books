@@ -2,10 +2,17 @@ import User from "../../models/User.js";
 import Order from "../../models/Order.js";
 import Wishlist from "../../models/Wishlist.js";
 import Review from "../../models/Review.js";
+import crypto from "crypto";
 
 export const getUserProfileService= async(userId)=>{
     const user = await User.findById(userId);
     if (!user) return null;
+
+    // Generate a referral code for existing users who signed up before this feature was implemented
+    if (!user.referralCode) {
+        user.referralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+        await user.save();
+    }
 
     const orders = await Order.find({ user: userId });
     let booksOrdered = 0;

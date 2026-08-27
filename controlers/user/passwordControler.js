@@ -3,7 +3,8 @@ import {
     findUserByEmailService,
     resetUserPasswordService,
     changeUserPasswordService
-} from "../../services/user/passwordService.js"; // Adjust the path as needed
+} from "../../services/user/passwordService.js";
+import { getUserProfileService } from "../../services/user/profileService.js";
 
 // GET FORGOT PASSWORD
 const getForgotPassword = (req, res, next) => {
@@ -113,16 +114,24 @@ const changePassword = async (req, res) => {
         const userId = req.session.user.id;
         const { currentPassword, newPassword, confirmPassword } = req.body;
 
-        if (newPassword !== confirmPassword) {
-            // We need the user document to render the profile properly, fallback fetch if passwords don't match
-            const user = await findUserByEmailService(req.session.user.email); 
+        // Helper to render profile with all required template variables
+        const renderProfile = async (userOverride, extras = {}) => {
+            // getUserProfileService returns { user, booksOrdered, wishlistItems, reviewsPosted }
+            const profileData = await getUserProfileService(userId);
             return res.render("user/userProfile", {
                 title: "User Profile",
                 cssFile: "userProfile.css",
                 jsFile: "userProfile.js",
-                user,
-                error: "Passwords do not match"
+                user: userOverride || profileData?.user,
+                booksOrdered: profileData?.booksOrdered ?? 0,
+                wishlistItems: profileData?.wishlistItems ?? 0,
+                reviewsPosted: profileData?.reviewsPosted ?? 0,
+                ...extras
             });
+        };
+
+        if (newPassword !== confirmPassword) {
+            return renderProfile(null, { error: "Passwords do not match" });
         }
 
         // Delegate all verification and DB update logic to the service
@@ -132,22 +141,10 @@ const changePassword = async (req, res) => {
             if (result.status === "NOT_FOUND") {
                 return res.redirect("/profile/user");
             }
-            return res.render("user/userProfile", {
-                title: "User Profile",
-                cssFile: "userProfile.css",
-                jsFile: "userProfile.js",
-                user: result.user,
-                error: result.error
-            });
+            return renderProfile(result.user, { error: result.error });
         }
 
-        return res.render("user/userProfile", {
-            title: "User Profile",
-            cssFile: "userProfile.css",
-            jsFile: "userProfile.js",
-            user: result.user,
-            success: "Password changed successfully"
-        });
+        return renderProfile(result.user, { success: "Password changed successfully" });
 
     } catch (error) {
         console.error("CHANGE PASSWORD ERROR:", error);

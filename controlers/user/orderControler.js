@@ -5,6 +5,7 @@ import {
   cancelOrderItemService,
   cancelOrderService,
   returnOrderService,
+  returnOrderItemService,
   generateInvoicePDF,
   getTrackOrderItemService
 } from "../../services/user/orderService.js";
@@ -123,6 +124,25 @@ export const cancelOrderItem = async (req, res) => {
   }
 };
 
+export const returnOrderItem = async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    const { id: orderId, itemId } = req.params;
+    const { returnReason } = req.body;
+
+    const result = await returnOrderItemService(userId, orderId, itemId, returnReason);
+
+    return res.status(200).json({
+      success: true,
+      message: "Item returned successfully",
+      ...result
+    });
+  } catch (error) {
+    console.error("RETURN ORDER ITEM ERROR:", error);
+    return res.status(400).json({ success: false, error: error.message });
+  }
+};
+
 export const returnOrder = async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -166,6 +186,7 @@ export default {
   cancelOrder,
   cancelOrderItem,
   returnOrder,
+  returnOrderItem,
   downloadInvoice
 };
 

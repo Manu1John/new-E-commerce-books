@@ -25,9 +25,9 @@
         <div class="profile-content">
             <!-- STATS -->
             <div class="stats-box">
-                <div class="stat"><h2><%= String(booksOrdered).padStart(2, '0') %></h2><p>Books Ordered</p></div>
-                <div class="stat"><h2><%= String(wishlistItems).padStart(2, '0') %></h2><p>Wishlist Items</p></div>
-                <div class="stat"><h2><%= String(reviewsPosted).padStart(2, '0') %></h2><p>Reviews Posted</p></div>
+                <div class="stat"><h2><%= String(typeof booksOrdered !== 'undefined' ? booksOrdered : 0).padStart(2, '0') %></h2><p>Books Ordered</p></div>
+                <div class="stat"><h2><%= String(typeof wishlistItems !== 'undefined' ? wishlistItems : 0).padStart(2, '0') %></h2><p>Wishlist Items</p></div>
+                <div class="stat"><h2><%= String(typeof reviewsPosted !== 'undefined' ? reviewsPosted : 0).padStart(2, '0') %></h2><p>Reviews Posted</p></div>
             </div>
 
             <!-- PERSONAL INFO -->
@@ -78,7 +78,7 @@
                         <button type="button" id="togglePasswordBtn" class="toggle-btn">Change Password</button>
                     </div>
                     <!-- HIDDEN PASSWORD FORM -->
-                    <div id="passwordFormContainer" style="display:none;">
+                    <div id="passwordFormContainer" style="display:<%= (typeof error !== 'undefined' && error) || (typeof success !== 'undefined' && success) ? 'block' : 'none' %>;">
                         <% if (typeof error !== "undefined" && error) { %><p class="error-msg"><%= error %></p><% } %>
                         <% if (typeof success !== "undefined" && success) { %><p class="success-msg"><%= success %></p><% } %>
                         
@@ -122,13 +122,14 @@
                         <button type="button" id="toggleEmailBtn" class="toggle-btn">Change Email</button>
                     </div>
                     <!-- HIDDEN EMAIL FORM -->
-                    <div id="emailFormContainer" style="display:none;">
+                    <div id="emailFormContainer" style="display:<%= (typeof emailError !== 'undefined' && emailError) || (typeof emailSuccess !== 'undefined' && emailSuccess) ? 'block' : 'none' %>;">
                         <% if (typeof emailError !== "undefined" && emailError) { %><p class="error-msg"><%= emailError %></p><% } %>
                         <% if (typeof emailSuccess !== "undefined" && emailSuccess) { %><p class="success-msg"><%= emailSuccess %></p><% } %>
                         <!-- SEND OTP -->
                         <form action="/send-email-otp" method="POST">
                             <input type="email" value="<%= user.email %>" disabled />
                             <input type="email" name="newEmail" placeholder="New email" required />
+                            <input type="password" name="password" placeholder="Current password" required />
                             <button type="submit">Send OTP</button>
                         </form>
                         <!-- VERIFY OTP -->
@@ -168,9 +169,9 @@
         <div class="profile-content">
             <!-- STATS -->
             <div class="stats-box">
-                <div class="stat"><h2>24</h2><p>Books Ordered</p></div>
-                <div class="stat"><h2>08</h2><p>Wishlist Items</p></div>
-                <div class="stat"><h2>04</h2><p>Reviews Posted</p></div>
+                <div class="stat"><h2><%= String(typeof booksOrdered !== 'undefined' ? booksOrdered : 0).padStart(2, '0') %></h2><p>Books Ordered</p></div>
+                <div class="stat"><h2><%= String(typeof wishlistItems !== 'undefined' ? wishlistItems : 0).padStart(2, '0') %></h2><p>Wishlist Items</p></div>
+                <div class="stat"><h2><%= String(typeof reviewsPosted !== 'undefined' ? reviewsPosted : 0).padStart(2, '0') %></h2><p>Reviews Posted</p></div>
             </div>
 
             <!-- PERSONAL INFO -->
@@ -205,6 +206,72 @@
                 </div>
                 <button type="button" class="save-btn" id="editBtn">Edit</button>
             </form>
+
+            <!-- REFERRAL INFO -->
+            <% if (user.referralCode) { %>
+            <div class="info-card" style="margin-top: 2rem; padding: 25px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
+                <h2 style="margin-bottom: 10px; font-size: 1.5rem; color: #333;">Referral Program</h2>
+                <p class="text-muted" style="margin-bottom: 20px;">Share your unique code with friends. When they sign up, you both earn a wallet bonus!</p>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="myReferralCode" value="<%= user.referralCode %>" disabled style="padding: 12px; border: 2px dashed #007bff; background: #f8f9fa; border-radius: 6px; font-weight: bold; font-size: 1.1rem; width: 220px; text-align: center; color: #007bff;" />
+                    <button type="button" class="save-btn" onclick="copyReferral(false)" style="margin: 0; padding: 12px 20px; background: #007bff;">
+                        <i class="fa-regular fa-copy" style="margin-right: 5px;"></i> Copy Code
+                    </button>
+                    <button type="button" class="save-btn" onclick="copyReferral(true)" style="margin: 0; padding: 12px 20px; background: #28a745;">
+                        <i class="fa-solid fa-link" style="margin-right: 5px;"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+            <script>
+                function copyReferral(isLink) {
+                    const code = document.getElementById("myReferralCode").value;
+                    let copyText = code;
+                    
+                    if (isLink) {
+                        const baseUrl = window.location.origin;
+                        copyText = `${baseUrl}/signup?ref=${code}`;
+                    }
+                    
+                    const fallbackCopy = () => {
+                        const tempInput = document.createElement("input");
+                        tempInput.value = copyText;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        tempInput.setSelectionRange(0, 99999);
+                        try {
+                            document.execCommand('copy');
+                            const msg = isLink ? 'Referral link copied!' : 'Referral code copied!';
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ icon: 'success', title: 'Copied!', text: msg, timer: 1500, showConfirmButton: false });
+                            } else {
+                                alert(msg);
+                            }
+                        } catch (err) {
+                            console.error('Fallback: Oops, unable to copy', err);
+                        }
+                        document.body.removeChild(tempInput);
+                        window.getSelection().removeAllRanges();
+                    };
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(copyText).then(() => {
+                            const msg = isLink ? 'Referral link copied!' : 'Referral code copied!';
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ icon: 'success', title: 'Copied!', text: msg, timer: 1500, showConfirmButton: false });
+                            } else {
+                                alert(msg);
+                            }
+                        }).catch(err => {
+                            console.error('Failed to copy using clipboard API', err);
+                            fallbackCopy();
+                        });
+                    } else {
+                        fallbackCopy();
+                    }
+                }
+            </script>
+            <% } %>
+
         </div>
     </div>
 </section>

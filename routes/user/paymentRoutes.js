@@ -9,5 +9,6 @@ router.post("/payment/verify", authenticatedUser, paymentControler.verifyPayment
 router.post("/payment/failure-callback", authenticatedUser, paymentControler.paymentFailureCallback);
 router.get("/payment/success", authenticatedUser, paymentControler.paymentSuccess);
 router.get("/payment/failure", authenticatedUser, paymentControler.paymentFailure);
+router.post("/payment/retry/:orderId", authenticatedUser, paymentControler.retryPayment);
 
 export default router;

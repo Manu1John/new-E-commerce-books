@@ -44,41 +44,189 @@ function renderCheckoutAddress(address) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const addressForm = document.getElementById('checkoutAddressForm');
-    if (!addressForm) return;
+    // Frontend Validation Helper
+    const validateAddressForm = (form) => {
+        let isValid = true;
+        // Remove previous errors
+        form.querySelectorAll('.address-err').forEach(el => el.remove());
 
-    addressForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const formData = Object.fromEntries(new FormData(addressForm).entries());
-
-        try {
-            const response = await fetch('/address?returnTo=checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            const data = await response.json();
-
-            if (!data.success) {
-                Swal.fire('Error', data.error || 'Failed to save address.', 'error');
-                return;
+        const showError = (inputName, message) => {
+            const input = form.querySelector(`[name="${inputName}"]`);
+            if (input) {
+                const errDiv = document.createElement('div');
+                errDiv.className = 'address-err text-danger small mt-1';
+                errDiv.innerText = message;
+                input.parentNode.appendChild(errDiv);
             }
+            isValid = false;
+        };
 
-            renderCheckoutAddress(data.address);
-            addressForm.reset();
-            const modalEl = document.getElementById('checkoutAddressModal');
-            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            modal.hide();
-            Swal.fire({ icon: 'success', title: 'Address added', timer: 1300, showConfirmButton: false });
-        } catch (error) {
-            console.error(error);
-            Swal.fire('Error', 'Server Error', 'error');
+        const formData = Object.fromEntries(new FormData(form).entries());
+
+        const requiredFields = ["fullName", "phone", "house", "area", "city", "state", "pincode", "addressType"];
+        for (const field of requiredFields) {
+            if (!formData[field] || !String(formData[field]).trim()) {
+                showError(field, 'This field cannot be empty or just spaces.');
+            }
         }
-    });
+
+        if (!isValid) return false;
+
+        const fullName = String(formData.fullName).trim();
+        if (fullName.length < 3 || fullName.length > 50) showError('fullName', 'Name must be between 3 and 50 characters.');
+        else if (!/^[A-Za-z\s]+$/.test(fullName)) showError('fullName', 'Name can only contain letters and spaces.');
+
+        const phone = String(formData.phone).trim();
+        if (!/^[0-9]{10}$/.test(phone)) showError('phone', 'Phone number must be exactly 10 digits.');
+        else if (/^0{10}$/.test(phone)) showError('phone', 'Phone number cannot be all zeros.');
+
+        const pincode = String(formData.pincode).trim();
+        if (!/^[0-9]{6}$/.test(pincode)) showError('pincode', 'Pincode must be exactly 6 digits.');
+        else if (/^0{6}$/.test(pincode)) showError('pincode', 'Pincode cannot be all zeros.');
+
+        const city = String(formData.city).trim();
+        if (!/^[A-Za-z\s]+$/.test(city)) showError('city', 'City cannot contain numbers or special characters.');
+
+        const state = String(formData.state).trim();
+        if (!/^[A-Za-z\s]+$/.test(state)) showError('state', 'State cannot contain numbers or special characters.');
+
+        const xssPattern = /<[^>]*>?/gm;
+        const addressPattern = /^[A-Za-z0-9\s,\-]+$/;
+
+        const house = String(formData.house).trim();
+        if (xssPattern.test(house) || !addressPattern.test(house)) showError('house', 'Contains invalid characters.');
+
+        const area = String(formData.area).trim();
+        if (xssPattern.test(area) || !addressPattern.test(area)) showError('area', 'Contains invalid characters.');
+
+        if (formData.landmark) {
+            const landmark = String(formData.landmark).trim();
+            if (xssPattern.test(landmark) || !/^[A-Za-z0-9\s,\-]*$/.test(landmark)) {
+                showError('landmark', 'Contains invalid characters.');
+            }
+        }
+
+        return isValid;
+    };
+
+    const addressForm = document.getElementById('checkoutAddressForm');
+    if (addressForm) {
+        addressForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            if (!validateAddressForm(addressForm)) return;
+
+            const formData = Object.fromEntries(new FormData(addressForm).entries());
+
+            try {
+                const response = await fetch('/address?returnTo=checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+
+                if (!data.success) {
+                    Swal.fire('Error', data.error || 'Failed to save address.', 'error');
+                    return;
+                }
+
+                renderCheckoutAddress(data.address);
+                addressForm.reset();
+                const modalEl = document.getElementById('checkoutAddressModal');
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+                Swal.fire({ icon: 'success', title: 'Address added', timer: 1300, showConfirmButton: false }).then(() => {
+                    location.reload(); // Reload to refresh addresses properly
+                });
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Server Error', 'error');
+            }
+        });
+    }
+
+    // Edit Address Logic
+    const editAddressForm = document.getElementById('editCheckoutAddressForm');
+    if (editAddressForm) {
+        editAddressForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (!validateAddressForm(editAddressForm)) return;
+
+            const addressId = document.getElementById('editAddressId').value;
+            const formData = Object.fromEntries(new FormData(editAddressForm).entries());
+
+            try {
+                const response = await fetch(`/address/${addressId}?returnTo=checkout`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+
+                if (!data.success) {
+                    Swal.fire('Error', data.error || 'Failed to update address.', 'error');
+                    return;
+                }
+
+                const modalEl = document.getElementById('editCheckoutAddressModal');
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+                Swal.fire({ icon: 'success', title: 'Address updated', timer: 1300, showConfirmButton: false }).then(() => {
+                    location.reload(); // Reload to refresh list
+                });
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Server Error', 'error');
+            }
+        });
+    }
 });
+
+async function openEditAddressModal(addressId, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    try {
+        const response = await fetch(`/address/${addressId}/edit?returnTo=checkout`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const data = await response.json();
+        
+        if (data.success && data.address) {
+            const addr = data.address;
+            document.getElementById('editAddressId').value = addr._id;
+            document.getElementById('editFullName').value = addr.fullName;
+            document.getElementById('editPhone').value = addr.phone;
+            document.getElementById('editHouse').value = addr.house;
+            document.getElementById('editArea').value = addr.area;
+            document.getElementById('editLandmark').value = addr.landmark || '';
+            document.getElementById('editCity').value = addr.city;
+            document.getElementById('editState').value = addr.state;
+            document.getElementById('editPincode').value = addr.pincode;
+            document.getElementById('editAddressType').value = addr.addressType;
+            
+            const modalEl = document.getElementById('editCheckoutAddressModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        } else {
+            Swal.fire('Error', 'Could not load address details', 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'Server Error while fetching address', 'error');
+    }
+}
 
 // Coupon Logic
 function fillAndApplyCoupon(code) {

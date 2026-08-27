@@ -67,11 +67,11 @@ export const getEditCategoryService = async(categoryId)=>{
 
 export const postEditCategoryService = async(categoryId,categoryData)=>{
     const {name,description,status} = categoryData
+    const escapedName = name.trim().replace(/\s+/g, " ").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const existingCategory = await Category.findOne({
-            name: name.trim(),
-             _id: { $ne: categoryId }   // Exclude current category
-        
-        });
+        name: { $regex: new RegExp(`^${escapedName}$`, "i") },
+        _id: { $ne: categoryId }   // Exclude current category
+    });
     if(existingCategory){
         return {existingCategory}
     }

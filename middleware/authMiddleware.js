@@ -5,7 +5,7 @@ import {
     refreshUserSession
 } from "../utils/sessionUtils.js";
 
-const clearInvalidUserSession = async (req, res) => {
+const clearInvalidUserSession = async (req, res, redirectUrl = "/") => {
     try {
         await destroySession(req);
     } catch (error) {
@@ -13,7 +13,7 @@ const clearInvalidUserSession = async (req, res) => {
     }
 
     clearUserSessionCookie(res);
-    return res.redirect("/");
+    return res.redirect(redirectUrl);
 };
 
 // authentication middleware
@@ -54,7 +54,7 @@ async (
 
         // USER BLOCKED
         if (user.isBlocked) {
-            return clearInvalidUserSession(req, res);
+            return clearInvalidUserSession(req, res, "/login?error=blocked");
         }
 
         refreshUserSession(req, user);

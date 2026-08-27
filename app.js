@@ -64,6 +64,16 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use("/", userRoutes);
 
+// 404 Error Handler
+app.use((req, res, next) => {
+    res.status(404).render("404", { title: "404 Not Found" });
+});
+
+// 500 Error Handler
+app.use((err, req, res, next) => {
+    console.error("Global Error Handler:", err.stack);
+    res.status(500).render("500", { title: "500 Server Error", error: process.env.NODE_ENV === "development" ? err : {} });
+});
 
 const PORT = process.env.PORT || 5000;
 

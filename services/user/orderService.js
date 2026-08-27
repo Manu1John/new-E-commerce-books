@@ -26,7 +26,8 @@ export const normalizeOrderItem = (item, orderStatus = "Pending") => {
     discountPercentage,
     subtotal,
     status,
-    canCancel: CANCELLABLE_STATUSES.includes(status)
+    canCancel: CANCELLABLE_STATUSES.includes(status),
+    canReturn: status === "Delivered"
   };
 };
 
@@ -104,7 +105,15 @@ const refundOrderItemIfNeeded = async (order, item) => {
   const isPaid = ["Paid", "Refunded"].includes(order.paymentStatus);
   if (!isPaid || item.refundedAmount > 0) return 0;
 
-  const refundAmount = roundMoney((item.finalPrice || item.price || 0) * item.quantity);
+  const itemTotal = (item.finalPrice || item.price || 0) * item.quantity;
+  const orderItemsTotal = order.items.reduce((sum, it) => sum + ((it.finalPrice || it.price || 0) * it.quantity), 0);
+  
+  let proportionalCouponDiscount = 0;
+  if (order.couponDiscount > 0 && orderItemsTotal > 0) {
+    proportionalCouponDiscount = (itemTotal / orderItemsTotal) * order.couponDiscount;
+  }
+  
+  const refundAmount = roundMoney(Math.max(0, itemTotal - proportionalCouponDiscount));
   if (refundAmount <= 0) return 0;
 
   const wallet = await ensureWallet(order.user);
@@ -136,7 +145,9 @@ export const cancelOrderItemService = async (userId, orderId, itemId, cancellati
   item.cancellationReason = cancellationReason || "Cancelled by user";
   item.cancelledAt = new Date();
 
-  await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+  if (order.paymentStatus !== "Failed") {
+    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+  }
   const refundAmount = await refundOrderItemIfNeeded(order, item);
 
   const cancelledFinal = roundMoney((item.finalPrice || item.price || 0) * item.quantity);
@@ -177,7 +188,9 @@ export const cancelOrderService = async (userId, orderId, cancellationReason) =>
     item.status = "Cancelled";
     item.cancellationReason = cancellationReason || "Cancelled by user";
     item.cancelledAt = new Date();
-    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+    if (order.paymentStatus !== "Failed") {
+      await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+    }
     await refundOrderItemIfNeeded(order, item);
   }
 
@@ -196,12 +209,55 @@ export const returnOrderService = async (userId, orderId, returnReason) => {
   order.returnReason = returnReason;
 
   for (let item of order.items) {
-    item.status = "Returned";
-    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+    if (item.status === "Delivered") {
+      item.status = "Returned";
+      await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+      await refundOrderItemIfNeeded(order, item);
+    }
   }
 
   await order.save();
   return prepareOrderForView(order);
+};
+
+export const returnOrderItemService = async (userId, orderId, itemId, returnReason) => {
+  const order = await Order.findOne({ _id: orderId, user: userId });
+  if (!order) throw new Error("Order not found");
+
+  const item = order.items.id(itemId);
+  if (!item) throw new Error("Order item not found");
+
+  if (item.status !== "Delivered") {
+    throw new Error(`This item cannot be returned because it is currently ${item.status}`);
+  }
+
+  item.status = "Returned";
+  item.returnReason = returnReason || "Returned by user";
+
+  await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+  const refundAmount = await refundOrderItemIfNeeded(order, item);
+
+  const returnedFinal = roundMoney((item.finalPrice || item.price || 0) * item.quantity);
+  const returnedOriginal = roundMoney((item.originalPrice || item.price || 0) * item.quantity);
+  const returnedOfferDiscount = roundMoney((item.discountAmount || 0) * item.quantity);
+
+  order.finalAmount = roundMoney(Math.max(0, order.finalAmount - returnedFinal));
+  order.totalAmount = roundMoney(Math.max(0, order.totalAmount - returnedOriginal));
+  order.offerDiscount = roundMoney(Math.max(0, (order.offerDiscount || 0) - returnedOfferDiscount));
+  order.status = order.items.every((orderItem) => ["Returned", "Cancelled", "Refunded"].includes(orderItem.status)) ? "Returned" : "Partially Returned";
+
+  await order.save();
+  const populatedOrder = await Order.findById(order._id)
+    .populate("user", "firstName lastName email phone")
+    .populate("items.product")
+    .populate("shippingAddress");
+
+  return {
+    order: prepareOrderForView(populatedOrder),
+    itemId,
+    itemStatus: "Returned",
+    refundAmount
+  };
 };
 
 export const getTrackOrderItemService = async (userId, orderId, itemId) => {

@@ -1,5 +1,6 @@
 import Wallet from "../../models/Wallet.js";
 import UserAuthentication from "../../models/User.js";
+import crypto from "crypto";
 
 const walletControler = {
   getWallet: async (req, res) => {
@@ -19,11 +20,17 @@ const walletControler = {
 
       wallet.transactions.sort((a, b) => b.date - a.date);
 
+      let fullUser = await UserAuthentication.findById(userId);
+      if (fullUser && !fullUser.referralCode) {
+          fullUser.referralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+          await fullUser.save();
+      }
+
       res.render("user/wallet", {
         title: "My Wallet",
         cssFile: "wallet.css", 
         wallet,
-        user: req.session?.user || req.user
+        user: fullUser
       });
     } catch (error) {
       console.error("Error fetching wallet:", error);

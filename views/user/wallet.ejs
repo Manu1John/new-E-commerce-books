@@ -7,19 +7,98 @@
             <h2 class="section-title">My Wallet</h2>
             <div class="wallet-grid">
                 <div class="wallet-card">
-                    <div class="wallet-value">$<%= wallet.balance.toFixed(2) %></div>
+                    <div class="wallet-value">₹<%= wallet.balance.toFixed(2) %></div>
                     <div class="wallet-label">Available Balance</div>
                 </div>
+                <% 
+                  let referralEarnings = 0;
+                  if (wallet.transactions && wallet.transactions.length > 0) {
+                      wallet.transactions.forEach(t => {
+                          if (t.description.toLowerCase().includes('referral') && t.type === 'credit') {
+                              referralEarnings += t.amount;
+                          }
+                      });
+                  }
+                %>
                 <div class="wallet-card">
-                    <div class="wallet-value">1200</div> 
-                    <div class="wallet-label">Reward Points</div>
+                    <div class="wallet-value">₹<%= referralEarnings.toFixed(2) %></div> 
+                    <div class="wallet-label">Referral Earnings</div>
                 </div>
                 <div class="wallet-card">
-                    <div class="wallet-value">03</div>
+                    <div class="wallet-value">0</div>
                     <div class="wallet-label">Saved Cards</div>
                 </div>
             </div>
         </section>
+
+        <!-- Referral Code Share Section -->
+        <% if (user && user.referralCode) { %>
+        <section class="list-section" style="background: linear-gradient(135deg, #f0f7ff, #ffffff); border: 2px dashed #007bff; border-radius: 12px; padding: 25px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="flex: 1; min-width: 250px;">
+                    <h3 style="margin: 0 0 8px 0; color: #007bff; font-size: 1.2rem; display: flex; align-items: center;"><i class="fa-solid fa-gift" style="margin-right: 8px;"></i> Invite & Earn</h3>
+                    <p style="margin: 0; color: #555; font-size: 0.95rem;">Share your referral code. When a friend signs up, you both get a bonus directly in your wallet!</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="walletReferralCode" value="<%= user.referralCode %>" disabled style="padding: 10px 15px; border: 1px solid #cce5ff; background: #fff; border-radius: 8px; font-weight: bold; font-size: 1.1rem; width: 150px; text-align: center; color: #0056b3; letter-spacing: 1px;" />
+                    <button type="button" onclick="copyWalletReferral(false)" style="padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;">
+                        <i class="fa-regular fa-copy" style="margin-right: 5px;"></i> Code
+                    </button>
+                    <button type="button" onclick="copyWalletReferral(true)" style="padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;">
+                        <i class="fa-solid fa-link" style="margin-right: 5px;"></i> Link
+                    </button>
+                </div>
+            </div>
+            <script>
+                function copyWalletReferral(isLink) {
+                    const code = document.getElementById("walletReferralCode").value;
+                    let copyText = code;
+                    
+                    if (isLink) {
+                        const baseUrl = window.location.origin;
+                        copyText = `${baseUrl}/signup?ref=${code}`;
+                    }
+                    
+                    const fallbackCopy = () => {
+                        const tempInput = document.createElement("input");
+                        tempInput.value = copyText;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        tempInput.setSelectionRange(0, 99999);
+                        try {
+                            document.execCommand('copy');
+                            const msg = isLink ? 'Referral link copied!' : 'Referral code copied!';
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ icon: 'success', title: 'Copied!', text: msg, timer: 1500, showConfirmButton: false });
+                            } else {
+                                alert(msg);
+                            }
+                        } catch (err) {
+                            console.error('Fallback: Oops, unable to copy', err);
+                        }
+                        document.body.removeChild(tempInput);
+                        window.getSelection().removeAllRanges();
+                    };
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(copyText).then(() => {
+                            const msg = isLink ? 'Referral link copied!' : 'Referral code copied!';
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ icon: 'success', title: 'Copied!', text: msg, timer: 1500, showConfirmButton: false });
+                            } else {
+                                alert(msg);
+                            }
+                        }).catch(err => {
+                            console.error('Failed to copy using clipboard API', err);
+                            fallbackCopy();
+                        });
+                    } else {
+                        fallbackCopy();
+                    }
+                }
+            </script>
+        </section>
+        <% } %>
 
         <!-- Linked Payment Methods -->
         <section class="list-section">
@@ -41,7 +120,7 @@
                         <div class="list-item">
                             <span class="item-name"><%= transaction.description %></span>
                             <span class="item-value gold-text">
-                                <%= transaction.type === 'credit' ? '+' : '-' %> $<%= transaction.amount.toFixed(2) %>
+                                <%= transaction.type === 'credit' ? '+' : '-' %> ₹<%= transaction.amount.toFixed(2) %>
                             </span>
                         </div>
                     <% }) %>

@@ -15,13 +15,19 @@ const getUserLogin = (req, res) => {
             return res.redirect("/home");
         }
 
+        let errorMessage = null;
+        if (req.query.error === 'blocked') {
+            errorMessage = "Your account has been blocked by an admin";
+        }
+
         return res.render("user/loginAndSignup", {
             title: "Signin",
             cssFile: "loginAndSignup.css",
             jsFile: "signupAuth.js",
-            error: null,
+            error: errorMessage,
             success: null,
-            isSignup: false
+            isSignup: false,
+            referralCode: req.query.ref || ""
         });
 
     } catch (error) {
@@ -48,7 +54,8 @@ const getUserSignup = (req, res, next) => {
             jsFile: "signupAuth.js",
             error: null,
             success: null,
-            isSignup: true
+            isSignup: true,
+            referralCode: req.query.ref || ""
         });
     } catch (error) {
         // Log the actual error for debugging purposes
@@ -61,7 +68,7 @@ const getUserSignup = (req, res, next) => {
 // POST SIGNUP
 const postUserSignup = async (req, res) => {
     try {
-        const { firstName, lastName, email, password, confirmPassword } = req.body;
+        const { firstName, lastName, email, password, confirmPassword, referralCode } = req.body;
 
         if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !password) {
             return res.render("user/loginAndSignup", {
@@ -94,7 +101,8 @@ const postUserSignup = async (req, res) => {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: normalizedEmail,
-            password: hashedPassword 
+            password: hashedPassword,
+            referralCode: referralCode?.trim() || null
         };
 
         req.session.userOtp = otp;

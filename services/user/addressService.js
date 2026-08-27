@@ -23,14 +23,23 @@ export const addAddressService = async(userId,addressData)=>{
         const pincodeNorm = pincode.trim();
         const phoneNorm = phone.toString().trim();
         // Reliable Duplicate Check (Includes City)
-            const existingAddress = await Address.findOne({
+        const existingAddress = await Address.findOne({
             userId,
             addressLine,
             city: cityNorm,
             pincode: pincodeNorm
         });
+
+        // If duplicate exists, return early
+        if (existingAddress) {
+            return {
+                existingAddress,
+                newAddress: null
+            };
+        }
+
         // CREATE ADDRESS
-      const newAddress =  await Address.create({
+        const newAddress = await Address.create({
             userId,
             fullName: fullName.trim(),
             phone: phoneNorm,
@@ -41,11 +50,11 @@ export const addAddressService = async(userId,addressData)=>{
             pincode: pincodeNorm,
             addressType
         });
-    return{
-        existingAddress,
-        newAddress
-    }
-
+        
+        return {
+            existingAddress: null,
+            newAddress
+        };
 }
 
 export const getEditAddressService = async(addressId)=>{

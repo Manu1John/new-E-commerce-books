@@ -295,6 +295,11 @@ a {
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 html {
   box-sizing: border-box;
 }

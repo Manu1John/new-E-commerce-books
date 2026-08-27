@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function() {
         dynamicSelect.innerHTML = '';
 
         if (selectedType === 'product') {
+            dynamicSelect.parentElement.parentElement.style.display = 'block'; // Show Select Item group
+            document.getElementById('discountLabel').innerHTML = 'Discount Percentage <span class="text-danger">*</span>';
             dynamicSelect.name = 'productRef';
             dynamicLabel.innerHTML = 'Select Product Name <span class="required">*</span>';
             dynamicSelect.innerHTML += '<option value="" disabled selected>Select a Product...</option>';
@@ -25,6 +27,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             
         } else if (selectedType === 'category') {
+            dynamicSelect.parentElement.parentElement.style.display = 'block'; // Show Select Item group
+            document.getElementById('discountLabel').innerHTML = 'Discount Percentage <span class="text-danger">*</span>';
             dynamicSelect.name = 'categoryRef';
             dynamicLabel.innerHTML = 'Select Category Name <span class="required">*</span>';
             dynamicSelect.innerHTML += '<option value="" disabled selected>Select a Category...</option>';
@@ -33,6 +37,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 const isSelected = (currentOffer && currentOffer.categoryRef === c._id) ? 'selected' : '';
                 dynamicSelect.innerHTML += `<option value="${c._id}" ${isSelected}>${c.name}</option>`;
             });
+        } else if (selectedType === 'referral') {
+            dynamicSelect.parentElement.parentElement.style.display = 'none'; // Hide Select Item group
+            document.getElementById('discountLabel').innerHTML = 'Bonus Amount (₹) <span class="text-danger">*</span>';
+            dynamicSelect.name = '';
+            dynamicSelect.innerHTML = '<option value="none" selected>None</option>';
         }
     }
 
@@ -51,9 +60,18 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!data.name.trim()) {
                 return Swal.fire('Validation Error', 'Offer Name cannot be empty.', 'error');
             }
-            if (Number(data.discountPercentage) <= 0 || Number(data.discountPercentage) >= 100) {
-                return Swal.fire('Validation Error', 'Discount must be between 1% and 99%.', 'error');
+
+            const offerType = document.getElementById('offerType').value;
+            if (offerType === 'referral') {
+                if (Number(data.discountPercentage) <= 0) {
+                    return Swal.fire('Validation Error', 'Bonus amount must be greater than 0.', 'error');
+                }
+            } else {
+                if (Number(data.discountPercentage) <= 0 || Number(data.discountPercentage) >= 100) {
+                    return Swal.fire('Validation Error', 'Discount must be between 1% and 99%.', 'error');
+                }
             }
+            
             if (new Date(data.startDate) > new Date(data.expiryDate)) {
                 return Swal.fire('Validation Error', 'Expiry Date must be after the Start Date.', 'error');
             }

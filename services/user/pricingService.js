@@ -87,7 +87,9 @@ export const getOrderMoneySummary = (order) => {
   const offerDiscount = roundMoney(order?.offerDiscount || itemDiscount);
   const totalDiscount = roundMoney(offerDiscount + couponDiscount);
   const shippingCharge = roundMoney(order?.shippingFee || 0);
-  const finalTotal = roundMoney(order?.finalAmount ?? Math.max(0, subtotal + shippingCharge - totalDiscount));
+  const amountBeforeTax = Math.max(0, subtotal - totalDiscount);
+  const tax = roundMoney(order?.tax ?? (amountBeforeTax * 0.05));
+  const finalTotal = roundMoney(order?.finalAmount ?? Math.max(0, amountBeforeTax + tax + shippingCharge));
 
   return {
     subtotal,
@@ -96,6 +98,7 @@ export const getOrderMoneySummary = (order) => {
     couponDiscount,
     totalDiscount,
     shippingCharge,
+    tax,
     finalTotal
   };
 };

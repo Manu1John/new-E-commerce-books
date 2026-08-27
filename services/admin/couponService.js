@@ -31,6 +31,11 @@ const couponService = {
   async createCoupon(data) {
     const { code, discountType, discountValue, minPurchaseAmount, startDate, expiryDate, description, isActive } = data;
     
+    if (discountValue < 1) return { success: false, message: "Discount value must be at least ₹1." };
+    if (minPurchaseAmount < 1) return { success: false, message: "Minimum purchase amount must be at least ₹1." };
+    if (discountType === "percentage" && discountValue > 100) return { success: false, message: "Percentage discount cannot exceed 100%." };
+    if (discountType === "flat" && discountValue >= minPurchaseAmount) return { success: false, message: "Flat discount must be less than the minimum purchase amount." };
+
     const existingCoupon = await Coupon.findOne({ code: code.toUpperCase(), isDeleted: { $ne: true } });
     if (existingCoupon) {
       return { success: false, message: "A coupon with this code already exists." };
@@ -65,6 +70,11 @@ const couponService = {
   // Update an existing coupon
   async updateCoupon(id, data) {
     const { code, discountType, discountValue, minPurchaseAmount, startDate, expiryDate, description, isActive } = data;
+
+    if (discountValue < 1) return { success: false, message: "Discount value must be at least ₹1." };
+    if (minPurchaseAmount < 1) return { success: false, message: "Minimum purchase amount must be at least ₹1." };
+    if (discountType === "percentage" && discountValue > 100) return { success: false, message: "Percentage discount cannot exceed 100%." };
+    if (discountType === "flat" && discountValue >= minPurchaseAmount) return { success: false, message: "Flat discount must be less than the minimum purchase amount." };
 
     const existingCoupon = await Coupon.findOne({ _id: { $ne: id }, code: code.toUpperCase(), isDeleted: { $ne: true } });
     if (existingCoupon) {

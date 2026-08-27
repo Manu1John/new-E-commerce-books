@@ -15,8 +15,7 @@ const offerSchema = new mongoose.Schema(
     discountPercentage: {
       type: Number,
       required: true,
-      min: 0,
-      max: 100
+      min: 0
     },
     productRef: {
       type: mongoose.Schema.Types.ObjectId,

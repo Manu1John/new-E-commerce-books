@@ -6,11 +6,17 @@ import Wallet from "../../models/Wallet.js";
 import Product from "../../models/products.js";
 import { getItemPricing, roundMoney } from "../../services/user/pricingService.js";
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_dummy",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "dummy_secret"
-});
+// Initialize Razorpay lazily so dotenv can populate process.env first
+let razorpayInstance = null;
+const getRazorpay = () => {
+  if (!razorpayInstance) {
+    razorpayInstance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+  }
+  return razorpayInstance;
+};
 
 const calculateCartTotal = async (cart, couponDiscount = 0) => {
   let subtotal = 0;
@@ -45,11 +51,14 @@ const calculateCartTotal = async (cart, couponDiscount = 0) => {
     });
   }
 
-  const finalAmount = roundMoney(Math.max(0, subtotal - totalOfferDiscount - couponDiscount));
+  const amountBeforeTax = Math.max(0, subtotal - totalOfferDiscount - couponDiscount);
+  const tax = roundMoney(amountBeforeTax * 0.05); // 5% tax
+  const finalAmount = roundMoney(amountBeforeTax + tax);
   
   return {
     subtotal: roundMoney(subtotal),
     totalOfferDiscount: roundMoney(totalOfferDiscount),
+    tax,
     finalAmount,
     items
   };
@@ -74,7 +83,7 @@ const paymentControler = {
         return res.status(400).json({ success: false, message: "Cart is empty" });
       }
 
-      const { subtotal, totalOfferDiscount, finalAmount, items } = await calculateCartTotal(cart, couponDiscount);
+      const { subtotal, totalOfferDiscount, tax, finalAmount, items } = await calculateCartTotal(cart, couponDiscount);
 
       let amountToPay = finalAmount;
       
@@ -112,6 +121,7 @@ const paymentControler = {
         offerDiscount: totalOfferDiscount,
         couponDiscount: couponDiscount,
         couponApplied: couponId,
+        tax: tax,
         finalAmount: finalAmount,
         walletUsed: walletUsedAmount, // Securely record exactly how much wallet balance is pending deduction
         paymentMethod,
@@ -153,7 +163,7 @@ const paymentControler = {
         receipt: newOrder.orderId
       };
 
-      const razorpayOrder = await razorpay.orders.create(options);
+      const razorpayOrder = await getRazorpay().orders.create(options);
       
       res.json({
         success: true,
@@ -164,6 +174,10 @@ const paymentControler = {
       
     } catch (error) {
       console.error("Create Order Error:", error);
+      // Check if it's a known stock/availability error from calculateCartTotal
+      if (error.message && (error.message.includes("no longer available") || error.message.includes("units available"))) {
+        return res.status(400).json({ success: false, message: error.message });
+      }
       res.status(500).json({ success: false, message: "Internal server error" });
     }
   },
@@ -265,6 +279,37 @@ const paymentControler = {
 
   paymentFailure: (req, res) => {
     res.render("user/payment/failure", { title: "Payment Failed" });
+  },
+
+  retryPayment: async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const order = await Order.findById(orderId);
+      if (!order || order.paymentStatus !== "Failed") {
+        return res.status(400).json({ success: false, message: "Invalid order or order is not in failed state" });
+      }
+
+      const amountToPay = order.finalAmount - (order.walletUsed || 0);
+
+      const options = {
+        amount: Math.round(amountToPay * 100), // Amount in paise
+        currency: "INR",
+        receipt: order.orderId
+      };
+
+      const razorpayOrder = await getRazorpay().orders.create(options);
+      
+      res.json({
+        success: true,
+        razorpayOrder,
+        orderId: order._id,
+        key_id: process.env.RAZORPAY_KEY_ID 
+      });
+      
+    } catch (error) {
+      console.error("Retry Payment Error:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
   }
 };
 

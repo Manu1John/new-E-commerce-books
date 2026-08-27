@@ -52,9 +52,12 @@
                         <% addresses.forEach((addr, idx) => { %>
                             <div class="address-card <%= idx === 0 ? 'selected' : '' %>" onclick="selectAddress(this, '<%= addr._id %>')">
                                 <input type="radio" name="selectedAddr" value="<%= addr._id %>" <%= idx === 0 ? 'checked' : '' %>>
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <strong class="fs-6"><%= addr.fullName %></strong>
-                                    <span class="badge-type"><%= addr.addressType %></span>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <strong class="fs-6"><%= addr.fullName %></strong>
+                                        <span class="badge-type"><%= addr.addressType %></span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="openEditAddressModal('<%= addr._id %>', event)">Edit</button>
                                 </div>
                                 <div class="address-text">
                                     <p class="mb-1"><%= addr.addressLine %></p>
@@ -256,6 +259,68 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-brand-dark">Save Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Address Modal -->
+    <div class="modal fade" id="editCheckoutAddressModal" tabindex="-1" aria-labelledby="editCheckoutAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCheckoutAddressModalLabel">Edit Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editCheckoutAddressForm">
+                    <input type="hidden" name="addressId" id="editAddressId">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full name</label>
+                                <input class="form-control" name="fullName" id="editFullName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input class="form-control" name="phone" id="editPhone" pattern="[6-9][0-9]{9}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">House / Building</label>
+                                <input class="form-control" name="house" id="editHouse" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Area / Street</label>
+                                <input class="form-control" name="area" id="editArea" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Landmark</label>
+                                <input class="form-control" name="landmark" id="editLandmark">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input class="form-control" name="city" id="editCity" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">State</label>
+                                <input class="form-control" name="state" id="editState" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Pincode</label>
+                                <input class="form-control" name="pincode" id="editPincode" pattern="[0-9]{6}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" name="addressType" id="editAddressType" required>
+                                    <option value="Home">Home</option>
+                                    <option value="Office">Office</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-brand-dark">Update Address</button>
                     </div>
                 </form>
             </div>

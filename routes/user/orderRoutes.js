@@ -6,6 +6,7 @@ import {
   cancelOrder,
   cancelOrderItem,
   returnOrder,
+  returnOrderItem,
   downloadInvoice,
   trackOrderItem
 } from "../../controlers/user/orderControler.js";
@@ -29,6 +30,9 @@ router.post("/orders/:id/items/:itemId/cancel", authenticatedUser, cancelOrderIt
 
 // Return an order
 router.post("/orders/:id/return", authenticatedUser, returnOrder);
+
+// Return a single order item
+router.post("/orders/:id/items/:itemId/return", authenticatedUser, returnOrderItem);
 
 // Track a single order item
 router.get("/orders/:orderId/track/:itemId", authenticatedUser, disableCache, trackOrderItem);
