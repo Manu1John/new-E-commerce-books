@@ -1,4 +1,9 @@
 /* Universal Responsive Overrides for Admin Panel */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 
 /* Tablet & Mobile Layout for Sidebar & Main Content */
 @media (max-width: 992px) {

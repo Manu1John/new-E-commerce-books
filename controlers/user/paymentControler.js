@@ -76,14 +76,43 @@ const paymentControler = {
       const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
       
       // FIX: Extract paymentMethod sent from the frontend
-      const { addressId, useWallet, couponDiscount = 0, couponId = null, paymentMethod: requestedPaymentMethod } = req.body;
+      let { addressId, useWallet, couponDiscount = 0, couponId = null, paymentMethod: requestedPaymentMethod } = req.body;
 
       const cart = await Cart.findOne({ user: userId });
       if (!cart || cart.items.length === 0) {
         return res.status(400).json({ success: false, message: "Cart is empty" });
       }
 
-      const { subtotal, totalOfferDiscount, tax, finalAmount, items } = await calculateCartTotal(cart, couponDiscount);
+      const mongoose = (await import("mongoose")).default;
+      let actualCouponDiscount = 0;
+      if (couponId && mongoose.Types.ObjectId.isValid(couponId)) {
+        const Coupon = (await import("../../models/Coupon.js")).default;
+        const coupon = await Coupon.findById(couponId);
+        
+        if (coupon && coupon.isActive && !coupon.isDeleted && new Date() <= coupon.expiryDate && !coupon.usedBy.includes(userId)) {
+          // Check min purchase amount against cart subtotal BEFORE offer discount
+          const tempCartData = await calculateCartTotal(cart, 0);
+          if (tempCartData.subtotal >= coupon.minPurchaseAmount) {
+             if (coupon.discountType === "flat") {
+                actualCouponDiscount = coupon.discountValue;
+             } else if (coupon.discountType === "percentage") {
+                actualCouponDiscount = (tempCartData.subtotal * coupon.discountValue) / 100;
+                if (coupon.maxDiscountAmount && actualCouponDiscount > coupon.maxDiscountAmount) {
+                  actualCouponDiscount = coupon.maxDiscountAmount;
+                }
+             }
+             // Actually push to usedBy array here, we'll save it after order creation
+             coupon.usedBy.push(userId);
+             await coupon.save();
+          } else {
+             couponId = null; // Invalid coupon due to min amount
+          }
+        } else {
+          couponId = null; // Invalid coupon
+        }
+      }
+
+      const { subtotal, totalOfferDiscount, tax, finalAmount, items } = await calculateCartTotal(cart, actualCouponDiscount);
 
       let amountToPay = finalAmount;
       
@@ -119,7 +148,7 @@ const paymentControler = {
         shippingAddress: addressId,
         totalAmount: subtotal,
         offerDiscount: totalOfferDiscount,
-        couponDiscount: couponDiscount,
+        couponDiscount: actualCouponDiscount,
         couponApplied: couponId,
         tax: tax,
         finalAmount: finalAmount,
@@ -264,10 +293,15 @@ const paymentControler = {
         });
         await order.save();
         
-        // Also ensure cart is cleared so they don't have duplicate items if they retry from orders page
-        // Wait, if they retry, they might need the cart? Actually it's better to clear it
-        // since the order is already in "My Orders".
         const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
+
+        // Restore coupon if applied
+        if (order.couponApplied) {
+          const Coupon = (await import("../../models/Coupon.js")).default;
+          await Coupon.findByIdAndUpdate(order.couponApplied, { $pull: { usedBy: userId } });
+        }
+        
+        // Also ensure cart is cleared so they don't have duplicate items if they retry from orders page
         await Cart.findOneAndDelete({ user: userId });
       }
       res.json({ success: true });

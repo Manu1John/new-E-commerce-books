@@ -164,6 +164,11 @@ export const cancelOrderItemService = async (userId, orderId, itemId, cancellati
     order.paymentStatus = "Refunded";
   }
 
+  if (order.status === "Cancelled" && order.couponApplied) {
+    const Coupon = (await import("../../models/Coupon.js")).default;
+    await Coupon.findByIdAndUpdate(order.couponApplied, { $pull: { usedBy: userId } });
+  }
+
   await order.save();
   const populatedOrder = await Order.findById(order._id)
     .populate("user", "firstName lastName email phone")
@@ -212,6 +217,11 @@ export const cancelOrderService = async (userId, orderId, cancellationReason) =>
 
   if (allCancelled) {
     order.status = "Cancelled";
+    // Restore coupon if it was applied and everything is cancelled
+    if (order.couponApplied) {
+      const Coupon = (await import("../../models/Coupon.js")).default;
+      await Coupon.findByIdAndUpdate(order.couponApplied, { $pull: { usedBy: userId } });
+    }
   } else if (hasReturned && hasCancelled) {
     // Mixed: some returned, some cancelled — treat entire order as Cancelled
     order.status = "Cancelled";

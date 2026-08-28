@@ -1,202 +1,191 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- PAGE -->
-<section class="address-page">
+    <!-- PAGE -->
+    <section class="address-page">
 
-    <div class="address-header">
+        <div class="address-header">
 
-        <div>
-            <p class="breadcrumb">
-                HOME /
-                <span>MY ACCOUNT</span>
-            </p>
+            <div>
+                <p class="breadcrumb">
+                    <a href="/" class="text-decoration-none text-muted">HOME</a> /
+                    <a href="/profile/user" class="text-decoration-none text-muted">MY ACCOUNT</a> /
+                    <span>ADDRESSES</span>
+                </p>
 
-            <h1>
-                Saved Addresses
-            </h1>
-        </div>
-
-        <a
-            href="/address/new"
-            class="add-address-btn"
-        >
-            + Add New Address
-        </a>
-
-    </div>
-
-    <div class="address-container">
-
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-
-            <div class="profile-box">
-
-
-                <h3>
-                    <%= user.firstName %>
-                    <%= user.lastName %>
-                </h3>
-
+                <h1>
+                    Saved Addresses
+                </h1>
             </div>
 
-            <ul>
+            <a href="/address/new" class="add-address-btn">
+                + Add New Address
+            </a>
 
-                <li>
-                    <a href="/profile/user">
-                        Profile Overview
-                    </a>
-                </li>
+        </div>
 
-                <li>
-                    <a href="/orders">
-                        My Orders
-                    </a>
-                </li>
+        <div class="address-container">
 
-                <li class="active">
-                    <a href="/address">
-                         Address
-                    </a>
-                </li>
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
 
-                <li>
-                    <a href="/wishlist">
-                        Wishlist
-                    </a>
-                </li>
+                <div class="profile-box">
 
-                <li>
-                    <form action="/logout" method="POST">
-                        <button type="submit">
-                            Logout
-                        </button>
-                    </form>
-                </li>
 
-            </ul>
-
-        </aside>
-
-        <!-- ADDRESS SECTION -->
-        <div class="address-content">
-
-            <% if(address.length === 0){ %>
-
-                <div class="empty-address">
-
-                    <h2>
-                        No Address Found
-                    </h2>
-
-                    <p>
-                        Add your first address
-                    </p>
+                    <h3>
+                        <%= user.firstName %>
+                            <%= user.lastName %>
+                    </h3>
 
                 </div>
 
-            <% } %>
+                <ul>
 
-            <div class="address-grid">
+                    <li>
+                        <a href="/profile/user">
+                            Profile Overview
+                        </a>
+                    </li>
 
-                <% address.forEach(address => { %>
+                    <li>
+                        <a href="/orders">
+                            My Orders
+                        </a>
+                    </li>
 
-                    <div class="address-card">
+                    <li class="active">
+                        <a href="/address">
+                            Address
+                        </a>
+                    </li>
 
-                        <div class="address-top">
+                    <li>
+                        <a href="/wishlist">
+                            Wishlist
+                        </a>
+                    </li>
 
-                            <span class="tag">
-                                <%= address.addressType %>
-                            </span>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <button class="btn btn-danger" type="submit">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
 
-                        </div>
+                </ul>
 
-                        <h3>
-                            <%= address.fullName %>
-                        </h3>
+            </aside>
+
+            <!-- ADDRESS SECTION -->
+            <div class="address-content">
+
+                <% if(address.length===0){ %>
+
+                    <div class="empty-address">
+
+                        <h2>
+                            No Address Found
+                        </h2>
 
                         <p>
-                            <%= address.house %>,
-                            <%= address.area %>
+                            Add your first address
                         </p>
-
-                        <p>
-                            <%= address.city %>,
-                            <%= address.state %>
-                        </p>
-
-                        <p>
-                            PIN :
-                            <%= address.pincode %>
-                        </p>
-
-                        <% if(address.landmark){ %>
-                            <p>
-                                Landmark :
-                                <%= address.landmark %>
-                            </p>
-                        <% } %>
-
-                        <p class="phone">
-                            +91 <%= address.phone %>
-                        </p>
-
-                        <div class="card-buttons">
-
-                            <a
-                                href="/address/<%= address._id %>/edit"
-                                class="edit-btn"
-                            >
-                                Edit
-                            </a>
-
-                            <form
-                                action="/address/<%= address._id %>?_method=DELETE"
-                                method="POST"
-                            >
-                                <button
-                                    type="submit"
-                                    class="delete-btn"
-                                    onclick="return confirmDelete(event)"
-                                >
-                                    Delete
-                                </button>
-                                <script>
-                    function confirmDelete(event) {
-                        event.preventDefault();
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This address will be permanently deleted.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        event.target.closest('form').submit();
-                    }
-                });
-            }
-            </script>
-                            </form>
-
-                        </div>
 
                     </div>
 
-                <% }) %>
+                    <% } %>
+
+                        <div class="address-grid">
+
+                            <% address.forEach(address=> { %>
+
+                                <div class="address-card">
+
+                                    <div class="address-top">
+
+                                        <span class="tag">
+                                            <%= address.addressType %>
+                                        </span>
+
+                                    </div>
+
+                                    <h3>
+                                        <%= address.fullName %>
+                                    </h3>
+
+                                    <p>
+                                        <%= address.house %>,
+                                            <%= address.area %>
+                                    </p>
+
+                                    <p>
+                                        <%= address.city %>,
+                                            <%= address.state %>
+                                    </p>
+
+                                    <p>
+                                        PIN :
+                                        <%= address.pincode %>
+                                    </p>
+
+                                    <% if(address.landmark){ %>
+                                        <p>
+                                            Landmark :
+                                            <%= address.landmark %>
+                                        </p>
+                                        <% } %>
+
+                                            <p class="phone">
+                                                +91 <%= address.phone %>
+                                            </p>
+
+                                            <div class="card-buttons">
+
+                                                <a href="/address/<%= address._id %>/edit" class="edit-btn">
+                                                    Edit
+                                                </a>
+
+                                                <form action="/address/<%= address._id %>?_method=DELETE" method="POST">
+                                                    <button type="submit" class="delete-btn"
+                                                        onclick="return confirmDelete(event)">
+                                                        Delete
+                                                    </button>
+                                                    <script>
+                                                        function confirmDelete(event) {
+                                                            event.preventDefault();
+
+                                                            Swal.fire({
+                                                                title: 'Are you sure?',
+                                                                text: 'This address will be permanently deleted.',
+                                                                icon: 'warning',
+                                                                showCancelButton: true,
+                                                                confirmButtonColor: '#d33',
+                                                                cancelButtonColor: '#3085d6',
+                                                                confirmButtonText: 'Yes, delete it!',
+                                                                cancelButtonText: 'Cancel'
+                                                            }).then((result) => {
+                                                                if (result.isConfirmed) {
+                                                                    event.target.closest('form').submit();
+                                                                }
+                                                            });
+                                                        }
+                                                    </script>
+                                                </form>
+
+                                            </div>
+
+                                </div>
+
+                                <% }) %>
+
+                        </div>
 
             </div>
 
         </div>
 
-    </div>
+    </section>
 
-</section>
-
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>

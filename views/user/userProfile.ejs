@@ -78,9 +78,9 @@
                         <button type="button" id="togglePasswordBtn" class="toggle-btn">Change Password</button>
                     </div>
                     <!-- HIDDEN PASSWORD FORM -->
-                    <div id="passwordFormContainer" style="display:<%= (typeof error !== 'undefined' && error) || (typeof success !== 'undefined' && success) ? 'block' : 'none' %>;">
-                        <% if (typeof error !== "undefined" && error) { %><p class="error-msg"><%= error %></p><% } %>
-                        <% if (typeof success !== "undefined" && success) { %><p class="success-msg"><%= success %></p><% } %>
+                    <div id="passwordFormContainer" style="display:<%= (typeof error !== 'undefined' && String(error).trim().length > 0) || (typeof success !== 'undefined' && String(success).trim().length > 0) ? 'block' : 'none' %>;">
+                        <% if (typeof error !== "undefined" && String(error).trim().length > 0) { %><p class="error-msg"><%= error %></p><% } %>
+                        <% if (typeof success !== "undefined" && String(success).trim().length > 0) { %><p class="success-msg"><%= success %></p><% } %>
                         
                         <form action="/change-password?_method=PATCH" method="POST" id="changePasswordForm">
                             <input type="password" name="currentPassword" id="currentPassword" placeholder="Current password" required />
@@ -95,9 +95,9 @@
                                 </div>
                             </div>
                             <!-- SHOW PASSWORD -->
-                            <div class="show-password-container" style="margin:10px 0; display:flex; align-items:center; gap:8px;">
+                            <div class="show-password-container" id="togglePasswordVisibility" style="margin:10px 0; display:flex; align-items:center; gap:8px; cursor:pointer;">
                                 <i class="fa-solid fa-eye-slash" id="passwordShow"></i>
-                                <label>Show Passwords</label>
+                                <label style="cursor:pointer; margin:0;">Show Passwords</label>
                             </div>
                             <!-- PASSWORD RULES -->
                             <div class="password-rules">
@@ -122,21 +122,75 @@
                         <button type="button" id="toggleEmailBtn" class="toggle-btn">Change Email</button>
                     </div>
                     <!-- HIDDEN EMAIL FORM -->
-                    <div id="emailFormContainer" style="display:<%= (typeof emailError !== 'undefined' && emailError) || (typeof emailSuccess !== 'undefined' && emailSuccess) ? 'block' : 'none' %>;">
-                        <% if (typeof emailError !== "undefined" && emailError) { %><p class="error-msg"><%= emailError %></p><% } %>
-                        <% if (typeof emailSuccess !== "undefined" && emailSuccess) { %><p class="success-msg"><%= emailSuccess %></p><% } %>
+                    <div id="emailFormContainer" style="display:<%= (typeof emailError !== 'undefined' && String(emailError).trim().length > 0) || (typeof emailSuccess !== 'undefined' && String(emailSuccess).trim().length > 0) ? 'block' : 'none' %>;">
+                        <% if (typeof emailError !== "undefined" && String(emailError).trim().length > 0) { %><p class="error-msg"><%= emailError %></p><% } %>
+                        <% if (typeof emailSuccess !== "undefined" && String(emailSuccess).trim().length > 0) { %><p class="success-msg"><%= emailSuccess %></p><% } %>
                         <!-- SEND OTP -->
                         <form action="/send-email-otp" method="POST">
                             <input type="email" value="<%= user.email %>" disabled />
                             <input type="email" name="newEmail" placeholder="New email" required />
                             <input type="password" name="password" placeholder="Current password" required />
-                            <button type="submit">Send OTP</button>
+                            <button type="submit" id="sendEmailOtpBtn">Send OTP</button>
                         </form>
                         <!-- VERIFY OTP -->
                         <form action="/verify-email-otp?_method=PATCH" method="POST">
                             <input type="text" name="otp" placeholder="Enter OTP" required />
                             <button type="submit">Verify & Update Email</button>
                         </form>
+                        <!-- RESEND OTP -->
+                        <form action="/resend-email-otp" method="POST" id="resendEmailOtpForm" style="display:none; margin-top:15px;">
+                            <button type="submit" id="resendOtpBtn" style="background:#ccc; cursor:not-allowed;" disabled>Resend OTP</button>
+                        </form>
+
+                        <script>
+                            document.addEventListener("DOMContentLoaded", () => {
+                                const emailSuccessMsg = "<%= typeof emailSuccess !== 'undefined' ? emailSuccess : '' %>";
+                                const resendForm = document.getElementById("resendEmailOtpForm");
+                                const resendBtn = document.getElementById("resendOtpBtn");
+                                const sendOtpBtn = document.getElementById("sendEmailOtpBtn");
+                                
+                                if (emailSuccessMsg.includes("OTP sent") || emailSuccessMsg.includes("OTP resent")) {
+                                    localStorage.setItem('emailOtpExpire', Date.now() + 60000);
+                                    resendForm.style.display = "block";
+                                }
+
+                                const updateEmailTimer = () => {
+                                    const expire = localStorage.getItem('emailOtpExpire');
+                                    if (expire && Date.now() < parseInt(expire)) {
+                                        const remaining = Math.ceil((parseInt(expire) - Date.now()) / 1000);
+                                        if (sendOtpBtn) {
+                                            sendOtpBtn.disabled = true;
+                                            sendOtpBtn.innerText = `Send OTP (${remaining}s)`;
+                                            sendOtpBtn.style.background = "#ccc";
+                                            sendOtpBtn.style.cursor = "not-allowed";
+                                        }
+                                        if (resendBtn) {
+                                            resendBtn.disabled = true;
+                                            resendBtn.innerText = `Resend OTP in ${remaining}s`;
+                                            resendBtn.style.background = "#ccc";
+                                            resendBtn.style.cursor = "not-allowed";
+                                            resendForm.style.display = "block";
+                                        }
+                                    } else {
+                                        if (sendOtpBtn) {
+                                            sendOtpBtn.disabled = false;
+                                            sendOtpBtn.innerText = "Send OTP";
+                                            sendOtpBtn.style.background = ""; // restore default CSS
+                                            sendOtpBtn.style.cursor = "pointer";
+                                        }
+                                        if (resendBtn && expire) {
+                                            resendBtn.disabled = false;
+                                            resendBtn.innerText = "Resend OTP";
+                                            resendBtn.style.background = "#b88c44";
+                                            resendBtn.style.cursor = "pointer";
+                                            resendForm.style.display = "block";
+                                        }
+                                    }
+                                };
+                                setInterval(updateEmailTimer, 1000);
+                                updateEmailTimer();
+                            });
+                        </script>
                     </div>
                 </div>
             </div>
@@ -288,6 +342,51 @@
         if (hamburger && navLinks) {
             hamburger.addEventListener('click', () => {
                 navLinks.classList.toggle('active');
+            });
+        }
+
+        // Dynamic Password Validation
+        const newPassword = document.getElementById('newPassword');
+        const togglePasswordVisibility = document.getElementById('togglePasswordVisibility');
+        const currentPassword = document.getElementById('currentPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const passwordShowIcon = document.getElementById('passwordShow');
+
+        if (togglePasswordVisibility && newPassword && currentPassword && confirmPassword && passwordShowIcon) {
+            togglePasswordVisibility.addEventListener('click', () => {
+                const type = newPassword.type === 'password' ? 'text' : 'password';
+                newPassword.type = type;
+                currentPassword.type = type;
+                confirmPassword.type = type;
+                passwordShowIcon.className = type === 'password' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            });
+        }
+
+        if (newPassword) {
+            const rules = {
+                lengthRule: (val) => val.length >= 8,
+                upperRule: (val) => /[A-Z]/.test(val),
+                lowerRule: (val) => /[a-z]/.test(val),
+                numberRule: (val) => /[0-9]/.test(val),
+                specialRule: (val) => /[!@#$%^&*(),.?":{}|<>\-_+=\[\]\\|/~`]/.test(val)
+            };
+
+            newPassword.addEventListener('input', (e) => {
+                const val = e.target.value;
+                for (const [id, testFn] of Object.entries(rules)) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (testFn(val)) {
+                            el.classList.remove('invalid');
+                            el.classList.add('valid');
+                            el.innerHTML = el.innerHTML.replace('❌', '✅');
+                        } else {
+                            el.classList.remove('valid');
+                            el.classList.add('invalid');
+                            el.innerHTML = el.innerHTML.replace('✅', '❌');
+                        }
+                    }
+                }
             });
         }
     });

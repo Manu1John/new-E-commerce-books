@@ -354,6 +354,47 @@ const verifyEmailOtp = async (req, res) => {
     }
 };
 
+// RESEND EMAIL OTP
+const resendEmailOtp = async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const newEmail = req.session.newEmail;
+
+        const renderProfile = async (userDoc, extras = {}) => {
+            const { getUserProfileService } = await import("../../services/user/profileService.js");
+            const profileData = await getUserProfileService(userId);
+            return res.render("user/userProfile", {
+                title: "User Profile",
+                cssFile: "userProfile.css",
+                jsFile: "userProfile.js",
+                user: userDoc || profileData?.user,
+                booksOrdered: profileData?.booksOrdered ?? 0,
+                wishlistItems: profileData?.wishlistItems ?? 0,
+                reviewsPosted: profileData?.reviewsPosted ?? 0,
+                ...extras
+            });
+        };
+
+        const user = await User.findById(userId);
+
+        if (!newEmail) {
+            return res.redirect("/user-profile");
+        }
+
+        const otp = AuthService.generateOtp();
+
+        req.session.emailOtp = otp;
+        req.session.emailOtpExpire = Date.now() + 2 * 60 * 1000;
+
+        await AuthService.sendVerificationEmail(newEmail, otp);
+
+        return renderProfile(user, { emailSuccess: "OTP resent to your new email" });
+    } catch (error) {
+        console.error("RESEND EMAIL OTP ERROR:", error);
+        return res.redirect("/user-profile");
+    }
+};
+
 export default {
     getVerifyOtp,
     verifyOtp,
@@ -362,5 +403,6 @@ export default {
     verifyForgotOtp,
     resendForgotOtp,
     sendEmailOtp,
-    verifyEmailOtp
+    verifyEmailOtp,
+    resendEmailOtp
 };

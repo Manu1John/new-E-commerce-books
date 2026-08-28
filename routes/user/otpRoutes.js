@@ -60,4 +60,10 @@ router.patch(
     otpControler.verifyEmailOtp
 );
 
+router.post(
+    "/resend-email-otp",
+    authenticatedUser,
+    otpControler.resendEmailOtp
+);
+
 export default router;
