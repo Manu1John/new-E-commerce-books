@@ -66,11 +66,7 @@ body{
     color:#000;
 }
 
-.hamburger {
-    display: none; /* Hidden on desktop */
-    cursor: pointer;
-    font-size: 1.5rem;
-}
+
 
 /* PROFILE */
 .profile-section{
@@ -357,9 +353,7 @@ textarea{
         flex-direction: row; 
     }
     
-    .hamburger {
-        display: block; /* Show hamburger on mobile */
-    }
+
 
     /* 4. Fix Navigation Links Layout */
     .nav-links {

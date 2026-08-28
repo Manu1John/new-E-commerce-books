@@ -64,14 +64,7 @@ h1, h2, h3 {
     letter-spacing: 1px;
 }
 
-.hamburger {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: var(--color-text-main);
-    cursor: pointer;
-}
+
 
 .nav-links a {
     text-decoration: none;
@@ -455,10 +448,7 @@ textarea {
         gap: 20px;
     }
     
-    /* Hamburger Menu Styles */
-    .hamburger {
-        display: block;
-    }
+
     
     .nav-links {
         display: none; 

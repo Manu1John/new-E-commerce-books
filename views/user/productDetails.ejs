@@ -1,327 +1,429 @@
 <%- include('../partials/header') %>
 
-<link rel="stylesheet" href="/css/productDetails.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script defer src="/js/productDetails.js"></script>
+    <link rel="stylesheet" href="/css/productDetails.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="/js/productDetails.js"></script>
 
-<main class="container my-5">
-    <!-- Alert Messages -->
-    <% if (typeof success !== 'undefined' && success.length > 0) { %>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <%= success %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <% } %>
-    <% if (typeof error !== 'undefined' && error.length > 0) { %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <%= error %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <% } %>
-
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb breadcrumb-nav">
-            <li class="breadcrumb-item"><a href="<%= typeof user !== 'undefined' && user ? '/home' : '/' %>">Home</a></li>
-            <li class="breadcrumb-item"><a href="<%= (typeof user !== 'undefined' && user ? '/home' : '/') + '?category=' + product.category._id + '#popular-books' %>"><%= product.category.name %></a></li>
-            <li class="breadcrumb-item active" aria-current="page"><%= product.title %></li>
-        </ol>
-    </nav>
-
-    <!-- Product Grid -->
-    <div class="row g-5">
-        <!-- Product Images -->
-        <div class="col-md-5">
-            <div class="zoom-container mb-3" id="mainZoom">
-                <% if(product.images && product.images.length > 0){ %>
-                    <img src="/uploads/<%= product.images[0] %>" class="zoom-image" id="mainProductImg" alt="<%= product.title %>">
-                <% } else { %>
-                    <img src="/images/product-item1.jpg" class="zoom-image" id="mainProductImg" alt="<%= product.title %>">
-                <% } %>
+    <main class="container my-5">
+        <!-- Alert Messages -->
+        <% if (typeof success !=='undefined' && success.length> 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <% if(product.images && product.images.length > 1){ %>
-                <div class="d-flex gap-2 justify-content-center">
-                    <% product.images.forEach((img, index) => { %>
-                        <img src="/uploads/<%= img %>" class="thumbnail-btn <%= index === 0 ? 'active' : '' %>" onclick="changeImage('/uploads/<%= img %>', this)">
-                    <% }) %>
-                </div>
             <% } %>
-        </div>
-
-        <!-- Product Details Info -->
-        <div class="col-md-7">
-            <h1 class="mb-2" style="font-family: var(--heading-font);"><%= product.title %></h1>
-            <p class="text-muted mb-3" style="font-size: 1.1em;">By <strong class="text-dark"><%= product.author %></strong></p>
-
-            <!-- Pre-calculate average rating for safety -->
-            <% 
-               let avgRat = 0;
-               let totRev = 0;
-               if (typeof reviewStats !== 'undefined') {
-                   avgRat = reviewStats.avgRating;
-                   totRev = reviewStats.total;
-               } 
-            %>
-
-            <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="ratings d-flex align-items-center gap-1">
-                    <span class="text-warning">
-                        <% for(let i=1; i<=5; i++) { %>
-                            <i class="<%= i <= Math.round(avgRat) ? 'fas' : 'far' %> fa-star"></i>
-                        <% } %>
-                    </span>
-                    <span class="text-muted ms-1" style="font-size: 0.85em;">(<%= avgRat %> / 5 based on <%= totRev %> Reviews)</span>
-                </div>
-                <div class="vr"></div>
-                <div>
-                    <% if (product.quantity > 0) { %>
-                        <span class="stock-in">✓ In Stock (<%= product.quantity %> left)</span>
-                    <% } else { %>
-                        <span class="stock-out">✗ Out of Stock</span>
+                <% if (typeof error !=='undefined' && error.length> 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     <% } %>
-                </div>
-            </div>
 
-            <hr class="my-4">
+                        <!-- Breadcrumb -->
+                        <nav aria-label="breadcrumb" class="mb-4">
+                            <ol class="breadcrumb breadcrumb-nav">
+                                <li class="breadcrumb-item"><a
+                                        href="<%= typeof user !== 'undefined' && user ? '/home' : '/' %>">Home</a></li>
+                                <li class="breadcrumb-item"><a
+                                        href="<%= (typeof user !== 'undefined' && user ? '/home' : '/') + '?category=' + product.category._id + '#popular-books' %>">
+                                        <%= product.category.name %>
+                                    </a></li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    <%= product.title %>
+                                </li>
+                            </ol>
+                        </nav>
 
-            <div class="d-flex align-items-center gap-3 mb-4">
-                <span class="price-badge">₹<%= product.pricing ? product.pricing.finalPrice : product.price %></span>
-                <% if (product.pricing && product.pricing.discountPercentage > 0) { %>
-                    <span class="text-muted"><del>₹<%= product.pricing.originalPrice %></del></span>
-                    <span class="discount-badge"><%= product.pricing.discountPercentage %>% OFF (save ₹<%= product.pricing.discountAmount %>)</span>
-                <% } %>
-            </div>
-
-            <p class="mb-4 text-secondary" style="line-height: 1.6;"><%= product.description %></p>
-
-            <div class="bg-light p-3 rounded mb-4">
-                <div class="row g-2" style="font-size: 0.9em;">
-                    <div class="col-4 text-muted">Category:</div>
-                    <div class="col-8"><strong><%= product.category.name %></strong></div>
-                    <div class="col-4 text-muted">Author:</div>
-                    <div class="col-8"><strong><%= product.author %></strong></div>
-                    <div class="col-4 text-muted">Publisher:</div>
-                    <div class="col-8"><strong><%= product.publisher %></strong></div>
-                    <div class="col-4 text-muted">Published Date:</div>
-                    <div class="col-8"><strong><%= product.publicationDate %></strong></div>
-                    <div class="col-4 text-muted">ISBN:</div>
-                    <div class="col-8"><strong><%= product.isbn %></strong></div>
-                    <div class="col-4 text-muted">Language:</div>
-                    <div class="col-8"><strong><%= product.language %></strong></div>
-                    <div class="col-4 text-muted">Number of Pages:</div>
-                    <div class="col-8"><strong><%= product.pages %></strong></div>
-                </div> 
-            </div>
-
-            <div class="d-flex flex-wrap gap-3 align-items-center">
-                <% if (product.quantity > 0) { %>
-                    <button class="btn btn-action-custom btn-action-cart flex-grow-1" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
-                <% } else { %>
-                    <button class="btn btn-action-custom btn-secondary flex-grow-1" disabled>Out of Stock</button>
-                <% } %>
-                
-                <button class="btn btn-action-custom btn-action-wishlist" onclick="addToWishlist('<%= product._id %>')">
-                    <i class="icon icon-heart-o me-2"></i> Add to Wishlist
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Related Products Section -->
-    <% if (typeof relatedProducts !== 'undefined' && relatedProducts.length > 0) { %>
-        <section class="mt-5 pt-5 border-top">
-            <h3 class="mb-4" style="font-family: var(--heading-font);">Related Books</h3>
-            <div class="row">
-                <% relatedProducts.forEach(rel => { %>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                        <div class="product-item">
-                            <figure class="product-style">
-                                <% if(rel.images && rel.images.length > 0){ %>
-                                    <a href="/product/<%= rel._id %>">
-                                        <img src="/uploads/<%= rel.images[0] %>" class="img-fluid" style="height: 300px; object-fit: cover; width:100%;">
-                                    </a>
-                                <% } else { %>
-                                    <a href="/product/<%= rel._id %>">
-                                        <img src="/images/product-item1.jpg" class="img-fluid" style="height: 300px; object-fit: cover; width:100%;">
-                                    </a>
-                                <% } %>
-                                <% if (rel.quantity > 0) { %>
-                                    <button class="add-to-cart" onclick="addToCart('<%= rel._id %>')">Add To Cart</button>
-                                <% } %>
-                            </figure>
-                            <figcaption>
-                                <h3><%= rel.title %></h3>
-                                <span><%= rel.author %></span>
-                                <div class="item-price">
-                                    <% if (rel.pricing && rel.pricing.discountPercentage > 0) { %>
-                                        <span class="prev-price">₹<%= rel.pricing.originalPrice %></span>
-                                        ₹<%= rel.pricing.finalPrice %>
-                                        <small class="text-success d-block"><%= rel.pricing.discountPercentage %>% off</small>
-                                    <% } else { %>
-                                        ₹<%= rel.pricing ? rel.pricing.finalPrice : rel.price %>
-                                    <% } %>
+                        <!-- Product Grid -->
+                        <div class="row g-5">
+                            <!-- Product Images -->
+                            <div class="col-md-5">
+                                <div class="zoom-container mb-3" id="mainZoom">
+                                    <% if(product.images && product.images.length> 0){ %>
+                                        <img src="/uploads/<%= product.images[0] %>" class="zoom-image"
+                                            id="mainProductImg" alt="<%= product.title %>">
+                                        <% } else { %>
+                                            <img src="/images/product-item1.jpg" class="zoom-image" id="mainProductImg"
+                                                alt="<%= product.title %>">
+                                            <% } %>
                                 </div>
-                            </figcaption>
+                                <% if(product.images && product.images.length> 1){ %>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <% product.images.forEach((img, index)=> { %>
+                                            <img src="/uploads/<%= img %>"
+                                                class="thumbnail-btn <%= index === 0 ? 'active' : '' %>"
+                                                onclick="changeImage('/uploads/<%= img %>', this)">
+                                            <% }) %>
+                                    </div>
+                                    <% } %>
+                            </div>
+
+                            <!-- Product Details Info -->
+                            <div class="col-md-7">
+                                <h1 class="mb-2" style="font-family: var(--heading-font);">
+                                    <%= product.title %>
+                                </h1>
+                                <p class="text-muted mb-3" style="font-size: 1.1em;">By <strong class="text-dark">
+                                        <%= product.author %>
+                                    </strong></p>
+
+                                <!-- Pre-calculate average rating for safety -->
+                                <% let avgRat=0; let totRev=0; if (typeof reviewStats !=='undefined' ) {
+                                    avgRat=reviewStats.avgRating; totRev=reviewStats.total; } %>
+
+                                    <div class="d-flex align-items-center gap-3 mb-4">
+                                        <div class="ratings d-flex align-items-center gap-1">
+                                            <span class="text-warning">
+                                                <% for(let i=1; i<=5; i++) { %>
+                                                    <i
+                                                        class="<%= i <= Math.round(avgRat) ? 'fas' : 'far' %> fa-star"></i>
+                                                    <% } %>
+                                            </span>
+                                            <span class="text-muted ms-1" style="font-size: 0.85em;">(<%= avgRat %> / 5
+                                                    based on <%= totRev %> Reviews)</span>
+                                        </div>
+                                        <div class="vr"></div>
+                                        <div>
+                                            <% if (product.quantity> 0) { %>
+                                                <span class="stock-in">✓ In Stock (<%= product.quantity %> left)</span>
+                                                <% } else { %>
+                                                    <span class="stock-out">✗ Out of Stock</span>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <div class="d-flex align-items-center gap-3 mb-4">
+                                        <span class="price-badge">₹<%= product.pricing ? product.pricing.finalPrice :
+                                                product.price %></span>
+                                        <% if (product.pricing && product.pricing.discountPercentage> 0) { %>
+                                            <span class="text-muted"><del>₹<%= product.pricing.originalPrice %>
+                                                </del></span>
+                                            <span class="discount-badge">
+                                                <%= product.pricing.discountPercentage %>% OFF (save ₹<%=
+                                                        product.pricing.discountAmount %>)
+                                            </span>
+                                            <% } %>
+                                    </div>
+
+                                    <p class="mb-4 text-secondary" style="line-height: 1.6;">
+                                        <%= product.description %>
+                                    </p>
+
+                                    <div class="bg-light p-3 rounded mb-4">
+                                        <div class="row g-2" style="font-size: 0.9em;">
+                                            <div class="col-4 text-muted">Category:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.category.name %>
+                                                </strong></div>
+                                            <div class="col-4 text-muted">Author:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.author %>
+                                                </strong></div>
+                                            <div class="col-4 text-muted">Publisher:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.publisher %>
+                                                </strong></div>
+                                            <div class="col-4 text-muted">Published Date:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.publicationDate %>
+                                                </strong></div>
+                                            <div class="col-4 text-muted">ISBN:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.isbn %>
+                                                </strong></div>
+                                            <div class="col-4 text-muted">Language:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.language %>
+                                                </strong></div>
+                                            <div class="col-4 text-muted">Number of Pages:</div>
+                                            <div class="col-8"><strong>
+                                                    <%= product.pages %>
+                                                </strong></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                                        <% if (product.quantity> 0) { %>
+                                            <button class="btn btn-action-custom btn-action-cart flex-grow-1"
+                                                onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+                                            <% } else { %>
+                                                <button class="btn btn-action-custom btn-secondary flex-grow-1"
+                                                    disabled>Out of Stock</button>
+                                                <% } %>
+
+                                                    <button class="btn btn-action-custom btn-action-wishlist"
+                                                        onclick="addToWishlist('<%= product._id %>')">
+                                                        <i class="icon icon-heart-o me-2"></i> Add to Wishlist
+                                                    </button>
+                                    </div>
+                            </div>
                         </div>
-                    </div>
-                <% }) %>
-            </div>
-        </section>
-    <% } %>
 
-    
-    <!-- Dynamic Reviews Section -->
-    <section class="mt-5 pt-5 border-top">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 style="font-family: var(--heading-font);">Customer Reviews</h3>
-            
-            <% if ((typeof canReview !== 'undefined' && canReview) || (typeof userReview !== 'undefined' && userReview)) { %>
-                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                    <%= (typeof userReview !== 'undefined' && userReview) ? 'Edit Your Review' : 'Write a Review' %>
-                </button>
-            <% } else if (typeof user === 'undefined' || !user) { %>
-                <a href="/login" class="btn btn-outline-dark">Login to Review</a>
-            <% } %>
-        </div>
-
-        <div class="row g-4">
-            <!-- Rating Summary Breakdown -->
-            <div class="col-md-4">
-                <div class="bg-light p-4 rounded text-center h-100">
-                    <h1 class="display-4 fw-bold"><%= avgRat %></h1>
-                    <div class="text-warning fs-4 mb-2">
-                        <% for(let i=1; i<=5; i++) { %>
-                            <i class="<%= i <= Math.round(avgRat) ? 'fas' : 'far' %> fa-star"></i>
-                        <% } %>
-                    </div>
-                    <p class="text-muted">Based on <%= totRev %> reviews</p>
-                    
-                    <!-- Distribution Bars -->
-                    <div class="mt-4 text-start">
-                        <% if (typeof reviewStats !== 'undefined' && reviewStats.distribution) { %>
-                            <% [5,4,3,2,1].forEach(star => { 
-                                let percentage = totRev > 0 ? (reviewStats.distribution[star] / totRev) * 100 : 0;
-                            %>
-                            <div class="d-flex align-items-center mb-2" style="font-size: 0.85em;">
-                                <span style="width: 40px;"><%= star %> <i class="fas fa-star text-warning"></i></span>
-                                <div class="progress flex-grow-1 mx-2" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: <%= percentage %>%"></div>
+                        <!-- Related Products Section -->
+                        <% if (typeof relatedProducts !=='undefined' && relatedProducts.length> 0) { %>
+                            <section class="mt-5 pt-5 border-top">
+                                <h3 class="mb-4" style="font-family: var(--heading-font);">Related Books</h3>
+                                <div class="row">
+                                    <% relatedProducts.forEach(rel=> { %>
+                                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                            <div class="product-item">
+                                                <figure class="product-style">
+                                                    <% if(rel.images && rel.images.length> 0){ %>
+                                                        <a href="/product/<%= rel._id %>">
+                                                            <img src="/uploads/<%= rel.images[0] %>" class="img-fluid"
+                                                                style="height: 300px; object-fit: cover; width:100%;">
+                                                        </a>
+                                                        <% } else { %>
+                                                            <a href="/product/<%= rel._id %>">
+                                                                <img src="/images/product-item1.jpg" class="img-fluid"
+                                                                    style="height: 300px; object-fit: cover; width:100%;">
+                                                            </a>
+                                                            <% } %>
+                                                </figure>
+                                                <figcaption class="pt-3 pb-2 text-center">
+                                                    <h3 class="mb-1" style="font-size: 1.1em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                        <%= rel.title %>
+                                                    </h3>
+                                                    <span class="text-muted" style="font-size: 0.9em;">
+                                                        <%= rel.author %>
+                                                    </span>
+                                                    <div class="item-price mt-2 mb-3 fw-bold">
+                                                        <% if (rel.pricing && rel.pricing.discountPercentage> 0) { %>
+                                                            <span class="prev-price">₹<%= rel.pricing.originalPrice %>
+                                                            </span>
+                                                            ₹<%= rel.pricing.finalPrice %>
+                                                                <small class="text-success d-block">
+                                                                    <%= rel.pricing.discountPercentage %>% off
+                                                                </small>
+                                                                <% } else { %>
+                                                                    ₹<%= rel.pricing ? rel.pricing.finalPrice : rel.price %>
+                                                                <% } %>
+                                                    </div>
+                                                    
+                                                    <!-- Attractive Buttons -->
+                                                    <div class="d-flex justify-content-center gap-2 mt-2">
+                                                        <% if (rel.quantity > 0) { %>
+                                                            <button class="btn btn-sm btn-dark flex-grow-1" onclick="addToCart('<%= rel._id %>')">
+                                                                Add to Cart
+                                                            </button>
+                                                        <% } else { %>
+                                                            <button class="btn btn-sm btn-secondary flex-grow-1" disabled>
+                                                                Out of Stock
+                                                            </button>
+                                                        <% } %>
+                                                        <button class="btn btn-sm btn-outline-danger px-3" onclick="addToWishlist('<%= rel._id %>')" title="Add to Wishlist">
+                                                            <i class="icon icon-heart-o"></i>
+                                                        </button>
+                                                    </div>
+                                                </figcaption>
+                                            </div>
+                                        </div>
+                                        <% }) %>
                                 </div>
-                                <span style="width: 30px; text-align: right;"><%= reviewStats.distribution[star] %></span>
-                            </div>
-                            <% }) %>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-
-            <!-- List of Reviews -->
-            <div class="col-md-8">
-                <% if (typeof reviews === 'undefined' || reviews.length === 0) { %>
-                    <p class="text-muted p-4 bg-light rounded text-center">No reviews yet. Be the first to review this product!</p>
-                <% } else { %>
-                    <div class="review-list" style="max-height: 500px; overflow-y: auto;">
-                        <% reviews.forEach(review => { 
-                            const currentUserId = (typeof user !== 'undefined' && user) ? (user._id || user.id) : null;
-                            const isOwner = (currentUserId && review.user && review.user._id && currentUserId.toString() === review.user._id.toString());
-                        %>
-                        <div class="card border-0 bg-light p-3 mb-3 shadow-sm">
-                            <div class="d-flex justify-content-between mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="<%= review.user.profileImage || 'https://i.pravatar.cc/150' %>" class="rounded-circle" width="30" height="30">
-                                    <strong><%= review.user.firstName %> <%= review.user.lastName %></strong>
-                                    <small class="text-muted ms-2"><%= new Date(review.createdAt).toLocaleDateString() %></small>
-                                </div>
-                                <div class="text-warning">
-                                    <% for(let i=1; i<=5; i++) { %>
-                                        <i class="<%= i <= review.rating ? 'fas' : 'far' %> fa-star"></i>
-                                    <% } %>
-                                </div>
-                            </div>
-                            <p class="mb-2 text-secondary" style="font-size: 0.95em;"><%= review.comment %></p>
-                            
-                            <% if (isOwner) { %>
-                                <div class="text-end">
-                                    <button class="btn btn-sm btn-link text-primary p-0 me-2" onclick="openEditModal('<%= review._id %>', <%= review.rating %>, `<%= review.comment %>`)">Edit</button>
-                                    <button class="btn btn-sm btn-link text-danger p-0" onclick="deleteReview('<%= review._id %>')">Delete</button>
-                                </div>
+                            </section>
                             <% } %>
+
+
+                                <!-- Dynamic Reviews Section -->
+                                <section class="mt-5 pt-5 border-top">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h3 style="font-family: var(--heading-font);">Customer Reviews</h3>
+
+                                        <% if ((typeof canReview !=='undefined' && canReview) || (typeof userReview
+                                            !=='undefined' && userReview)) { %>
+                                            <button class="btn btn-dark" data-bs-toggle="modal"
+                                                data-bs-target="#reviewModal">
+                                                <%= (typeof userReview !=='undefined' && userReview)
+                                                    ? 'Edit Your Review' : 'Write a Review' %>
+                                            </button>
+                                            <% } else if (typeof user==='undefined' || !user) { %>
+                                                <a href="/login" class="btn btn-outline-dark">Login to Review</a>
+                                                <% } %>
+                                    </div>
+
+                                    <div class="row g-4">
+                                        <!-- Rating Summary Breakdown -->
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-4 rounded text-center h-100">
+                                                <h1 class="display-4 fw-bold">
+                                                    <%= avgRat %>
+                                                </h1>
+                                                <div class="text-warning fs-4 mb-2">
+                                                    <% for(let i=1; i<=5; i++) { %>
+                                                        <i
+                                                            class="<%= i <= Math.round(avgRat) ? 'fas' : 'far' %> fa-star"></i>
+                                                        <% } %>
+                                                </div>
+                                                <p class="text-muted">Based on <%= totRev %> reviews</p>
+
+                                                <!-- Distribution Bars -->
+                                                <div class="mt-4 text-start">
+                                                    <% if (typeof reviewStats !=='undefined' &&
+                                                        reviewStats.distribution) { %>
+                                                        <% [5,4,3,2,1].forEach(star=> {
+                                                            let percentage = totRev > 0 ?
+                                                            (reviewStats.distribution[star] / totRev) * 100 : 0;
+                                                            %>
+                                                            <div class="d-flex align-items-center mb-2"
+                                                                style="font-size: 0.85em;">
+                                                                <span style="width: 40px;">
+                                                                    <%= star %> <i class="fas fa-star text-warning"></i>
+                                                                </span>
+                                                                <div class="progress flex-grow-1 mx-2"
+                                                                    style="height: 8px;">
+                                                                    <div class="progress-bar bg-warning"
+                                                                        style="width: <%= percentage %>%"></div>
+                                                                </div>
+                                                                <span style="width: 30px; text-align: right;">
+                                                                    <%= reviewStats.distribution[star] %>
+                                                                </span>
+                                                            </div>
+                                                            <% }) %>
+                                                                <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- List of Reviews -->
+                                        <div class="col-md-8">
+                                            <% if (typeof reviews==='undefined' || reviews.length===0) { %>
+                                                <p class="text-muted p-4 bg-light rounded text-center">No reviews yet.
+                                                    Be the first to review this product!</p>
+                                                <% } else { %>
+                                                    <div class="review-list"
+                                                        style="max-height: 500px; overflow-y: auto;">
+                                                        <% reviews.forEach(review=> {
+                                                            const currentUserId = (typeof user !== 'undefined' && user)
+                                                            ? (user._id || user.id) : null;
+                                                            const isOwner = (currentUserId && review.user &&
+                                                            review.user._id && currentUserId.toString() ===
+                                                            review.user._id.toString());
+                                                            %>
+                                                            <div class="card border-0 bg-light p-3 mb-3 shadow-sm">
+                                                                <div class="d-flex justify-content-between mb-2">
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <img src="<%= review.user.profileImage || 'https://i.pravatar.cc/150' %>"
+                                                                            class="rounded-circle" width="30"
+                                                                            height="30">
+                                                                        <strong>
+                                                                            <%= review.user.firstName %>
+                                                                                <%= review.user.lastName %>
+                                                                        </strong>
+                                                                        <small class="text-muted ms-2">
+                                                                            <%= new
+                                                                                Date(review.createdAt).toLocaleDateString()
+                                                                                %>
+                                                                        </small>
+                                                                    </div>
+                                                                    <div class="text-warning">
+                                                                        <% for(let i=1; i<=5; i++) { %>
+                                                                            <i
+                                                                                class="<%= i <= review.rating ? 'fas' : 'far' %> fa-star"></i>
+                                                                            <% } %>
+                                                                    </div>
+                                                                </div>
+                                                                <p class="mb-2 text-secondary"
+                                                                    style="font-size: 0.95em;">
+                                                                    <%= review.comment %>
+                                                                </p>
+
+                                                                <% if (isOwner) { %>
+                                                                    <div class="text-end">
+
+                                                                        <button class="btn btn-danger"
+                                                                            onclick="deleteReview('<%= review._id %>')">Delete</button>
+                                                                    </div>
+                                                                    <% } %>
+                                                            </div>
+                                                            <% }) %>
+                                                    </div>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+                                </section>
+    </main>
+
+    <!-- Add/Edit Review Modal Form -->
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="reviewForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reviewModalTitle">
+                            <%= (typeof userReview !=='undefined' && userReview) ? 'Edit Your Review' : 'Write a Review'
+                                %>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="reviewId" name="reviewId"
+                            value="<%= (typeof userReview !== 'undefined' && userReview) ? userReview._id : '' %>">
+                        <input type="hidden" id="productId" name="productId" value="<%= product._id %>">
+
+                        <div class="mb-3 text-center rating-select">
+                            <label class="form-label d-block fw-bold">Rating</label>
+                            <% let initRating=(typeof userReview !=='undefined' && userReview) ? userReview.rating : 0;
+                                %>
+                                <i class="<%= initRating >= 1 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer"
+                                    data-rating="1"></i>
+                                <i class="<%= initRating >= 2 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer"
+                                    data-rating="2"></i>
+                                <i class="<%= initRating >= 3 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer"
+                                    data-rating="3"></i>
+                                <i class="<%= initRating >= 4 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer"
+                                    data-rating="4"></i>
+                                <i class="<%= initRating >= 5 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer"
+                                    data-rating="5"></i>
+                                <input type="hidden" id="ratingInput" name="rating" value="<%= initRating || '' %>"
+                                    required>
                         </div>
-                        <% }) %>
-                    </div>
-                <% } %>
-            </div>
-        </div>
-    </section>
-</main>
 
-<!-- Add/Edit Review Modal Form -->
-<div class="modal fade" id="reviewModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="reviewForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reviewModalTitle">
-                        <%= (typeof userReview !== 'undefined' && userReview) ? 'Edit Your Review' : 'Write a Review' %>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="reviewId" name="reviewId" value="<%= (typeof userReview !== 'undefined' && userReview) ? userReview._id : '' %>">
-                    <input type="hidden" id="productId" name="productId" value="<%= product._id %>">
-                    
-                    <div class="mb-3 text-center rating-select">
-                        <label class="form-label d-block fw-bold">Rating</label>
-                        <% let initRating = (typeof userReview !== 'undefined' && userReview) ? userReview.rating : 0; %>
-                        <i class="<%= initRating >= 1 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer" data-rating="1"></i>
-                        <i class="<%= initRating >= 2 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer" data-rating="2"></i>
-                        <i class="<%= initRating >= 3 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer" data-rating="3"></i>
-                        <i class="<%= initRating >= 4 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer" data-rating="4"></i>
-                        <i class="<%= initRating >= 5 ? 'fas text-warning' : 'far' %> fa-star fs-3 cursor-pointer" data-rating="5"></i>
-                        <input type="hidden" id="ratingInput" name="rating" value="<%= initRating || '' %>" required>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Comment</label>
+                            <textarea class="form-control" id="commentInput" name="comment" rows="4" required
+                                maxlength="500"
+                                placeholder="Tell us what you think about this book..."><%= (typeof userReview !== 'undefined' && userReview) ? userReview.comment : '' %></textarea>
+                        </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Comment</label>
-                        <textarea class="form-control" id="commentInput" name="comment" rows="4" required maxlength="500" placeholder="Tell us what you think about this book..."><%= (typeof userReview !== 'undefined' && userReview) ? userReview.comment : '' %></textarea>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-dark w-100">Submit Review</button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-dark w-100">Submit Review</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<footer id="footer" class="bg-dark text-white py-5 mt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="footer-item">
-                    <div class="main-logo mb-3">
-                        <a href="/home"><img src="/images/main-logo.png" alt="logo" style="filter: brightness(0) invert(1);"></a>
-                    </div>
-                    <p>Explore thousands of books directly from our modern bookstore repository.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="footer-item">
-                    <h4>Help & Info</h4>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white text-decoration-none">Help center</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Contact us</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="footer-item">
-                    <h4>Legal</h4>
-                    <p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
-                </div>
+                </form>
             </div>
         </div>
     </div>
-</footer>
-</body>
-<%- include('../partials/footer') %>
+
+    <footer id="footer" class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="footer-item">
+                        <div class="main-logo mb-3">
+                            <a href="/home"><img src="/images/main-logo.png" alt="logo"
+                                    style="filter: brightness(0) invert(1);"></a>
+                        </div>
+                        <p>Explore thousands of books directly from our modern bookstore repository.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="footer-item">
+                        <h4>Help & Info</h4>
+                        <ul class="list-unstyled">
+                            <li><a href="#" class="text-white text-decoration-none">Help center</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">Contact us</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="footer-item">
+                        <h4>Legal</h4>
+                        <p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    </body>
+    <%- include('../partials/footer') %>

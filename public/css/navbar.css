@@ -8,8 +8,22 @@
   z-index: 1030;
 }
 
+/* Foolproof way to fill any space below the footer with dark color */
+html {
+  background-color: #212529 !important; /* matches bg-dark */
+}
+
 body {
   padding-top: 85px;
+  background-color: #ffffff; /* keep main page white */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Ensure footer pushes to bottom if content is short, but if there's space below it, HTML background handles it */
+footer#footer, #footer, .auth-footer, footer {
+  margin-top: auto !important;
 }
 
 /* ---------- nav link hover: scale + sliding underline ---------- */
