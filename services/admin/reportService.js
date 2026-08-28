@@ -19,12 +19,18 @@ const buildBaseDateQuery = (filter, startDate, endDate) => {
     const lastYear = new Date(today);
     lastYear.setFullYear(today.getFullYear() - 1);
     query.createdAt = { $gte: lastYear };
-  } else if (filter === "custom" && startDate && endDate) {
-    const customStartDate = new Date(startDate);
-    customStartDate.setHours(0, 0, 0, 0);
-    const customEndDate = new Date(endDate);
-    customEndDate.setHours(23, 59, 59, 999);
-    query.createdAt = { $gte: customStartDate, $lte: customEndDate };
+  } else if (filter === "custom" && (startDate || endDate)) {
+    query.createdAt = {};
+    if (startDate) {
+      const customStartDate = new Date(startDate);
+      customStartDate.setHours(0, 0, 0, 0);
+      query.createdAt.$gte = customStartDate;
+    }
+    if (endDate) {
+      const customEndDate = new Date(endDate);
+      customEndDate.setHours(23, 59, 59, 999);
+      query.createdAt.$lte = customEndDate;
+    }
   }
   return query;
 };

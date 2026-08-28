@@ -51,25 +51,76 @@ const reportControler = {
     try {
       const { filter, startDate, endDate, ordersSearch } = req.query;
       const orders = await reportService.getAllFilteredOrders(filter, startDate, endDate, ordersSearch);
+      const summary = await reportService.calculateSummary(filter, startDate, endDate);
       
-      const doc = new PDFDocument({ margin: 30 });
+      const doc = new PDFDocument({ margin: 40, size: "A4" });
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", 'attachment; filename="sales-report.pdf"');
       doc.pipe(res);
 
-      doc.fontSize(20).text("Sales Report", { align: "center" });
+      // Header
+      doc.fontSize(20).font("Helvetica-Bold").text("Sales Report", { align: "center" });
       doc.moveDown();
+      
+      doc.fontSize(10).font("Helvetica").text(`Report Date: ${new Date().toLocaleDateString()}`);
+      doc.text(`Filter Applied: ${filter || "All"}`);
+      if (startDate && endDate) {
+         doc.text(`Period: ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`);
+      }
+      doc.moveDown(2);
+
+      // Summary Section
+      doc.fontSize(14).font("Helvetica-Bold").text("Summary Overview");
+      doc.moveDown(0.5);
+      doc.fontSize(10).font("Helvetica");
+      doc.text(`Total Orders: ${summary.salesCount}`);
+      doc.text(`Total Sales Amount: Rs.${summary.totalSales.toFixed(2)}`);
+      doc.text(`Total Offer Discounts: Rs.${summary.totalDiscounts.toFixed(2)}`);
+      doc.text(`Total Coupon Discounts: Rs.${summary.totalCoupons.toFixed(2)}`);
+      doc.moveDown(2);
+
+      // Table Header
+      doc.fontSize(12).font("Helvetica-Bold").text("Order Details");
+      doc.moveDown(1);
+      
+      const startY = doc.y;
+      doc.fontSize(10).font("Helvetica-Bold");
+      doc.text("Order ID", 40, startY, { width: 100 });
+      doc.text("Date", 140, startY, { width: 80 });
+      doc.text("Customer", 220, startY, { width: 150 });
+      doc.text("Method", 370, startY, { width: 80 });
+      doc.text("Amount", 460, startY, { width: 90, align: "right" });
+      doc.moveTo(40, startY + 15).lineTo(550, startY + 15).stroke();
+
+      let y = startY + 25;
+      doc.font("Helvetica").fontSize(9);
 
       orders.forEach(order => {
-        doc.fontSize(12).text(`Order ID: #${order.orderId || order._id.toString().slice(-6)}`);
-        doc.text(`Date: ${order.createdAt.toLocaleDateString()}`);
-        doc.text(`Customer: ${order.user ? order.user.email : "Guest"}`);
-        doc.text(`Amount: Rs.${order.finalAmount.toFixed(2)}`);
-        doc.moveDown();
+        if (y > 750) {
+          doc.addPage();
+          y = 40;
+          doc.fontSize(10).font("Helvetica-Bold");
+          doc.text("Order ID", 40, y, { width: 100 });
+          doc.text("Date", 140, y, { width: 80 });
+          doc.text("Customer", 220, y, { width: 150 });
+          doc.text("Method", 370, y, { width: 80 });
+          doc.text("Amount", 460, y, { width: 90, align: "right" });
+          doc.moveTo(40, y + 15).lineTo(550, y + 15).stroke();
+          y += 25;
+          doc.font("Helvetica").fontSize(9);
+        }
+        
+        doc.text(`#${order.orderId || order._id.toString().slice(-6)}`, 40, y, { width: 100 });
+        doc.text(new Date(order.createdAt).toLocaleDateString(), 140, y, { width: 80 });
+        doc.text(order.user ? (order.user.email || "Guest") : "Guest", 220, y, { width: 150 });
+        doc.text(order.paymentMethod || "N/A", 370, y, { width: 80 });
+        doc.text(`Rs.${order.finalAmount.toFixed(2)}`, 460, y, { width: 90, align: "right" });
+        y += 20;
       });
 
       doc.end();
     } catch (error) {
+      console.error(error);
       res.status(500).send("Error generating PDF");
     }
   },

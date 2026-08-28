@@ -145,7 +145,8 @@ export const cancelOrderItemService = async (userId, orderId, itemId, cancellati
   item.cancellationReason = cancellationReason || "Cancelled by user";
   item.cancelledAt = new Date();
 
-  if (order.paymentStatus !== "Failed") {
+  const wasStockDeducted = order.paymentMethod === "COD" || ["Paid", "Refunded"].includes(order.paymentStatus);
+  if (wasStockDeducted) {
     await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
   }
   const refundAmount = await refundOrderItemIfNeeded(order, item);
@@ -196,7 +197,8 @@ export const cancelOrderService = async (userId, orderId, cancellationReason) =>
     item.status = "Cancelled";
     item.cancellationReason = cancellationReason || "Cancelled by user";
     item.cancelledAt = new Date();
-    if (order.paymentStatus !== "Failed") {
+    const wasStockDeducted = order.paymentMethod === "COD" || ["Paid", "Refunded"].includes(order.paymentStatus);
+    if (wasStockDeducted) {
       await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
     }
     await refundOrderItemIfNeeded(order, item);
@@ -315,70 +317,118 @@ export const getTrackOrderItemService = async (userId, orderId, itemId) => {
 
 export const generateInvoicePDF = (order, res) => {
   const orderData = prepareOrderForView(order);
-  const doc = new PDFDocument({ margin: 45 });
+  const doc = new PDFDocument({ margin: 50, size: "A4" });
   
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename=invoice-${orderData.orderId}.pdf`);
   
   doc.pipe(res);
   
-  doc.fontSize(20).text("BookStore Invoice", { align: "center" }).moveDown(0.5);
-  doc.fontSize(10).text("BookStore", { align: "center" });
-  doc.text("Premium Booksaw Book Store", { align: "center" }).moveDown();
+  // Header section
+  doc.fontSize(22).font("Helvetica-Bold").text("INVOICE", { align: "right" });
+  doc.fontSize(10).font("Helvetica-Bold").text("BookStore", 50, 50);
+  doc.font("Helvetica").text("Premium Booksaw Book Store", 50, 65);
+  doc.moveDown(2);
 
-  doc.fontSize(12).text(`Invoice / Order No: ${orderData.orderId}`);
-  doc.text(`Order Date: ${new Date(orderData.createdAt).toLocaleString()}`);
-  doc.text(`Payment Method: ${orderData.paymentMethod}`);
-  doc.text(`Payment Status: ${orderData.paymentStatus}`).moveDown();
-  
-  doc.font("Helvetica-Bold").text("Customer / Shipping Details");
+  // Invoice Details
+  const detailsY = doc.y;
+  doc.fontSize(10).font("Helvetica-Bold").text("Invoice To:", 50, detailsY);
   doc.font("Helvetica");
   if (orderData.user) {
-    doc.text(`${orderData.user.firstName || ""} ${orderData.user.lastName || ""}`.trim());
-    if (orderData.user.email) doc.text(orderData.user.email);
+    doc.text(`${orderData.user.firstName || ""} ${orderData.user.lastName || ""}`.trim(), 50, detailsY + 15);
+    if (orderData.user.email) doc.text(orderData.user.email, 50, detailsY + 30);
   }
   if (orderData.shippingAddress) {
-    doc.text(orderData.shippingAddress.fullName);
-    doc.text(orderData.shippingAddress.addressLine);
-    if (orderData.shippingAddress.landmark) doc.text(`Landmark: ${orderData.shippingAddress.landmark}`);
-    doc.text(`${orderData.shippingAddress.city}, ${orderData.shippingAddress.state} - ${orderData.shippingAddress.pincode}`);
-    doc.text(`Phone: ${orderData.shippingAddress.phone}`).moveDown();
+    doc.text(orderData.shippingAddress.addressLine, 50, detailsY + 45);
+    doc.text(`${orderData.shippingAddress.city}, ${orderData.shippingAddress.state} - ${orderData.shippingAddress.pincode}`, 50, detailsY + 60);
+    doc.text(`Phone: ${orderData.shippingAddress.phone}`, 50, detailsY + 75);
   }
-  
-  const startY = doc.y;
-  doc.font("Helvetica-Bold").fontSize(9);
-  doc.text("Product", 45, startY, { width: 170 });
-  doc.text("Qty", 220, startY, { width: 35 });
-  doc.text("MRP", 260, startY, { width: 55 });
-  doc.text("Discount", 320, startY, { width: 70 });
-  doc.text("Final", 395, startY, { width: 60 });
-  doc.text("Subtotal", 465, startY, { width: 75 });
-  doc.moveTo(45, startY + 16).lineTo(550, startY + 16).stroke();
 
-  let y = startY + 25;
+  // Invoice Metadata
+  doc.font("Helvetica-Bold").text(`Invoice No:`, 350, detailsY);
+  doc.font("Helvetica").text(`#${orderData.orderId}`, 450, detailsY);
+  doc.font("Helvetica-Bold").text(`Order Date:`, 350, detailsY + 15);
+  doc.font("Helvetica").text(new Date(orderData.createdAt).toLocaleDateString(), 450, detailsY + 15);
+  doc.font("Helvetica-Bold").text(`Payment Method:`, 350, detailsY + 30);
+  doc.font("Helvetica").text(orderData.paymentMethod || "N/A", 450, detailsY + 30);
+  doc.font("Helvetica-Bold").text(`Payment Status:`, 350, detailsY + 45);
+  doc.font("Helvetica").text(orderData.paymentStatus || "N/A", 450, detailsY + 45);
+  
+  doc.moveDown(3);
+  const startY = doc.y;
+
+  // Table Header
+  doc.rect(50, startY, 500, 20).fill("#f3f4f6");
+  doc.fillColor("#000000").font("Helvetica-Bold").fontSize(9);
+  doc.text("Item Description", 60, startY + 6, { width: 170 });
+  doc.text("Qty", 240, startY + 6, { width: 35 });
+  doc.text("MRP", 280, startY + 6, { width: 60 });
+  doc.text("Discount", 350, startY + 6, { width: 70 });
+  doc.text("Final", 430, startY + 6, { width: 50 });
+  doc.text("Total", 480, startY + 6, { width: 60, align: "right" });
+
+  let y = startY + 30;
   doc.font("Helvetica").fontSize(9);
+  
   orderData.items.forEach((item) => {
     if (y > 700) {
       doc.addPage();
-      y = 45;
+      y = 50;
+      doc.rect(50, y, 500, 20).fill("#f3f4f6");
+      doc.fillColor("#000000").font("Helvetica-Bold").fontSize(9);
+      doc.text("Item Description", 60, y + 6, { width: 170 });
+      doc.text("Qty", 240, y + 6, { width: 35 });
+      doc.text("MRP", 280, y + 6, { width: 60 });
+      doc.text("Discount", 350, y + 6, { width: 70 });
+      doc.text("Final", 430, y + 6, { width: 50 });
+      doc.text("Total", 480, y + 6, { width: 60, align: "right" });
+      y += 30;
+      doc.font("Helvetica").fontSize(9);
     }
-    doc.text(item.product?.title || "Unknown Product", 45, y, { width: 170 });
-    doc.text(String(item.quantity), 220, y, { width: 35 });
-    doc.text(`Rs.${item.originalPrice.toFixed(2)}`, 260, y, { width: 55 });
-    doc.text(`${item.discountPercentage}% / Rs.${(item.discountAmount * item.quantity).toFixed(2)}`, 320, y, { width: 70 });
-    doc.text(`Rs.${item.finalPrice.toFixed(2)}`, 395, y, { width: 60 });
-    doc.text(`Rs.${item.subtotal.toFixed(2)}`, 465, y, { width: 75 });
-    y += 32;
+    
+    doc.text(item.product?.title || "Unknown Product", 60, y, { width: 170 });
+    doc.text(String(item.quantity), 240, y, { width: 35 });
+    doc.text(`₹${item.originalPrice.toFixed(2)}`, 280, y, { width: 60 });
+    doc.text(`₹${(item.discountAmount * item.quantity).toFixed(2)} (${item.discountPercentage}%)`, 350, y, { width: 70 });
+    doc.text(`₹${item.finalPrice.toFixed(2)}`, 430, y, { width: 50 });
+    doc.text(`₹${item.subtotal.toFixed(2)}`, 480, y, { width: 60, align: "right" });
+    
+    y += 20;
+    doc.moveTo(50, y).lineTo(550, y).strokeColor("#e5e7eb").stroke();
+    y += 10;
+    doc.fillColor("#000000");
   });
   
   y += 10;
-  doc.moveTo(45, y).lineTo(550, y).stroke();
-  y += 15;
 
+  // Summary Section
   const summary = orderData.money;
-  doc.font("Helvetica").text(`Subtotal: Rs.${summary.subtotal.toFixed(2)}`, 370, y);
-  doc.text(`Total Discount: -Rs.${summary.totalDiscount.toFixed(2)}`, 370, y + 16);
-  doc.text(`Shipping: Rs.${summary.shippingCharge.toFixed(2)}`, 370, y + 32);
-  doc.font("Helvetica-Bold").text(`Final Amount: Rs.${summary.finalTotal.toFixed(2)}`, 370, y + 52);
+  doc.font("Helvetica").fontSize(10);
+  
+  const labelX = 350;
+  const valueX = 450;
+  const valWidth = 90;
+
+  doc.text("Subtotal:", labelX, y);
+  doc.text(`₹${summary.subtotal.toFixed(2)}`, valueX, y, { width: valWidth, align: "right" });
+  
+  doc.text("Total Discount:", labelX, y + 20);
+  doc.text(`-₹${summary.totalDiscount.toFixed(2)}`, valueX, y + 20, { width: valWidth, align: "right" });
+  
+  doc.text("Tax Amount (5%):", labelX, y + 40);
+  doc.text(`₹${summary.tax.toFixed(2)}`, valueX, y + 40, { width: valWidth, align: "right" });
+  
+  doc.text("Shipping Charge:", labelX, y + 60);
+  doc.text(`₹${summary.shippingCharge.toFixed(2)}`, valueX, y + 60, { width: valWidth, align: "right" });
+  
+  doc.moveTo(350, y + 80).lineTo(550, y + 80).strokeColor("#000000").stroke();
+  
+  doc.font("Helvetica-Bold").fontSize(12);
+  doc.text("Final Total:", labelX, y + 90);
+  doc.text(`₹${summary.finalTotal.toFixed(2)}`, valueX, y + 90, { width: valWidth, align: "right" });
+
+  // Footer Message
+  doc.font("Helvetica").fontSize(10).text("Thank you for shopping with BookStore!", 50, 750, { align: "center" });
+
   doc.end();
 };

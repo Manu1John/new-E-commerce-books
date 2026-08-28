@@ -8,6 +8,10 @@
   z-index: 1030;
 }
 
+body {
+  padding-top: 85px;
+}
+
 /* ---------- nav link hover: scale + sliding underline ---------- */
 .nav-link-item {
   text-decoration: none;

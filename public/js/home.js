@@ -99,7 +99,11 @@ function addToCart(productId) {
             if (data.error === "Unauthorized" || (!data.success && data.error && data.error.includes("log"))) {
                 window.location.href = '/login';
             } else {
-                alert(data.error || 'Failed to add item to cart.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: data.error || 'Failed to add item to cart.'
+                });
             }
         }
     })

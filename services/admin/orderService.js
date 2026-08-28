@@ -62,8 +62,9 @@ export const updateOrderStatusService = async (orderId, status) => {
   const wasAlreadyInactive = ["Returned", "Refunded", "Cancelled"].includes(order.status);
   const isBecomingInactive = ["Returned", "Refunded", "Cancelled"].includes(status);
 
-  // 1. Increment Stock ONLY if it wasn't already Cancelled/Returned previously
-  if (isBecomingInactive && !wasAlreadyInactive) {
+  const wasStockDeducted = order.paymentMethod === "COD" || ["Paid", "Refunded"].includes(order.paymentStatus);
+  // 1. Increment Stock ONLY if it wasn't already Cancelled/Returned previously and stock was originally deducted
+  if (isBecomingInactive && !wasAlreadyInactive && wasStockDeducted) {
     const Product = (await import("../../models/products.js")).default;
     for (const item of order.items) {
       const itemStatus = item.status || order.status;
@@ -134,18 +135,24 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
   const wasAlreadyInactive = ["Returned", "Refunded", "Cancelled"].includes(item.status);
   const isBecomingInactive = ["Returned", "Refunded", "Cancelled"].includes(status);
 
-  // 1. Increment Stock ONLY if it wasn't already Cancelled/Returned previously
+  const wasStockDeducted = order.paymentMethod === "COD" || ["Paid", "Refunded"].includes(order.paymentStatus);
+  
+  // 1. Increment Stock ONLY if it wasn't already Cancelled/Returned previously and stock was originally deducted
   if (isBecomingInactive && !wasAlreadyInactive) {
     const Product = (await import("../../models/products.js")).default;
-    await Product.findByIdAndUpdate(item.product._id, {
-      $inc: { quantity: item.quantity }
-    });
+    if (wasStockDeducted) {
+      await Product.findByIdAndUpdate(item.product._id, {
+        $inc: { quantity: item.quantity }
+      });
+    }
   } else if (!isBecomingInactive && wasAlreadyInactive) {
-    // If somehow reversing a cancellation, decrement stock
+    // If somehow reversing a cancellation, decrement stock only if it was originally deducted
     const Product = (await import("../../models/products.js")).default;
-    await Product.findByIdAndUpdate(item.product._id, {
-      $inc: { quantity: -item.quantity }
-    });
+    if (wasStockDeducted) {
+      await Product.findByIdAndUpdate(item.product._id, {
+        $inc: { quantity: -item.quantity }
+      });
+    }
   }
 
   // Process item-level wallet refund if becoming inactive and order is paid/wallet

@@ -17,6 +17,8 @@ window.toggleCustomDates = function () {
         if (customDateInputs) {
             customDateInputs.classList.remove("hidden");
             customDateInputs.classList.remove("d-none");
+            const inputs = customDateInputs.querySelectorAll("input");
+            inputs.forEach(input => input.setAttribute("required", "required"));
         }
 
         // Show .custom-date-col
@@ -33,6 +35,8 @@ window.toggleCustomDates = function () {
         if (customDateInputs) {
             customDateInputs.classList.add("hidden");
             customDateInputs.classList.add("d-none");
+            const inputs = customDateInputs.querySelectorAll("input");
+            inputs.forEach(input => input.removeAttribute("required"));
         }
 
         // Hide .custom-date-col

@@ -16,11 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const date = new Date(dateStr).toLocaleDateString();
             
             // Update Payment Summary Panel
-            document.getElementById('sum-subtotal').textContent = '$' + parseFloat(btn.getAttribute('data-total') || 0).toFixed(2);
-            document.getElementById('sum-shipping').textContent = '$' + parseFloat(btn.getAttribute('data-shipping') || 0).toFixed(2);
-            document.getElementById('sum-tax').textContent = '$' + parseFloat(btn.getAttribute('data-tax') || 0).toFixed(2);
-            document.getElementById('sum-discount').textContent = '-$' + parseFloat(btn.getAttribute('data-discount') || 0).toFixed(2);
-            document.getElementById('sum-total').textContent = '$' + parseFloat(btn.getAttribute('data-final') || 0).toFixed(2);
+            document.getElementById('sum-subtotal').textContent = '₹' + parseFloat(btn.getAttribute('data-total') || 0).toFixed(2);
+            document.getElementById('sum-shipping').textContent = '₹' + parseFloat(btn.getAttribute('data-shipping') || 0).toFixed(2);
+            document.getElementById('sum-tax').textContent = '₹' + parseFloat(btn.getAttribute('data-tax') || 0).toFixed(2);
+            document.getElementById('sum-discount').textContent = '-₹' + parseFloat(btn.getAttribute('data-discount') || 0).toFixed(2);
+            document.getElementById('sum-total').textContent = '₹' + parseFloat(btn.getAttribute('data-final') || 0).toFixed(2);
 
             // Update Timeline Logic
             const timeline = document.getElementById('tracking-timeline');
@@ -159,14 +159,27 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (result.success) {
                 closeModal();
-                alert("Your order has been successfully cancelled.");
-                window.location.reload(); 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cancelled',
+                    text: 'Your order has been successfully cancelled.'
+                }).then(() => {
+                    window.location.reload(); 
+                });
             } else {
-                alert(result.error || "Failed to cancel the order.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: result.error || "Failed to cancel the order."
+                });
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("A network or server error occurred while processing your request.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: "A network or server error occurred while processing your request."
+            });
         }
     });
 
@@ -229,14 +242,27 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (result.success) {
                 closeReturnModal();
-                alert("Your order return has been initiated successfully.");
-                window.location.reload(); 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Return Initiated',
+                    text: 'Your order return has been initiated successfully.'
+                }).then(() => {
+                    window.location.reload(); 
+                });
             } else {
-                alert(result.error || "Failed to process the return.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: result.error || "Failed to process the return."
+                });
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("A network or server error occurred while processing your request.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: "A network or server error occurred while processing your request."
+            });
         }
     });
 
