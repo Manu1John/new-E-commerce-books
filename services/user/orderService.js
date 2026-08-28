@@ -6,7 +6,7 @@ import PDFDocument from "pdfkit";
 import { getOrderMoneySummary, roundMoney } from "./pricingService.js";
 
 const CANCELLABLE_STATUSES = ["Ordered", "Pending", "Confirmed", "Processing", "Packed"];
-const INACTIVE_STATUSES = ["Cancelled", "Returned", "Refunded"];
+const INACTIVE_STATUSES = ["Cancelled", "Returned", "Partially Returned", "Refunded"];
 
 export const normalizeOrderItem = (item, orderStatus = "Pending") => {
   const itemObject = item.toObject ? item.toObject() : { ...item };
@@ -181,8 +181,16 @@ export const cancelOrderService = async (userId, orderId, cancellationReason) =>
   const order = await Order.findOne({ _id: orderId, user: userId });
   if (!order) throw new Error("Order not found");
 
-  const cancellableItems = order.items.filter((item) => CANCELLABLE_STATUSES.includes(item.status || order.status));
-  if (!cancellableItems.length) throw new Error(`Order cannot be cancelled because it is currently ${order.status}`);
+  // Always filter using each item's own status, not the parent order status
+  // This allows cancellation of remaining items even on Partially Returned orders
+  const cancellableItems = order.items.filter((item) => {
+    const effectiveStatus = item.status || order.status;
+    return CANCELLABLE_STATUSES.includes(effectiveStatus);
+  });
+
+  if (!cancellableItems.length) {
+    throw new Error(`Order cannot be cancelled because it is currently ${order.status}`);
+  }
 
   for (const item of cancellableItems) {
     item.status = "Cancelled";
@@ -194,7 +202,21 @@ export const cancelOrderService = async (userId, orderId, cancellationReason) =>
     await refundOrderItemIfNeeded(order, item);
   }
 
-  order.status = order.items.every((item) => (item.status || order.status) === "Cancelled") ? "Cancelled" : "Processing";
+  // Determine final order status based on all item statuses
+  const allStatuses = order.items.map((item) => item.status || order.status);
+  const allCancelled = allStatuses.every((s) => s === "Cancelled");
+  const hasReturned = allStatuses.some((s) => s === "Returned");
+  const hasCancelled = allStatuses.some((s) => s === "Cancelled");
+
+  if (allCancelled) {
+    order.status = "Cancelled";
+  } else if (hasReturned && hasCancelled) {
+    // Mixed: some returned, some cancelled — treat entire order as Cancelled
+    order.status = "Cancelled";
+  } else {
+    order.status = "Processing";
+  }
+
   order.cancellationReason = cancellationReason;
   await order.save();
   return prepareOrderForView(order);

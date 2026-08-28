@@ -95,42 +95,42 @@ export async function getEditProductService(productId){
     }
 }
 
-export async function postEditProductService(productId,productData){
-      const { 
-     title,
-            category,
-            author,
-            publisher,
-            language,
-            isbn,
-            publicationDate,
-            pages,
-            description,
-            price,
-            quantity,
-            status,
-            images: finalImages 
-        } = productData 
+export async function postEditProductService(productId, productData, finalImages) {
+    const { 
+        title,
+        category,
+        author,
+        publisher,
+        language,
+        isbn,
+        publicationDate,
+        pages,
+        description,
+        price,
+        quantity,
+        status
+    } = productData;
+
     const currentProduct = await Product.findById(productId);
-    const updateProducts = await Product.findByIdAndUpdate(productId, {
-            title,
-            category,
-            author,
-            publisher,
-            language,
-            isbn,
-            publicationDate,
-            pages,
-            description,
-            price,
-            quantity,
-            status,
-            images: finalImages
-        });
-    return{
-        currentProduct,
-        updateProducts
-    }
+    if (!currentProduct) return null;
+
+    await Product.findByIdAndUpdate(productId, {
+        title,
+        category,
+        author,
+        publisher,
+        language,
+        isbn,
+        publicationDate,
+        pages,
+        description,
+        price,
+        quantity,
+        status,
+        images: finalImages   // Use the resolved list passed from controller
+    }, { new: true });
+
+    return currentProduct;
 }
 export async function softDeleteProductService(productId,pro){
     const product = Product.findById(productId)

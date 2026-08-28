@@ -44,87 +44,106 @@ function renderCheckoutAddress(address) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Frontend Validation Helper
-    const validateAddressForm = (form) => {
-        let isValid = true;
-        // Remove previous errors
-        form.querySelectorAll('.address-err').forEach(el => el.remove());
 
-        const showError = (inputName, message) => {
-            const input = form.querySelector(`[name="${inputName}"]`);
-            if (input) {
-                const errDiv = document.createElement('div');
-                errDiv.className = 'address-err text-danger small mt-1';
-                errDiv.innerText = message;
-                input.parentNode.appendChild(errDiv);
-            }
-            isValid = false;
-        };
-
-        const formData = Object.fromEntries(new FormData(form).entries());
-
-        const requiredFields = ["fullName", "phone", "house", "area", "city", "state", "pincode", "addressType"];
-        for (const field of requiredFields) {
-            if (!formData[field] || !String(formData[field]).trim()) {
-                showError(field, 'This field cannot be empty or just spaces.');
-            }
+    // ─── Validation Rules ───────────────────────────────────────────────────
+    const RULES = {
+        fullName: {
+            validate: v => /^[A-Za-z\s]{3,50}$/.test(v.trim()),
+            message: 'Enter a valid full name (letters only, 3–50 chars)'
+        },
+        phone: {
+            validate: v => /^[6-9][0-9]{9}$/.test(v.trim()),
+            message: 'Enter valid 10-digit phone number'
+        },
+        house: {
+            validate: v => v.trim().length > 0,
+            message: 'House details required'
+        },
+        area: {
+            validate: v => v.trim().length > 0,
+            message: 'Area / Street is required'
+        },
+        city: {
+            validate: v => /^[A-Za-z\s]{2,}$/.test(v.trim()),
+            message: 'Enter a valid city name'
+        },
+        state: {
+            validate: v => /^[A-Za-z\s]{2,}$/.test(v.trim()),
+            message: 'Enter a valid state name'
+        },
+        pincode: {
+            validate: v => /^[1-9][0-9]{5}$/.test(v.trim()),
+            message: 'Enter valid 6-digit pincode'
         }
-
-        if (!isValid) return false;
-
-        const fullName = String(formData.fullName).trim();
-        if (fullName.length < 3 || fullName.length > 50) showError('fullName', 'Name must be between 3 and 50 characters.');
-        else if (!/^[A-Za-z\s]+$/.test(fullName)) showError('fullName', 'Name can only contain letters and spaces.');
-
-        const phone = String(formData.phone).trim();
-        if (!/^[0-9]{10}$/.test(phone)) showError('phone', 'Phone number must be exactly 10 digits.');
-        else if (/^0{10}$/.test(phone)) showError('phone', 'Phone number cannot be all zeros.');
-
-        const pincode = String(formData.pincode).trim();
-        if (!/^[0-9]{6}$/.test(pincode)) showError('pincode', 'Pincode must be exactly 6 digits.');
-        else if (/^0{6}$/.test(pincode)) showError('pincode', 'Pincode cannot be all zeros.');
-
-        const city = String(formData.city).trim();
-        if (!/^[A-Za-z\s]+$/.test(city)) showError('city', 'City cannot contain numbers or special characters.');
-
-        const state = String(formData.state).trim();
-        if (!/^[A-Za-z\s]+$/.test(state)) showError('state', 'State cannot contain numbers or special characters.');
-
-        const xssPattern = /<[^>]*>?/gm;
-        const addressPattern = /^[A-Za-z0-9\s,\-]+$/;
-
-        const house = String(formData.house).trim();
-        if (xssPattern.test(house) || !addressPattern.test(house)) showError('house', 'Contains invalid characters.');
-
-        const area = String(formData.area).trim();
-        if (xssPattern.test(area) || !addressPattern.test(area)) showError('area', 'Contains invalid characters.');
-
-        if (formData.landmark) {
-            const landmark = String(formData.landmark).trim();
-            if (xssPattern.test(landmark) || !/^[A-Za-z0-9\s,\-]*$/.test(landmark)) {
-                showError('landmark', 'Contains invalid characters.');
-            }
-        }
-
-        return isValid;
     };
 
+    // ─── Show / Clear error for a single field ───────────────────────────────
+    function setError(errorElId, message) {
+        const el = document.getElementById(errorElId);
+        if (el) el.textContent = message;
+    }
+    function clearError(errorElId) {
+        const el = document.getElementById(errorElId);
+        if (el) el.textContent = '';
+    }
+
+    // ─── Validate a single input and show/clear its error ───────────────────
+    function validateField(prefix, fieldName) {
+        const input = document.getElementById(`${prefix}${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+        const errorId = `${prefix}${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}Error`;
+        if (!input || !RULES[fieldName]) return true;
+        const value = input.value;
+        if (!RULES[fieldName].validate(value)) {
+            setError(errorId, RULES[fieldName].message);
+            return false;
+        }
+        clearError(errorId);
+        return true;
+    }
+
+    // ─── Validate entire form, return true if all pass ───────────────────────
+    function validateAddressForm(prefix) {
+        let valid = true;
+        for (const field of Object.keys(RULES)) {
+            if (!validateField(prefix, field)) valid = false;
+        }
+        return valid;
+    }
+
+    // ─── Attach real-time blur validation to a form ─────────────────────────
+    function attachBlurValidation(formId, prefix) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        for (const field of Object.keys(RULES)) {
+            const inputId = `${prefix}${field.charAt(0).toUpperCase() + field.slice(1)}`;
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('blur', () => validateField(prefix, field));
+                input.addEventListener('input', () => {
+                    // Clear error as soon as user starts correcting
+                    const errorId = `${prefix}${field.charAt(0).toUpperCase() + field.slice(1)}Error`;
+                    if (input.value.trim()) clearError(errorId);
+                });
+            }
+        }
+    }
+
+    attachBlurValidation('checkoutAddressForm', 'add');
+    attachBlurValidation('editCheckoutAddressForm', 'edit');
+
+    // ─── Add Address Form Submit ─────────────────────────────────────────────
     const addressForm = document.getElementById('checkoutAddressForm');
     if (addressForm) {
         addressForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            
-            if (!validateAddressForm(addressForm)) return;
+            if (!validateAddressForm('add')) return;
 
             const formData = Object.fromEntries(new FormData(addressForm).entries());
 
             try {
                 const response = await fetch('/address?returnTo=checkout', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(formData)
                 });
                 const data = await response.json();
@@ -136,11 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 renderCheckoutAddress(data.address);
                 addressForm.reset();
+                // Clear all errors on reset
+                Object.keys(RULES).forEach(f => clearError(`add${f.charAt(0).toUpperCase() + f.slice(1)}Error`));
                 const modalEl = document.getElementById('checkoutAddressModal');
                 const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                 modal.hide();
                 Swal.fire({ icon: 'success', title: 'Address added', timer: 1300, showConfirmButton: false }).then(() => {
-                    location.reload(); // Reload to refresh addresses properly
+                    location.reload();
                 });
             } catch (error) {
                 console.error(error);
@@ -149,13 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Edit Address Logic
+    // ─── Edit Address Form Submit ────────────────────────────────────────────
     const editAddressForm = document.getElementById('editCheckoutAddressForm');
     if (editAddressForm) {
         editAddressForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-
-            if (!validateAddressForm(editAddressForm)) return;
+            if (!validateAddressForm('edit')) return;
 
             const addressId = document.getElementById('editAddressId').value;
             const formData = Object.fromEntries(new FormData(editAddressForm).entries());
@@ -163,10 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`/address/${addressId}?returnTo=checkout`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(formData)
                 });
                 const data = await response.json();
@@ -180,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                 modal.hide();
                 Swal.fire({ icon: 'success', title: 'Address updated', timer: 1300, showConfirmButton: false }).then(() => {
-                    location.reload(); // Reload to refresh list
+                    location.reload();
                 });
             } catch (error) {
                 console.error(error);
@@ -188,7 +205,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ─── Clear edit form errors when modal closes ────────────────────────────
+    const editModal = document.getElementById('editCheckoutAddressModal');
+    if (editModal) {
+        editModal.addEventListener('hidden.bs.modal', () => {
+            Object.keys(RULES).forEach(f => clearError(`edit${f.charAt(0).toUpperCase() + f.slice(1)}Error`));
+        });
+    }
+    const addModal = document.getElementById('checkoutAddressModal');
+    if (addModal) {
+        addModal.addEventListener('hidden.bs.modal', () => {
+            Object.keys(RULES).forEach(f => clearError(`add${f.charAt(0).toUpperCase() + f.slice(1)}Error`));
+        });
+    }
 });
+
 
 async function openEditAddressModal(addressId, event) {
     if (event) {

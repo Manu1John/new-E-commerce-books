@@ -212,44 +212,51 @@
                     <h5 class="modal-title" id="checkoutAddressModalLabel">Add New Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="checkoutAddressForm">
+                <form id="checkoutAddressForm" novalidate>
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Full name</label>
-                                <input class="form-control" name="fullName" required>
+                                <label class="form-label">Full Name</label>
+                                <input class="form-control" name="fullName" id="addFullName" placeholder="Enter full name">
+                                <small class="text-danger d-block" id="addFullNameError"></small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Phone</label>
-                                <input class="form-control" name="phone" pattern="[6-9][0-9]{9}" required>
+                                <label class="form-label">Phone Number</label>
+                                <input class="form-control" name="phone" id="addPhone" placeholder="Enter phone number">
+                                <small class="text-danger d-block" id="addPhoneError"></small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">House / Building</label>
-                                <input class="form-control" name="house" required>
+                                <label class="form-label">House / Flat / Building</label>
+                                <input class="form-control" name="house" id="addHouse" placeholder="House no, apartment">
+                                <small class="text-danger d-block" id="addHouseError"></small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Area / Street</label>
-                                <input class="form-control" name="area" required>
+                                <input class="form-control" name="area" id="addArea" placeholder="Street, area, colony">
+                                <small class="text-danger d-block" id="addAreaError"></small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Landmark</label>
-                                <input class="form-control" name="landmark">
+                                <label class="form-label">Landmark <span class="text-muted">(optional)</span></label>
+                                <input class="form-control" name="landmark" id="addLandmark" placeholder="e.g. Near City Mall">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">City</label>
-                                <input class="form-control" name="city" required>
+                                <input class="form-control" name="city" id="addCity" placeholder="City">
+                                <small class="text-danger d-block" id="addCityError"></small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">State</label>
-                                <input class="form-control" name="state" required>
+                                <input class="form-control" name="state" id="addState" placeholder="State">
+                                <small class="text-danger d-block" id="addStateError"></small>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Pincode</label>
-                                <input class="form-control" name="pincode" pattern="[0-9]{6}" required>
+                                <input class="form-control" name="pincode" id="addPincode" placeholder="6-digit pincode">
+                                <small class="text-danger d-block" id="addPincodeError"></small>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Type</label>
-                                <select class="form-select" name="addressType" required>
+                                <select class="form-select" name="addressType" id="addAddressType">
                                     <option value="Home">Home</option>
                                     <option value="Office">Office</option>
                                 </select>
@@ -273,45 +280,52 @@
                     <h5 class="modal-title" id="editCheckoutAddressModalLabel">Edit Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="editCheckoutAddressForm">
+                <form id="editCheckoutAddressForm" novalidate>
                     <input type="hidden" name="addressId" id="editAddressId">
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Full name</label>
-                                <input class="form-control" name="fullName" id="editFullName" required>
+                                <label class="form-label">Full Name</label>
+                                <input class="form-control" name="fullName" id="editFullName" placeholder="Enter full name">
+                                <small class="text-danger d-block" id="editFullNameError"></small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Phone</label>
-                                <input class="form-control" name="phone" id="editPhone" pattern="[6-9][0-9]{9}" required>
+                                <label class="form-label">Phone Number</label>
+                                <input class="form-control" name="phone" id="editPhone" placeholder="Enter phone number">
+                                <small class="text-danger d-block" id="editPhoneError"></small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">House / Building</label>
-                                <input class="form-control" name="house" id="editHouse" required>
+                                <label class="form-label">House / Flat / Building</label>
+                                <input class="form-control" name="house" id="editHouse" placeholder="House no, apartment">
+                                <small class="text-danger d-block" id="editHouseError"></small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Area / Street</label>
-                                <input class="form-control" name="area" id="editArea" required>
+                                <input class="form-control" name="area" id="editArea" placeholder="Street, area, colony">
+                                <small class="text-danger d-block" id="editAreaError"></small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Landmark</label>
-                                <input class="form-control" name="landmark" id="editLandmark">
+                                <label class="form-label">Landmark <span class="text-muted">(optional)</span></label>
+                                <input class="form-control" name="landmark" id="editLandmark" placeholder="e.g. Near City Mall">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">City</label>
-                                <input class="form-control" name="city" id="editCity" required>
+                                <input class="form-control" name="city" id="editCity" placeholder="City">
+                                <small class="text-danger d-block" id="editCityError"></small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">State</label>
-                                <input class="form-control" name="state" id="editState" required>
+                                <input class="form-control" name="state" id="editState" placeholder="State">
+                                <small class="text-danger d-block" id="editStateError"></small>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Pincode</label>
-                                <input class="form-control" name="pincode" id="editPincode" pattern="[0-9]{6}" required>
+                                <input class="form-control" name="pincode" id="editPincode" placeholder="6-digit pincode">
+                                <small class="text-danger d-block" id="editPincodeError"></small>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Type</label>
-                                <select class="form-select" name="addressType" id="editAddressType" required>
+                                <select class="form-select" name="addressType" id="editAddressType">
                                     <option value="Home">Home</option>
                                     <option value="Office">Office</option>
                                 </select>

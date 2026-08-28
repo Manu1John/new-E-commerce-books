@@ -123,6 +123,7 @@ export const updateOrderStatusService = async (orderId, status) => {
 };
 
 export const updateOrderItemStatusService = async (orderId, itemId, status) => {
+  // First fetch the order to read current state (for business logic checks)
   const order = await Order.findById(orderId).populate("items.product");
   if (!order) throw new Error("Order not found");
   
@@ -170,34 +171,49 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
       description: `Refund for Item Cancelled/Returned in Order ${order.orderId || order._id}`
     });
     await wallet.save();
-    item.refundedAmount = refundAmount;
+
+    // Update refunded amount atomically on the item subdocument
+    await Order.findOneAndUpdate(
+      { _id: orderId, "items._id": itemId },
+      { $set: { "items.$.refundedAmount": refundAmount } }
+    );
   }
 
-  // Update status and history
-  item.status = status;
-  if (!item.statusHistory) item.statusHistory = [];
-  item.statusHistory.push({
-    status: status,
-    date: new Date(),
-    notes: `Status updated to ${status} by Admin`
-  });
+  // Calculate order-level status
+  const allDelivered = order.items.every(i => i._id.toString() === itemId ? status === "Delivered" : i.status === "Delivered");
+  const allInactive = order.items.every(i => i._id.toString() === itemId ? isBecomingInactive : ["Cancelled", "Returned", "Refunded"].includes(i.status));
 
-  // Calculate order-level status if needed
-  // Check if all items are delivered/cancelled/returned
-  const allDelivered = order.items.every(i => i.status === "Delivered");
-  const allCancelled = order.items.every(i => ["Cancelled", "Returned", "Refunded"].includes(i.status));
-  
+  let newOrderStatus = order.status;
   if (allDelivered) {
-    order.status = "Delivered";
-  } else if (allCancelled) {
-    order.status = "Cancelled";
-  } else {
-    // Just keep order status as Processing or whatever it was
-    if (order.status === "Delivered" && !allDelivered) {
-        order.status = "Processing"; // rollback
-    }
+    newOrderStatus = "Delivered";
+  } else if (allInactive) {
+    newOrderStatus = "Cancelled";
+  } else if (order.status === "Delivered" && !allDelivered) {
+    newOrderStatus = "Processing"; // rollback
   }
 
-  await order.save();
-  return prepareOrderForView(order);
+  // Use atomic findOneAndUpdate with $ positional operator to avoid VersionError
+  // This updates only the matching item subdocument in a single atomic operation
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: orderId, "items._id": itemId },
+    {
+      $set: {
+        status: newOrderStatus,
+        "items.$.status": status
+      },
+      $push: {
+        "items.$.statusHistory": {
+          status: status,
+          date: new Date(),
+          notes: `Status updated to ${status} by Admin`
+        }
+      }
+    },
+    { new: true }
+  ).populate("items.product");
+
+  if (!updatedOrder) throw new Error("Failed to update order item status");
+
+  return prepareOrderForView(updatedOrder);
 };
+

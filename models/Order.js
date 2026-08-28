@@ -48,6 +48,7 @@ const orderItemSchema = new mongoose.Schema({
       "Delivered",
       "Cancelled",
       "Returned",
+      "Partially Returned",
       "Refunded"
     ],
     default: "Ordered"
@@ -140,7 +141,6 @@ const orderSchema = new mongoose.Schema(
     status: {
         type: String,
         required: true,
-        // Update this array to include ALL valid statuses
         enum: [
             "Pending", 
             "Ordered",
@@ -151,7 +151,8 @@ const orderSchema = new mongoose.Schema(
             "Out for Delivery", 
             "Delivered", 
             "Cancelled", 
-            "Returned", 
+            "Returned",
+            "Partially Returned",
             "Refunded"
         ],
         default: "Pending"

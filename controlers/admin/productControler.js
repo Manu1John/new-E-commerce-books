@@ -87,13 +87,14 @@ const getEditProduct = async (req, res) => {
 const postEditProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        // 🚨 FIX: Extract the newly added fields from req.body
-  
-        const currentProduct =await postEditProductService(productId,req.body)
-        
+
+        // Step 1: Fetch the current product to get existing images
+        const currentProduct = await (await import('../../models/products.js')).default.findById(productId);
         if (!currentProduct) {
             return res.status(404).json({ error: "Product not found" });
         }
+
+        // Step 2: Resolve final image list from imageOrder + newly uploaded files
         let finalImages = [];
         let imageOrder = req.body.imageOrder;
 
@@ -104,7 +105,7 @@ const postEditProduct = async (req, res) => {
         }
 
         let fileIndex = 0;
-        imageOrder.forEach(item => {
+        for (const item of imageOrder) {
             if (item.startsWith('NEW_FILE_')) {
                 if (req.files && req.files[fileIndex]) {
                     finalImages.push(req.files[fileIndex].filename);
@@ -113,21 +114,44 @@ const postEditProduct = async (req, res) => {
             } else {
                 finalImages.push(item);
             }
-        });
+        }
 
+        // Fallback: if imageOrder wasn't sent, use new files or keep existing
         if (finalImages.length === 0) {
             if (req.files && req.files.length > 0) {
-                finalImages = req.files.map(file => file.filename);
+                finalImages = req.files.map(f => f.filename);
             } else {
                 finalImages = currentProduct.images;
             }
         }
-        // Now these variables actually contain the data from the form
-        
-        return res.json({ redirectUrl: "/admin/products" });
+
+        // Step 3: Delete orphaned old images that were replaced
+        const removedImages = currentProduct.images.filter(img => !finalImages.includes(img));
+        if (removedImages.length > 0) {
+            const fsModule = await import('fs');
+            const pathModule = await import('path');
+            const { fileURLToPath } = await import('url');
+            removedImages.forEach(img => {
+                const filePath = `public/uploads/${img}`;
+                fsModule.default.unlink(filePath, (err) => {
+                    if (err) console.warn(`Could not delete old image ${img}:`, err.message);
+                });
+            });
+        }
+
+        // Step 4: Save all product fields + resolved images
+        await postEditProductService(productId, req.body, finalImages);
+
+        return res.json({ success: true, redirectUrl: "/admin/products" });
 
     } catch (error) {
         console.error("Backend Edit Error:", error);
+        // Clean up any uploaded files if the update failed
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                fs.unlink(file.path, (err) => { if (err) console.error("Orphan file cleanup error:", err); });
+            });
+        }
         return res.status(500).json({ error: "Failed to update product details." });
     }
 };        
