@@ -21,11 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     imageUpload.addEventListener('change', function(e) {
         const files = e.target.files;
         if (files.length < 3 || files.length > 5) {
-            Swal.fire({
-                icon: "info",
-                title: "Oops...",
+            Toastify({
                 text: 'Please select between 3 and 5 images !',
-            });
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc3545"
+            }).showToast();
             this.value = '';
             previewContainer.innerHTML = '';
             imageArray = [];
@@ -230,30 +232,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 data = JSON.parse(textData);
             } catch (jsonError) {
                 console.error("🚨 CRITICAL: Unexpected backend output parsing error.", textData);
-                Swal.fire({
-                    icon: "error",
-                    title: "Server Error",
+                Toastify({
                     text: "The server did not return a valid response.",
-                });
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc3545"
+                }).showToast();
                 return;
             }
 
             if (response.ok) {
                 window.location.href = data.redirectUrl || '/admin/products'; 
             } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
+                Toastify({
                     text: data.error || "Product name already exists or data is invalid!",
-                });
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc3545"
+                }).showToast();
             }
         } catch (error) {
             console.error('Network Upload Exception:', error);
-            Swal.fire({
-                icon: "error",
-                title: "Network Error",
+            Toastify({
                 text: "A network error occurred while reaching the server.",
-            });
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc3545"
+            }).showToast();
         }
     });
 });

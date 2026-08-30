@@ -4,7 +4,9 @@ import Order from "../../models/Order.js";
 import Cart from "../../models/Cart.js";
 import Wallet from "../../models/Wallet.js";
 import Product from "../../models/products.js";
-import { getItemPricing, roundMoney } from "../../services/user/pricingService.js";
+import { catchAsync } from "../../utils/catchAsync.js";
+import AppError from "../../utils/AppError.js";
+import { calculateCartTotal, decrementOrderStock } from "../../services/user/orderService.js";
 
 // Initialize Razorpay lazily so dotenv can populate process.env first
 let razorpayInstance = null;
@@ -18,61 +20,8 @@ const getRazorpay = () => {
   return razorpayInstance;
 };
 
-const calculateCartTotal = async (cart, couponDiscount = 0) => {
-  let subtotal = 0;
-  let totalOfferDiscount = 0;
-  const items = [];
-
-  for (const item of cart.items) {
-    const product = await Product.findById(item.product).populate('category');
-    if (!product) continue;
-    if (product.isDeleted || product.status !== "active") {
-      throw new Error(`"${product.title || "A product"}" is no longer available`);
-    }
-    if (product.quantity < item.quantity) {
-      throw new Error(`"${product.title}" has only ${product.quantity} units available`);
-    }
-
-    const itemPricing = await getItemPricing(product, item.quantity);
-
-    subtotal += itemPricing.originalSubtotal;
-    totalOfferDiscount += itemPricing.discountSubtotal;
-
-    items.push({
-      product: product._id,
-      quantity: item.quantity,
-      price: itemPricing.finalPrice,
-      originalPrice: itemPricing.originalPrice,
-      discountPercentage: itemPricing.discountPercentage,
-      discountAmount: itemPricing.discountAmount,
-      finalPrice: itemPricing.finalPrice,
-      subtotal: itemPricing.subtotal,
-      status: "Confirmed"
-    });
-  }
-
-  const amountBeforeTax = Math.max(0, subtotal - totalOfferDiscount - couponDiscount);
-  const tax = roundMoney(amountBeforeTax * 0.05); // 5% tax
-  const finalAmount = roundMoney(amountBeforeTax + tax);
-  
-  return {
-    subtotal: roundMoney(subtotal),
-    totalOfferDiscount: roundMoney(totalOfferDiscount),
-    tax,
-    finalAmount,
-    items
-  };
-};
-
-const decrementOrderStock = async (order) => {
-  for (const item of order.items) {
-    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } });
-  }
-};
-
 const paymentControler = {
-  createOrder: async (req, res) => {
-    try {
+  createOrder: catchAsync(async (req, res, next) => {
       const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
       
       // FIX: Extract paymentMethod sent from the frontend
@@ -200,87 +149,72 @@ const paymentControler = {
         orderId: newOrder._id,
         key_id: process.env.RAZORPAY_KEY_ID // FIX: Send the Key ID securely to the frontend
       });
+  }),
+
+  verifyPayment: catchAsync(async (req, res, next) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = req.body;
+    const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
+
+    // Create our own signature to verify
+    const sign = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSign = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "dummy_secret")
+      .update(sign.toString())
+      .digest("hex");
+
+    if (razorpay_signature === expectedSign) {
+      // Payment is mathematically verified
+      const order = await Order.findById(order_id);
+      const wasAlreadyPaid = order.paymentStatus === "Paid";
       
-    } catch (error) {
-      console.error("Create Order Error:", error);
-      // Check if it's a known stock/availability error from calculateCartTotal
-      if (error.message && (error.message.includes("no longer available") || error.message.includes("units available"))) {
-        return res.status(400).json({ success: false, message: error.message });
-      }
-      res.status(500).json({ success: false, message: "Internal server error" });
-    }
-  },
-
-  verifyPayment: async (req, res) => {
-    try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = req.body;
-      const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
-
-      // Create our own signature to verify
-      const sign = razorpay_order_id + "|" + razorpay_payment_id;
-      const expectedSign = crypto
-        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "dummy_secret")
-        .update(sign.toString())
-        .digest("hex");
-
-      if (razorpay_signature === expectedSign) {
-        // Payment is mathematically verified
-        const order = await Order.findById(order_id);
-        const wasAlreadyPaid = order.paymentStatus === "Paid";
-        
-        order.paymentStatus = "Paid";
-        order.status = "Confirmed";
-        order.items.forEach((item) => {
-          if (!item.status || item.status === "Ordered" || item.status === "Pending") {
-            item.status = "Confirmed";
-          }
-        });
-        
-        // Safely deduct wallet ONLY using the securely stored 'walletUsed' amount
-        if (order.paymentMethod === "Wallet+Online") {
-          const wallet = await Wallet.findOne({ user: userId });
-          
-          wallet.balance -= order.walletUsed; 
-          wallet.transactions.push({ 
-              type: "debit", 
-              amount: order.walletUsed, 
-              description: `Partial payment for Order ${order.orderId}` 
-          });
-          await wallet.save();
+      order.paymentStatus = "Paid";
+      order.status = "Confirmed";
+      order.items.forEach((item) => {
+        if (!item.status || item.status === "Ordered" || item.status === "Pending") {
+          item.status = "Confirmed";
         }
+      });
+      
+      // Safely deduct wallet ONLY using the securely stored 'walletUsed' amount
+      if (order.paymentMethod === "Wallet+Online") {
+        const wallet = await Wallet.findOne({ user: userId });
         
-        await order.save();
-        if (!wasAlreadyPaid) {
-          await decrementOrderStock(order);
-        }
-        
-        // Clear the user's cart
-        await Cart.findOneAndDelete({ user: userId });
-        req.session.lastOrderId = order._id.toString();
-
-        res.json({
-          success: true,
-          message: "Payment verified successfully",
-          redirectUrl: `/orders/success/${order._id}`
+        wallet.balance -= order.walletUsed; 
+        wallet.transactions.push({ 
+            type: "debit", 
+            amount: order.walletUsed, 
+            description: `Partial payment for Order ${order.orderId}` 
         });
-      } else {
-        res.status(400).json({ success: false, message: "Invalid signature" });
+        await wallet.save();
       }
-    } catch (error) {
-      console.error("Verify Payment Error:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
+      
+      await order.save();
+      if (!wasAlreadyPaid) {
+        await decrementOrderStock(order);
+      }
+      
+      // Clear the user's cart
+      await Cart.findOneAndDelete({ user: userId });
+      req.session.lastOrderId = order._id.toString();
+
+      res.json({
+        success: true,
+        message: "Payment verified successfully",
+        redirectUrl: `/orders/success/${order._id}`
+      });
+    } else {
+      throw new AppError("Invalid signature", 400);
     }
-  },
+  }),
 
   paymentSuccess: (req, res) => {
     const redirectUrl = req.session?.lastOrderId ? `/orders/success/${req.session.lastOrderId}` : "/orders";
     res.redirect(redirectUrl);
   },
 
-  paymentFailureCallback: async (req, res) => {
-    try {
+  paymentFailureCallback: catchAsync(async (req, res, next) => {
       const { order_id } = req.body;
-      if (!order_id) return res.status(400).json({ success: false });
+      if (!order_id) throw new AppError("Order ID required", 400);
 
       const order = await Order.findById(order_id);
       if (order && order.paymentStatus === "Pending") {
@@ -305,22 +239,17 @@ const paymentControler = {
         await Cart.findOneAndDelete({ user: userId });
       }
       res.json({ success: true });
-    } catch (error) {
-      console.error("Payment Failure Callback Error:", error);
-      res.status(500).json({ success: false });
-    }
-  },
+  }),
 
   paymentFailure: (req, res) => {
     res.render("user/payment/failure", { title: "Payment Failed" });
   },
 
-  retryPayment: async (req, res) => {
-    try {
+  retryPayment: catchAsync(async (req, res, next) => {
       const { orderId } = req.params;
       const order = await Order.findById(orderId);
       if (!order || order.paymentStatus !== "Failed") {
-        return res.status(400).json({ success: false, message: "Invalid order or order is not in failed state" });
+        throw new AppError("Invalid order or order is not in failed state", 400);
       }
 
       const amountToPay = order.finalAmount - (order.walletUsed || 0);
@@ -339,12 +268,7 @@ const paymentControler = {
         orderId: order._id,
         key_id: process.env.RAZORPAY_KEY_ID 
       });
-      
-    } catch (error) {
-      console.error("Retry Payment Error:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
-    }
-  }
+  })
 };
 
 export default paymentControler;

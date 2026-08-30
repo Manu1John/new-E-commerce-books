@@ -3,10 +3,64 @@ import Product from "../../models/products.js";
 import Wallet from "../../models/Wallet.js";
 import User from "../../models/User.js";
 import PDFDocument from "pdfkit";
-import { getOrderMoneySummary, roundMoney } from "./pricingService.js";
+import { getOrderMoneySummary, roundMoney, getItemPricing } from "./pricingService.js";
+import AppError from "../../utils/AppError.js";
 
 const CANCELLABLE_STATUSES = ["Ordered", "Pending", "Confirmed", "Processing", "Packed"];
 const INACTIVE_STATUSES = ["Cancelled", "Returned", "Partially Returned", "Refunded"];
+
+export const calculateCartTotal = async (cart, couponDiscount = 0) => {
+  let subtotal = 0;
+  let totalOfferDiscount = 0;
+  const items = [];
+
+  for (const item of cart.items) {
+    const product = await Product.findById(item.product).populate('category');
+    if (!product) continue;
+    if (product.isDeleted || product.status !== "active") {
+      throw new AppError(`"${product.title || "A product"}" is no longer available`, 400);
+    }
+    if (product.quantity < item.quantity) {
+      throw new AppError(`"${product.title}" has only ${product.quantity} units available`, 400);
+    }
+
+    const itemPricing = await getItemPricing(product, item.quantity);
+
+    subtotal += itemPricing.originalSubtotal;
+    totalOfferDiscount += itemPricing.discountSubtotal;
+
+    items.push({
+      product: product._id,
+      quantity: item.quantity,
+      price: itemPricing.finalPrice,
+      originalPrice: itemPricing.originalPrice,
+      discountPercentage: itemPricing.discountPercentage,
+      discountAmount: itemPricing.discountAmount,
+      finalPrice: itemPricing.finalPrice,
+      subtotal: itemPricing.subtotal,
+      status: "Confirmed"
+    });
+  }
+
+  const amountBeforeTax = Math.max(0, subtotal - totalOfferDiscount - couponDiscount);
+  const tax = roundMoney(amountBeforeTax * 0.05); // 5% tax
+  const finalAmount = roundMoney(amountBeforeTax + tax);
+  
+  return {
+    subtotal: roundMoney(subtotal),
+    totalOfferDiscount: roundMoney(totalOfferDiscount),
+    tax,
+    finalAmount,
+    items
+  };
+};
+
+export const decrementOrderStock = async (order) => {
+  for (const item of order.items) {
+    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } });
+  }
+};
+
 
 export const normalizeOrderItem = (item, orderStatus = "Pending") => {
   const itemObject = item.toObject ? item.toObject() : { ...item };
@@ -108,12 +162,10 @@ const refundOrderItemIfNeeded = async (order, item) => {
   const itemTotal = (item.finalPrice || item.price || 0) * item.quantity;
   const orderItemsTotal = order.items.reduce((sum, it) => sum + ((it.finalPrice || it.price || 0) * it.quantity), 0);
   
-  let proportionalCouponDiscount = 0;
-  if (order.couponDiscount > 0 && orderItemsTotal > 0) {
-    proportionalCouponDiscount = (itemTotal / orderItemsTotal) * order.couponDiscount;
-  }
+  const proportion = orderItemsTotal > 0 ? (itemTotal / orderItemsTotal) : 0;
   
-  const refundAmount = roundMoney(Math.max(0, itemTotal - proportionalCouponDiscount));
+  // Calculate refund amount as an exact proportion of the final paid amount
+  const refundAmount = roundMoney(order.finalAmount * proportion);
   if (refundAmount <= 0) return 0;
 
   const wallet = await ensureWallet(order.user);
@@ -130,44 +182,29 @@ const refundOrderItemIfNeeded = async (order, item) => {
 };
 
 export const cancelOrderItemService = async (userId, orderId, itemId, cancellationReason = "") => {
-  const order = await Order.findOne({ _id: orderId, user: userId });
-  if (!order) throw new Error("Order not found");
+  // ATOMIC LOCK: Claim the item for cancellation to prevent double-refund race conditions
+  const order = await Order.findOneAndUpdate(
+    { 
+      _id: orderId, 
+      user: userId, 
+      "items._id": itemId,
+      "items.status": { $in: CANCELLABLE_STATUSES }
+    },
+    { $set: { "items.$.status": "Cancelling_In_Progress" } },
+    { returnDocument: "after" }
+  );
 
-  const item = order.items.id(itemId);
-  if (!item) throw new Error("Order item not found");
-
-  const itemStatus = item.status || order.status || "Pending";
-  if (!CANCELLABLE_STATUSES.includes(itemStatus)) {
-    throw new Error(`This item cannot be cancelled because it is currently ${itemStatus}`);
+  if (!order) {
+    throw new Error("This item cannot be cancelled because it is not in a cancellable state or is already being processed.");
   }
 
-  item.status = "Cancelled";
+  const item = order.items.id(itemId);
+
+  item.status = "Cancellation Requested";
   item.cancellationReason = cancellationReason || "Cancelled by user";
   item.cancelledAt = new Date();
 
-  const wasStockDeducted = order.paymentMethod === "COD" || ["Paid", "Refunded"].includes(order.paymentStatus);
-  if (wasStockDeducted) {
-    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
-  }
-  const refundAmount = await refundOrderItemIfNeeded(order, item);
-
-  const cancelledFinal = roundMoney((item.finalPrice || item.price || 0) * item.quantity);
-  const cancelledOriginal = roundMoney((item.originalPrice || item.price || 0) * item.quantity);
-  const cancelledOfferDiscount = roundMoney((item.discountAmount || 0) * item.quantity);
-
-  order.finalAmount = roundMoney(Math.max(0, order.finalAmount - cancelledFinal));
-  order.totalAmount = roundMoney(Math.max(0, order.totalAmount - cancelledOriginal));
-  order.offerDiscount = roundMoney(Math.max(0, (order.offerDiscount || 0) - cancelledOfferDiscount));
-  order.status = order.items.every((orderItem) => (orderItem.status || order.status) === "Cancelled") ? "Cancelled" : "Processing";
-
-  if (order.items.every((orderItem) => ["Cancelled", "Refunded"].includes(orderItem.status || "")) && order.paymentStatus === "Paid") {
-    order.paymentStatus = "Refunded";
-  }
-
-  if (order.status === "Cancelled" && order.couponApplied) {
-    const Coupon = (await import("../../models/Coupon.js")).default;
-    await Coupon.findByIdAndUpdate(order.couponApplied, { $pull: { usedBy: userId } });
-  }
+  order.status = order.items.every((orderItem) => ["Cancellation Requested", "Cancelled", "Return Requested", "Returned", "Refunded"].includes(orderItem.status || "")) ? "Cancellation Requested" : order.status;
 
   await order.save();
   const populatedOrder = await Order.findById(order._id)
@@ -178,53 +215,42 @@ export const cancelOrderItemService = async (userId, orderId, itemId, cancellati
   return {
     order: prepareOrderForView(populatedOrder),
     itemId,
-    itemStatus: "Cancelled",
-    refundAmount
+    itemStatus: "Cancellation Requested",
+    refundAmount: 0 // Refund is pending admin approval
   };
 };
 
 export const cancelOrderService = async (userId, orderId, cancellationReason) => {
-  const order = await Order.findOne({ _id: orderId, user: userId });
+  // ATOMIC LOCK: Claim all cancellable items at once to prevent race conditions
+  const order = await Order.findOneAndUpdate(
+    { _id: orderId, user: userId },
+    { $set: { "items.$[elem].status": "Cancelling_In_Progress" } },
+    { 
+      arrayFilters: [{ "elem.status": { $in: CANCELLABLE_STATUSES } }],
+      returnDocument: "after" 
+    }
+  );
+
   if (!order) throw new Error("Order not found");
 
-  // Always filter using each item's own status, not the parent order status
-  // This allows cancellation of remaining items even on Partially Returned orders
-  const cancellableItems = order.items.filter((item) => {
-    const effectiveStatus = item.status || order.status;
-    return CANCELLABLE_STATUSES.includes(effectiveStatus);
-  });
+  const cancellableItems = order.items.filter((item) => item.status === "Cancelling_In_Progress");
 
   if (!cancellableItems.length) {
-    throw new Error(`Order cannot be cancelled because it is currently ${order.status}`);
+    throw new Error(`Order cannot be cancelled because no items are in a cancellable state or they are already being processed.`);
   }
 
   for (const item of cancellableItems) {
-    item.status = "Cancelled";
+    item.status = "Cancellation Requested";
     item.cancellationReason = cancellationReason || "Cancelled by user";
     item.cancelledAt = new Date();
-    const wasStockDeducted = order.paymentMethod === "COD" || ["Paid", "Refunded"].includes(order.paymentStatus);
-    if (wasStockDeducted) {
-      await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
-    }
-    await refundOrderItemIfNeeded(order, item);
   }
 
   // Determine final order status based on all item statuses
   const allStatuses = order.items.map((item) => item.status || order.status);
-  const allCancelled = allStatuses.every((s) => s === "Cancelled");
-  const hasReturned = allStatuses.some((s) => s === "Returned");
-  const hasCancelled = allStatuses.some((s) => s === "Cancelled");
-
+  const allCancelled = allStatuses.every((s) => ["Cancellation Requested", "Cancelled"].includes(s));
+  
   if (allCancelled) {
-    order.status = "Cancelled";
-    // Restore coupon if it was applied and everything is cancelled
-    if (order.couponApplied) {
-      const Coupon = (await import("../../models/Coupon.js")).default;
-      await Coupon.findByIdAndUpdate(order.couponApplied, { $pull: { usedBy: userId } });
-    }
-  } else if (hasReturned && hasCancelled) {
-    // Mixed: some returned, some cancelled — treat entire order as Cancelled
-    order.status = "Cancelled";
+    order.status = "Cancellation Requested";
   } else {
     order.status = "Processing";
   }
@@ -239,14 +265,12 @@ export const returnOrderService = async (userId, orderId, returnReason) => {
   if (!order) throw new Error("Order not found");
   if (order.status !== "Delivered") throw new Error("Only delivered orders can be returned");
 
-  order.status = "Returned";
+  order.status = "Return Requested";
   order.returnReason = returnReason;
 
   for (let item of order.items) {
     if (item.status === "Delivered") {
-      item.status = "Returned";
-      await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
-      await refundOrderItemIfNeeded(order, item);
+      item.status = "Return Requested";
     }
   }
 
@@ -265,20 +289,10 @@ export const returnOrderItemService = async (userId, orderId, itemId, returnReas
     throw new Error(`This item cannot be returned because it is currently ${item.status}`);
   }
 
-  item.status = "Returned";
+  item.status = "Return Requested";
   item.returnReason = returnReason || "Returned by user";
 
-  await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
-  const refundAmount = await refundOrderItemIfNeeded(order, item);
-
-  const returnedFinal = roundMoney((item.finalPrice || item.price || 0) * item.quantity);
-  const returnedOriginal = roundMoney((item.originalPrice || item.price || 0) * item.quantity);
-  const returnedOfferDiscount = roundMoney((item.discountAmount || 0) * item.quantity);
-
-  order.finalAmount = roundMoney(Math.max(0, order.finalAmount - returnedFinal));
-  order.totalAmount = roundMoney(Math.max(0, order.totalAmount - returnedOriginal));
-  order.offerDiscount = roundMoney(Math.max(0, (order.offerDiscount || 0) - returnedOfferDiscount));
-  order.status = order.items.every((orderItem) => ["Returned", "Cancelled", "Refunded"].includes(orderItem.status)) ? "Returned" : "Partially Returned";
+  order.status = order.items.every((orderItem) => ["Return Requested", "Returned", "Cancelled", "Refunded"].includes(orderItem.status)) ? "Return Requested" : "Partially Returned";
 
   await order.save();
   const populatedOrder = await Order.findById(order._id)
@@ -289,8 +303,8 @@ export const returnOrderItemService = async (userId, orderId, itemId, returnReas
   return {
     order: prepareOrderForView(populatedOrder),
     itemId,
-    itemStatus: "Returned",
-    refundAmount
+    itemStatus: "Return Requested",
+    refundAmount: 0 // Refund is pending admin approval
   };
 };
 

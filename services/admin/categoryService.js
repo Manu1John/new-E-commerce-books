@@ -80,17 +80,17 @@ export const postEditCategoryService = async(categoryId,categoryData)=>{
         description,
         status
 
-    },{new:true})
+    },{returnDocument:'after'})
     return{
         updateCategory
     }
 }
 export const softDeleteCategoryService = async (categoryId) => {
     // This flips the flag in the database
-    const deleteCategory = await Category.findByIdAndDelete(
+    const deleteCategory = await Category.findByIdAndUpdate(
         categoryId,
         { isDeleted: true },
-        { new: true }
+        { returnDocument: 'after' }
     );
     return deleteCategory
 };

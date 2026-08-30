@@ -72,7 +72,22 @@ app.use((req, res, next) => {
 // 500 Error Handler
 app.use((err, req, res, next) => {
     console.error("Global Error Handler:", err.stack);
-    res.status(500).render("500", { title: "500 Server Error", error: process.env.NODE_ENV === "development" ? err : {} });
+    
+    const statusCode = err.statusCode || 500;
+    
+    // Check if the request expects JSON or is an AJAX request
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('json')) || req.is('json')) {
+        return res.status(statusCode).json({
+            success: false,
+            message: err.message || "Internal server error",
+            error: process.env.NODE_ENV === "development" ? err.stack : undefined
+        });
+    }
+
+    res.status(statusCode).render("500", { 
+        title: "500 Server Error", 
+        error: process.env.NODE_ENV === "development" ? err : {} 
+    });
 });
 
 const PORT = process.env.PORT || 5000;

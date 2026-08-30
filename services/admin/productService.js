@@ -128,7 +128,7 @@ export async function postEditProductService(productId, productData, finalImages
         quantity,
         status,
         images: finalImages   // Use the resolved list passed from controller
-    }, { new: true });
+    }, { returnDocument: 'after' });
 
     return currentProduct;
 }

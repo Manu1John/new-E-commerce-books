@@ -111,7 +111,7 @@ export const updateAddressService = async (userId, addressId, addressData) => {
             pincode: pincodeNorm,
             addressType
         },
-        { new: true } // Added to ensure Mongoose returns the newly updated document
+        { returnDocument: 'after' } // Added to ensure Mongoose returns the newly updated document
     );
 
     return {

@@ -49,7 +49,10 @@ const orderItemSchema = new mongoose.Schema({
       "Cancelled",
       "Returned",
       "Partially Returned",
-      "Refunded"
+      "Refunded",
+      "Payment Failed",
+      "Return Requested",
+      "Cancellation Requested"
     ],
     default: "Ordered"
   },
@@ -153,7 +156,10 @@ const orderSchema = new mongoose.Schema(
             "Cancelled", 
             "Returned",
             "Partially Returned",
-            "Refunded"
+            "Refunded",
+            "Payment Failed",
+            "Return Requested",
+            "Cancellation Requested"
         ],
         default: "Pending"
     },
@@ -167,7 +173,8 @@ const orderSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    optimisticConcurrency: true
   }
 );
 

@@ -10,31 +10,37 @@
 
 /* Foolproof way to fill any space below the footer with dark color */
 html {
-  background-color: #212529 !important; /* matches bg-dark */
+  background-color: var(--bg-dark) !important;
+  /* matches bg-dark */
 }
 
 body {
   padding-top: 85px;
-  background-color: #ffffff; /* keep main page white */
+  background-color: var(--bg-light);
+  /* keep main page white */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
 /* Ensure footer pushes to bottom if content is short, but if there's space below it, HTML background handles it */
-footer#footer, #footer, .auth-footer, footer {
+footer#footer,
+#footer,
+.auth-footer,
+footer {
   margin-top: auto !important;
 }
 
 /* ---------- nav link hover: scale + sliding underline ---------- */
 .nav-link-item {
   text-decoration: none;
-  color: #111;
+  color: var(--text-main);
   font-weight: 500;
   position: relative;
   display: inline-block;
   padding-bottom: 2px;
-  transition: transform 0.2s ease, color 0.2s ease;
+
+  transition: transform var(--transition-normal), color var(--transition-normal);
   letter-spacing: 0.05em;
 }
 
@@ -45,13 +51,13 @@ footer#footer, #footer, .auth-footer, footer {
   bottom: -3px;
   height: 2px;
   width: 0;
-  background: #b88c44;
-  transition: width 0.3s ease;
+  background: var(--primary-color);
+  transition: width var(--transition-slow);
 }
 
 .nav-link-item:hover {
   transform: scale(1.06);
-  color: #b88c44;
+  color: var(--primary-color);
 }
 
 .nav-link-item:hover::after {
@@ -60,12 +66,12 @@ footer#footer, #footer, .auth-footer, footer {
 
 /* ---------- action icons (user / logout / account) ---------- */
 .action-hover {
-  transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+  transition: transform var(--transition-normal), opacity var(--transition-normal), color var(--transition-normal);
 }
 
 .action-hover:hover {
   transform: scale(1.12);
-  color: #b88c44 !important;
+  color: var(--primary-color) !important;
   opacity: 0.9;
 }
 
@@ -76,18 +82,18 @@ footer#footer, #footer, .auth-footer, footer {
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border-medium);
   border-radius: 24px;
   padding: 2px 4px;
   gap: 0;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  transition: box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal);
 }
 
 .unified-search-form:focus-within {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  border-color: rgba(0,0,0,0.22);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-focus);
 }
 
 .unified-search-input {
@@ -95,7 +101,7 @@ footer#footer, #footer, .auth-footer, footer {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  color: #111;
+  color: var(--text-main);
   flex: 1;
   font-size: 0.9rem;
   border-radius: 20px 0 0 20px !important;
@@ -103,7 +109,7 @@ footer#footer, #footer, .auth-footer, footer {
 }
 
 .unified-search-input::placeholder {
-  color: #888;
+  color: var(--text-muted);
   font-size: 0.88rem;
 }
 
@@ -114,14 +120,30 @@ footer#footer, #footer, .auth-footer, footer {
   padding: 7px 16px;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: background var(--transition-normal), transform var(--transition-fast);
 }
 
-.search-btn       { background: #111; color: #fff; }
-.search-btn:hover { background: #333; transform: scale(1.03); }
+.search-btn {
+  background: var(--dark-color);
+  color: var(--text-light);
+}
 
-.clear-search-btn       { background: #dc3545; color: #fff; font-size: 18px; line-height: 1; }
-.clear-search-btn:hover { background: #b02a37; transform: scale(1.03); }
+.search-btn:hover {
+  background: var(--dark-hover);
+  transform: scale(1.03);
+}
+
+.clear-search-btn {
+  background: var(--danger-color);
+  color: var(--text-light);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.clear-search-btn:hover {
+  background: var(--danger-hover);
+  transform: scale(1.03);
+}
 
 /* ---------- badge ---------- */
 .js-cart-count,
@@ -131,11 +153,13 @@ footer#footer, #footer, .auth-footer, footer {
 }
 
 /* ---------- hamburger cursor ---------- */
-.hamburger { cursor: pointer; }
+.hamburger {
+  cursor: pointer;
+}
 
 /* ---------- mobile menu shadow tweak ---------- */
 #unifiedMobileMenu.show {
-  border-top: 1px solid rgba(0,0,0,0.07);
+  border-top: 1px solid var(--border-light);
   padding-top: 8px;
 }
 
@@ -144,7 +168,7 @@ footer#footer, #footer, .auth-footer, footer {
   .menu-list {
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-md);
     padding: 12px 16px !important;
   }
 

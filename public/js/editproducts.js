@@ -47,11 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!files.length) return;
 
         if (imageArray.length + files.length > 5) {
-            Swal.fire({
-                icon: "info",
-                title: "Oops...",
+            Toastify({
                 text: 'Maximum limit reached! A product cannot have more than 5 images.',
-            });
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc3545"
+            }).showToast();
             this.value = '';
             return;
         }
@@ -300,30 +302,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 data = JSON.parse(textData);
             } catch (jsonError) {
                 console.error("🚨 CRITICAL: Unexpected backend output parsing error.", textData);
-                Swal.fire({
-                    icon: "error",
-                    title: "Server Error",
+                Toastify({
                     text: "The server did not return a valid response.",
-                });
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc3545"
+                }).showToast();
                 return;
             }
 
             if (response.ok) {
                 window.location.href = data.redirectUrl || '/admin/products'; 
             } else {
-                Swal.fire({
-                    icon: "info",
-                    title: "Oops...",
+                Toastify({
                     text: data.error || "Product name already exists or invalid data!",
-                });
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#dc3545"
+                }).showToast();
             }
         } catch (error) {
             console.error('Network Upload Exception:', error);
-            Swal.fire({
-                title: "Network Error",
+            Toastify({
                 text: "A network error occurred while submitting.",
-                icon: "error"
-            });
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc3545"
+            }).showToast();
         }
     });
 });

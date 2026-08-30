@@ -1,6 +1,7 @@
 import Order from "../../models/Order.js";
 import User from "../../models/User.js";
 import { prepareOrderForView } from "../user/orderService.js";
+import { roundMoney } from "../user/pricingService.js";
 
 export const getAllOrdersService = async (page, limit, search, statusFilter) => {
     const skip = (page - 1) * limit;
@@ -89,7 +90,7 @@ export const updateOrderStatusService = async (orderId, status) => {
                               order.paymentMethod === "Wallet" || 
                               order.paymentMethod === "Wallet+Online";
 
-  // Check if we are moving to a refunded/cancelled state AND they haven't received a refund yet
+  // Check if we are moving to a refunded/cancelled state AND they haven't received a full refund yet
   if (isBecomingInactive && isEligibleForRefund && order.paymentStatus !== "Refunded") {
     
     const Wallet = (await import("../../models/Wallet.js")).default;
@@ -103,23 +104,47 @@ export const updateOrderStatusService = async (orderId, status) => {
       await UserAuthentication.findByIdAndUpdate(order.user, { wallet: wallet._id });
     }
 
-    // Process the refund into the wallet
-    wallet.balance += order.finalAmount;
-    wallet.transactions.push({
-      type: "credit",
-      amount: order.finalAmount,
-      description: `Refund for Order ${order.orderId || order._id}`
-    });
-    
-    await wallet.save();
-    
+    let totalRefundAmount = 0;
+    const orderItemsTotal = order.items.reduce((sum, it) => sum + ((it.finalPrice || it.price || 0) * it.quantity), 0);
+
+    for (const item of order.items) {
+      if (!item.refundedAmount) {
+        const itemTotal = (item.finalPrice || item.price || 0) * item.quantity;
+        const proportion = orderItemsTotal > 0 ? (itemTotal / orderItemsTotal) : 0;
+        const refundAmount = roundMoney(order.finalAmount * proportion);
+        totalRefundAmount += refundAmount;
+        item.refundedAmount = refundAmount;
+      }
+    }
+
+    totalRefundAmount = roundMoney(totalRefundAmount);
+
+    if (totalRefundAmount > 0) {
+        // We will save this after order.save() succeeds to prevent double refunds on concurrent requests
+        wallet.balance += totalRefundAmount;
+        wallet.transactions.push({
+          type: "credit",
+          amount: totalRefundAmount,
+          description: `Refund for Order ${order.orderId || order._id}`
+        });
+        
+        // Store wallet in variable to save later
+        order._pendingWalletToSave = wallet;
+    }
+
     // Update the payment status so they can't be refunded twice
     order.paymentStatus = "Refunded";
   }
 
   // Finally, update the overarching order status
   order.status = status;
-  await order.save();
+  await order.save(); // Will throw VersionError if modified concurrently
+
+  // Save wallet ONLY after order successfully saves
+  if (order._pendingWalletToSave) {
+    await order._pendingWalletToSave.save();
+  }
+
   return prepareOrderForView(order);
 };
 
@@ -170,57 +195,50 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
       await UserAuthentication.findByIdAndUpdate(order.user, { wallet: wallet._id });
     }
 
-    const refundAmount = item.finalPrice * item.quantity;
+    const itemTotal = (item.finalPrice || item.price || 0) * item.quantity;
+    const orderItemsTotal = order.items.reduce((sum, it) => sum + ((it.finalPrice || it.price || 0) * it.quantity), 0);
+    const proportion = orderItemsTotal > 0 ? (itemTotal / orderItemsTotal) : 0;
+    const refundAmount = roundMoney(order.finalAmount * proportion);
+    
     wallet.balance += refundAmount;
     wallet.transactions.push({
       type: "credit",
       amount: refundAmount,
       description: `Refund for Item Cancelled/Returned in Order ${order.orderId || order._id}`
     });
-    await wallet.save();
 
-    // Update refunded amount atomically on the item subdocument
-    await Order.findOneAndUpdate(
-      { _id: orderId, "items._id": itemId },
-      { $set: { "items.$.refundedAmount": refundAmount } }
-    );
+    item.refundedAmount = refundAmount;
+    order._pendingWalletToSave = wallet;
   }
 
   // Calculate order-level status
   const allDelivered = order.items.every(i => i._id.toString() === itemId ? status === "Delivered" : i.status === "Delivered");
   const allInactive = order.items.every(i => i._id.toString() === itemId ? isBecomingInactive : ["Cancelled", "Returned", "Refunded"].includes(i.status));
 
-  let newOrderStatus = order.status;
   if (allDelivered) {
-    newOrderStatus = "Delivered";
+    order.status = "Delivered";
   } else if (allInactive) {
-    newOrderStatus = "Cancelled";
+    order.status = "Cancelled";
   } else if (order.status === "Delivered" && !allDelivered) {
-    newOrderStatus = "Processing"; // rollback
+    order.status = "Processing"; // rollback
   }
 
-  // Use atomic findOneAndUpdate with $ positional operator to avoid VersionError
-  // This updates only the matching item subdocument in a single atomic operation
-  const updatedOrder = await Order.findOneAndUpdate(
-    { _id: orderId, "items._id": itemId },
-    {
-      $set: {
-        status: newOrderStatus,
-        "items.$.status": status
-      },
-      $push: {
-        "items.$.statusHistory": {
-          status: status,
-          date: new Date(),
-          notes: `Status updated to ${status} by Admin`
-        }
-      }
-    },
-    { new: true }
-  ).populate("items.product");
+  item.status = status;
+  item.statusHistory.push({
+    status: status,
+    date: new Date(),
+    notes: `Status updated to ${status} by Admin`
+  });
 
-  if (!updatedOrder) throw new Error("Failed to update order item status");
+  // Save order first (relies on optimisticConcurrency to prevent race conditions)
+  await order.save();
 
+  // Save wallet ONLY after order successfully saves
+  if (order._pendingWalletToSave) {
+    await order._pendingWalletToSave.save();
+  }
+
+  const updatedOrder = await Order.findById(orderId).populate("items.product");
   return prepareOrderForView(updatedOrder);
 };
 
