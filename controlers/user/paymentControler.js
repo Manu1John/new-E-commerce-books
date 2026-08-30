@@ -107,21 +107,23 @@ const paymentControler = {
         status: (amountToPay === 0 || paymentMethod === "COD") ? "Confirmed" : "Pending"
       });
 
+      // FIX: Deduct wallet balance immediately to prevent double spending
+      if (walletUsedAmount > 0) {
+         const wallet = await Wallet.findOne({ user: userId });
+         wallet.balance -= walletUsedAmount;
+         wallet.transactions.push({ 
+             type: "debit", 
+             amount: walletUsedAmount, 
+             description: `Payment for Order ${newOrder.orderId}` 
+         });
+         await wallet.save();
+      }
+
+      // FIX: Deduct stock immediately to prevent negative stock race conditions
+      await decrementOrderStock(newOrder);
+
       // If fully paid by wallet or it's COD, we don't need Razorpay
       if (amountToPay === 0 || paymentMethod === "COD") {
-        if (paymentMethod === "Wallet") {
-           const wallet = await Wallet.findOne({ user: userId });
-           wallet.balance -= walletUsedAmount;
-           wallet.transactions.push({ 
-               type: "debit", 
-               amount: walletUsedAmount, 
-               description: `Payment for Order ${newOrder.orderId}` 
-           });
-           await wallet.save();
-        }
-
-        await decrementOrderStock(newOrder);
-        
         await Cart.findOneAndDelete({ user: userId }); // Clear cart
         req.session.lastOrderId = newOrder._id.toString();
         
@@ -175,23 +177,8 @@ const paymentControler = {
         }
       });
       
-      // Safely deduct wallet ONLY using the securely stored 'walletUsed' amount
-      if (order.paymentMethod === "Wallet+Online") {
-        const wallet = await Wallet.findOne({ user: userId });
-        
-        wallet.balance -= order.walletUsed; 
-        wallet.transactions.push({ 
-            type: "debit", 
-            amount: order.walletUsed, 
-            description: `Partial payment for Order ${order.orderId}` 
-        });
-        await wallet.save();
-      }
-      
+      // Stock and wallet are now deducted during createOrder
       await order.save();
-      if (!wasAlreadyPaid) {
-        await decrementOrderStock(order);
-      }
       
       // Clear the user's cart
       await Cart.findOneAndDelete({ user: userId });
@@ -229,11 +216,26 @@ const paymentControler = {
         
         const userId = req.session?.user?._id || req.session?.user?.id || req.user?._id;
 
-        // Restore coupon if applied
-        if (order.couponApplied) {
-          const Coupon = (await import("../../models/Coupon.js")).default;
-          await Coupon.findByIdAndUpdate(order.couponApplied, { $pull: { usedBy: userId } });
+        // FIX: Restore wallet balance if it was deducted
+        if (order.walletUsed && order.walletUsed > 0) {
+          const Wallet = (await import("../../models/Wallet.js")).default;
+          await Wallet.findOneAndUpdate(
+            { user: userId },
+            { 
+              $inc: { balance: order.walletUsed },
+              $push: { transactions: { type: "credit", amount: order.walletUsed, description: `Refund for Failed Payment Order ${order.orderId}` } }
+            }
+          );
         }
+
+        // FIX: Restore stock that was deducted during createOrder
+        const Product = (await import("../../models/products.js")).default;
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+        }
+
+        // FIX: Do NOT restore coupon to prevent reuse exploit on retryPayment. 
+        // Coupon remains attached to this failed order so it can be retried.
         
         // Also ensure cart is cleared so they don't have duplicate items if they retry from orders page
         await Cart.findOneAndDelete({ user: userId });

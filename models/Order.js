@@ -52,7 +52,8 @@ const orderItemSchema = new mongoose.Schema({
       "Refunded",
       "Payment Failed",
       "Return Requested",
-      "Cancellation Requested"
+      "Cancellation Requested",
+      "Cancelling_In_Progress"
     ],
     default: "Ordered"
   },
@@ -159,7 +160,8 @@ const orderSchema = new mongoose.Schema(
             "Refunded",
             "Payment Failed",
             "Return Requested",
-            "Cancellation Requested"
+            "Cancellation Requested",
+            "Cancelling_In_Progress"
         ],
         default: "Pending"
     },

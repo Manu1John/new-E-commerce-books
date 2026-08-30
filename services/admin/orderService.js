@@ -120,16 +120,7 @@ export const updateOrderStatusService = async (orderId, status) => {
     totalRefundAmount = roundMoney(totalRefundAmount);
 
     if (totalRefundAmount > 0) {
-        // We will save this after order.save() succeeds to prevent double refunds on concurrent requests
-        wallet.balance += totalRefundAmount;
-        wallet.transactions.push({
-          type: "credit",
-          amount: totalRefundAmount,
-          description: `Refund for Order ${order.orderId || order._id}`
-        });
-        
-        // Store wallet in variable to save later
-        order._pendingWalletToSave = wallet;
+        order._pendingWalletUpdate = { amount: totalRefundAmount };
     }
 
     // Update the payment status so they can't be refunded twice
@@ -140,9 +131,16 @@ export const updateOrderStatusService = async (orderId, status) => {
   order.status = status;
   await order.save(); // Will throw VersionError if modified concurrently
 
-  // Save wallet ONLY after order successfully saves
-  if (order._pendingWalletToSave) {
-    await order._pendingWalletToSave.save();
+  // FIX: Process Wallet Refund securely with atomic update after order save
+  if (order._pendingWalletUpdate) {
+    const Wallet = (await import("../../models/Wallet.js")).default;
+    await Wallet.findOneAndUpdate(
+      { user: order.user },
+      {
+        $inc: { balance: order._pendingWalletUpdate.amount },
+        $push: { transactions: { type: "credit", amount: order._pendingWalletUpdate.amount, description: `Refund for Order ${order.orderId || order._id}` } }
+      }
+    );
   }
 
   return prepareOrderForView(order);
@@ -200,15 +198,8 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
     const proportion = orderItemsTotal > 0 ? (itemTotal / orderItemsTotal) : 0;
     const refundAmount = roundMoney(order.finalAmount * proportion);
     
-    wallet.balance += refundAmount;
-    wallet.transactions.push({
-      type: "credit",
-      amount: refundAmount,
-      description: `Refund for Item Cancelled/Returned in Order ${order.orderId || order._id}`
-    });
-
     item.refundedAmount = refundAmount;
-    order._pendingWalletToSave = wallet;
+    order._pendingWalletUpdate = { amount: refundAmount };
   }
 
   // Calculate order-level status
@@ -219,6 +210,8 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
     order.status = "Delivered";
   } else if (allInactive) {
     order.status = "Cancelled";
+    // FIX: Standardize refund logic on the order level
+    if (order.paymentStatus === "Paid") order.paymentStatus = "Refunded";
   } else if (order.status === "Delivered" && !allDelivered) {
     order.status = "Processing"; // rollback
   }
@@ -233,9 +226,16 @@ export const updateOrderItemStatusService = async (orderId, itemId, status) => {
   // Save order first (relies on optimisticConcurrency to prevent race conditions)
   await order.save();
 
-  // Save wallet ONLY after order successfully saves
-  if (order._pendingWalletToSave) {
-    await order._pendingWalletToSave.save();
+  // FIX: Process Wallet Refund securely with atomic update after order save
+  if (order._pendingWalletUpdate && order._pendingWalletUpdate.amount > 0) {
+    const Wallet = (await import("../../models/Wallet.js")).default;
+    await Wallet.findOneAndUpdate(
+      { user: order.user },
+      {
+        $inc: { balance: order._pendingWalletUpdate.amount },
+        $push: { transactions: { type: "credit", amount: order._pendingWalletUpdate.amount, description: `Refund for Item Cancelled/Returned in Order ${order.orderId || order._id}` } }
+      }
+    );
   }
 
   const updatedOrder = await Order.findById(orderId).populate("items.product");

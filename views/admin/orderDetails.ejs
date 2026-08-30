@@ -1,308 +1,389 @@
 <%- include('../partials/header') %>
-<link rel="stylesheet" href="/css/adminLayout.css">
-<!-- FontAwesome & SweetAlert2 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/css/adminLayout.css">
+    <!-- FontAwesome & SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<div class="dashboard-container">
-    <!-- Mobile Header -->
-    <div class="mobile-header">
-        <h1 class="logo">Admin Panel</h1>
-        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="dashboard-container">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <h1 class="logo">Admin Panel</h1>
+            <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h1 class="logo">Admin Panel</h1>
+            </div>
+            <ul class="menu">
+                <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+                <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+                <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li>
+                <li><a href="/admin/orders" class="active"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+                <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+                <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+                <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
+                <li class="logout-item">
+                    <form action="/admin/logout" method="POST">
+                        <button class="logout-btn" type="submit">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Breadcrumb (Ultra Compact) -->
+            <div class="page-header-wrapper mb-2">
+                <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                        <li><a href="/admin/orders">Orders</a></li>
+                        <li class="active">#<%= order.orderId %>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- TOP ROW: Header & Customer Info merged to save space -->
+            <div class="top-compact-grid mb-3">
+                <!-- Header & Status -->
+                <div class="card-custom flex-column-justify">
+                    <div>
+                        <h2 class="page-title">Order #<%= order.orderId %>
+                        </h2>
+                        <p class="text-muted mb-3"><i class="fa-regular fa-calendar me-1"></i>
+                            <%= new Date(order.createdAt).toLocaleString() %>
+                        </p>
+                    </div>
+                    <div class="status-dropdown mt-auto text-end">
+                        <label class="text-muted fw-bold mb-1" style="font-size: 0.75rem;">OVERALL STATUS</label>
+                        <div>
+                            <span
+                                class="badge <%= ['Cancelled', 'Returned', 'Refunded'].includes(order.status) ? 'bg-danger' : (order.status === 'Delivered' ? 'bg-success' : 'bg-primary') %> fs-6 px-3 py-2">
+                                <%= order.status %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="card-custom">
+                    <h3 class="section-title"><i class="fa-solid fa-address-card me-1 text-primary"></i> Customer</h3>
+                    <div class="info-group mb-2">
+                        <p class="fw-bold text-dark mb-0"><i class="fa-regular fa-user me-1 text-muted"></i>
+                            <%=order.user.firstName%>
+                                <%=order.user.lastName%>
+                        </p>
+                        <p class="text-dark mb-0"><i class="fa-regular fa-envelope me-1 text-muted"></i>
+                            <%=order.user.email%>
+                        </p>
+                        <p class="text-dark mb-0"><i class="fa-solid fa-phone me-1 text-muted"></i>
+                            <%=order.user.phone%>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Shipping Info -->
+                <div class="card-custom">
+                    <h3 class="section-title"><i class="fa-solid fa-truck me-1 text-primary"></i> Shipping To</h3>
+                    <div class="info-group">
+                        <p class="fw-bold text-dark mb-0">
+                            <%=order.shippingAddress.fullName%> (<%=order.shippingAddress.addressType%>)
+                        </p>
+                        <p class="text-dark mb-0 text-truncate-2">
+                            <%=order.shippingAddress.landmark%>, <%=order.shippingAddress.city%>
+                        </p>
+                        <p class="text-dark mb-0">
+                            <%=order.shippingAddress.state%> - <%=order.shippingAddress.pincode%>
+                        </p>
+                        <p class="text-dark mb-0"><i class="fa-solid fa-phone me-1 text-muted"></i>
+                            <%=order.shippingAddress.phone%>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Split -->
+            <div class="order-layout">
+
+                <!-- LEFT COLUMN -->
+                <div class="order-left">
+
+                    <!-- Ordered Items Table -->
+                    <div class="table-custom-wrapper mb-3">
+                        <h3 class="section-title px-3 pt-3"><i class="fa-solid fa-box-open me-1 text-primary"></i> Items
+                        </h3>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Original</th>
+                                        <th>Discount</th>
+                                        <th>Final</th>
+                                        <th>Total</th>
+                                        <th>Update Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <%order.items.forEach((item)=>{%>
+                                        <tr>
+                                            <td>
+                                                <div class="product-cell">
+                                                    <div class="product-img-wrapper">
+                                                        <% if (item.product && item.product.images &&
+                                                            item.product.images.length> 0) { %>
+                                                            <img src="/uploads/<%= item.product.images[0] %>"
+                                                                alt="<%= item.product.title %>"
+                                                                class="product-thumbnail">
+                                                            <% } else { %>
+                                                                <div class="product-placeholder"><i
+                                                                        class="fa-solid fa-image"></i></div>
+                                                                <% } %>
+                                                    </div>
+                                                    <div>
+                                                        <span class="fw-bold product-title">
+                                                            <%=item.product?.title || 'Unavailable product' %>
+                                                        </span>
+                                                        <span class="text-muted" style="font-size: 0.75rem;">
+                                                            <%=item.product?.author || '' %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="fw-bold">x<%=item.quantity%>
+                                            </td>
+                                            <td class="text-muted">₹<%=item.originalPrice%>
+                                            </td>
+                                            <td class="text-success">
+                                                <%=item.discountPercentage%>% / ₹<%=item.discountAmount *
+                                                        item.quantity%>
+                                            </td>
+                                            <td class="text-muted">₹<%=item.finalPrice%>
+                                            </td>
+                                            <td class="fw-bold text-dark">₹<%=item.subtotal%>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <select class="form-select form-select-sm item-status-select"
+                                                        id="status-<%=item._id%>"
+                                                        style="width: 130px; border-radius: 6px; border: 1px solid #ced4da;">
+                                                        <option value="Ordered" <%=item.status==="Ordered" ? "selected"
+                                                            : "" %>>Ordered</option>
+                                                        <option value="Confirmed" <%=item.status==="Confirmed"
+                                                            ? "selected" : "" %>>Confirmed</option>
+                                                        <option value="Processing" <%=item.status==="Processing"
+                                                            ? "selected" : "" %>>Processing</option>
+                                                        <option value="Packed" <%=item.status==="Packed" ? "selected"
+                                                            : "" %>>Packed</option>
+                                                        <option value="Shipped" <%=item.status==="Shipped" ? "selected"
+                                                            : "" %>>Shipped</option>
+                                                        <option value="Out for Delivery"
+                                                            <%=item.status==="Out for Delivery" ? "selected" : "" %>>Out
+                                                            for Delivery</option>
+                                                        <option value="Delivered" <%=item.status==="Delivered"
+                                                            ? "selected" : "" %>>Delivered</option>
+                                                        <option value="Cancelled" <%=item.status==="Cancelled"
+                                                            ? "selected" : "" %>>Cancelled</option>
+                                                        <option value="Returned" <%=item.status==="Returned"
+                                                            ? "selected" : "" %>>Returned</option>
+                                                        <option value="Refunded" <%=item.status==="Refunded"
+                                                            ? "selected" : "" %>>Refunded</option>
+                                                    </select>
+                                                    <button class="btn btn-sm btn-primary update-item-btn"
+                                                        data-item-id="<%=item._id%>" data-order-id="<%=order._id%>"
+                                                        style="border-radius: 6px;">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <%})%>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Left Grid (Timeline & Logistics combined) -->
+                    <div class="timeline-shipping-grid">
+                        <div class="card-custom">
+                            <h3 class="section-title"><i class="fa-solid fa-route me-1 text-primary"></i> Timeline</h3>
+                            <div class="timeline">
+                                <% if (["Cancelled", "Returned" , "Refunded" ].includes(order.displayStatus ||
+                                    order.status)) { %>
+                                    <div class="timeline-item last">
+                                        <div class="timeline-icon bg-danger text-white"><i
+                                                class="fa-solid fa-xmark"></i></div>
+                                        <div class="timeline-content">
+                                            <strong class="text-danger">Order <%= order.displayStatus || order.status %>
+                                                    </strong>
+                                        </div>
+                                    </div>
+                                    <% } else { %>
+                                        <% const s=order.displayStatus || order.status; const
+                                            passedConfirmed=["Confirmed", "Processing" , "Packed" , "Shipped"
+                                            , "Out for Delivery" , "Delivered" ].includes(s); const
+                                            passedPacked=["Packed", "Shipped" , "Out for Delivery" , "Delivered"
+                                            ].includes(s); const passedShipped=["Shipped", "Out for Delivery"
+                                            , "Delivered" ].includes(s); const
+                                            passedDelivered=["Delivered"].includes(s); %>
+                                            <div class="timeline-item">
+                                                <div class="timeline-icon bg-primary text-white"><i
+                                                        class="fa-solid fa-check"></i></div>
+                                                <div class="timeline-content"><strong class="text-dark">Placed</strong>
+                                                </div>
+                                            </div>
+                                            <div class="timeline-item">
+                                                <div
+                                                    class="timeline-icon <%= passedConfirmed ? 'bg-primary text-white' : 'bg-light text-muted' %>">
+                                                    <i class="fa-regular fa-credit-card"></i></div>
+                                                <div class="timeline-content"><strong
+                                                        class="<%= passedConfirmed ? 'text-dark' : 'text-muted' %>">Confirmed</strong>
+                                                </div>
+                                            </div>
+                                            <div class="timeline-item">
+                                                <div
+                                                    class="timeline-icon <%= passedPacked ? 'bg-primary text-white' : 'bg-light text-muted' %>">
+                                                    <i class="fa-solid fa-box"></i></div>
+                                                <div class="timeline-content"><strong
+                                                        class="<%= passedPacked ? 'text-dark' : 'text-muted' %>">Packed</strong>
+                                                </div>
+                                            </div>
+                                            <div class="timeline-item <%= !passedDelivered ? 'last' : '' %>">
+                                                <div
+                                                    class="timeline-icon <%= passedShipped ? 'bg-primary text-white' : 'bg-light text-muted' %>">
+                                                    <i class="fa-solid fa-truck"></i></div>
+                                                <div class="timeline-content"><strong
+                                                        class="<%= passedShipped ? 'text-dark' : 'text-muted' %>">Shipped</strong>
+                                                </div>
+                                            </div>
+                                            <% if (passedShipped || passedDelivered) { %>
+                                                <div class="timeline-item last">
+                                                    <div
+                                                        class="timeline-icon <%= passedDelivered ? 'bg-success text-white' : 'bg-light text-muted' %>">
+                                                        <i class="fa-solid fa-house"></i></div>
+                                                    <div class="timeline-content"><strong
+                                                            class="<%= passedDelivered ? 'text-success' : 'text-muted' %>">Delivered</strong>
+                                                    </div>
+                                                </div>
+                                                <% } %>
+                                                    <% } %>
+                            </div>
+                        </div>
+
+                        <div class="card-custom">
+                            <h3 class="section-title"><i class="fa-solid fa-truck-fast me-1 text-primary"></i> Logistics
+                            </h3>
+                            <div class="shipping-info mt-1">
+                                <div class="info-group mb-2">
+                                    <label>Courier Partner</label>
+                                    <p class="fw-bold text-dark m-0">Delhivery</p>
+                                </div>
+                                <div class="info-group mb-2">
+                                    <label>Tracking ID</label>
+                                    <p class="fw-bold text-dark m-0">TRK<%= order.orderId ?
+                                            order.orderId.toString().substring(0, 6).toUpperCase() : '458965' %>
+                                    </p>
+                                </div>
+                                <div class="info-group mb-2">
+                                    <label>Est. Delivery</label>
+                                    <% const estDate=new Date(order.createdAt); estDate.setDate(estDate.getDate() + 5);
+                                        const formattedEstDate=estDate.toLocaleDateString('en-GB', { day: 'numeric' ,
+                                        month: 'short' , year: 'numeric' }); %>
+                                        <p class="fw-bold text-success m-0">
+                                            <%= formattedEstDate %>
+                                        </p>
+                                </div>
+                                <div class="info-group mb-2">
+                                    <label>Created / Updated</label>
+                                    <p class="fw-bold text-dark m-0">
+                                        <%= new Date(order.createdAt).toLocaleString() %>
+                                    </p>
+                                    <p class="text-muted m-0">
+                                        <%= new Date(order.updatedAt).toLocaleString() %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="order-right flex-column-justify">
+
+                    <!-- Price Summary -->
+                    <div class="card-custom mb-3">
+                        <h3 class="section-title"><i class="fa-solid fa-receipt me-1 text-primary"></i> Summary</h3>
+                        <div class="summary-list">
+                            <div class="summary-row">
+                                <span class="text-muted">Subtotal</span>
+                                <span class="fw-bold text-dark">₹<%= order.money.subtotal %></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="text-muted">Coupon Discount</span>
+                                <span class="fw-bold text-success">-₹<%= order.money.couponDiscount || 0 %></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="text-muted">Offer Discount</span>
+                                <span class="fw-bold text-success">-₹<%= order.money.offerDiscount || 0 %></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="text-muted">Shipping</span>
+                                <span class="fw-bold text-dark">₹<%= order.money.shippingCharge %></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="text-muted">Tax (GST)</span>
+                                <span class="fw-bold text-dark">₹<%= order.tax || 0 %></span>
+                            </div>
+                        </div>
+                        <hr class="summary-divider">
+                        <div class="summary-row total-row">
+                            <span class="fw-bold text-dark">Total</span>
+                            <span class="fw-bold text-primary" style="font-size: 1.3rem;">₹<%= order.money.finalTotal %>
+                                    </span>
+                        </div>
+                        <div class="mt-2 text-center">
+                            <span
+                                class="badge <%= order.paymentMethod === 'COD' ? 'badge-warning' : 'badge-success' %> px-2 py-1 w-100">
+                                <i
+                                    class="fa-solid <%= order.paymentMethod === 'COD' ? 'fa-wallet' : 'fa-credit-card' %> me-1"></i>
+                                <%= order.paymentMethod %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Admin Actions -->
+                    <div class="card-custom">
+                        <h3 class="section-title"><i class="fa-solid fa-bolt me-1 text-primary"></i> Actions</h3>
+                        <div class="action-buttons-stack">
+                            <button id="downloadInvoiceBtn" class="btn-outline-pill w-100 mb-2"
+                                data-order-id="<%= order._id %>">
+                                <i class="fa-solid fa-download me-1"></i> Invoice
+                            </button>
+                            <button id="printInvoiceBtn" class="btn-outline-pill w-100 mb-2">
+                                <i class="fa-solid fa-print me-1"></i> Print
+                            </button>
+                            <% if (["Cancelled", "Returned" ].includes(order.status)) { %>
+                                <button id="issueRefundBtn" class="btn-danger-pill w-100 mt-1"
+                                    data-order-id="<%= order._id %>">
+                                    <i class="fa-solid fa-rotate-left me-1"></i>
+                                </button>
+                                <% } %>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <h1 class="logo">Admin Panel</h1>
-        </div>
-        <ul class="menu">
-            <li><a href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
-            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
-            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li>
-            <li><a href="/admin/orders" class="active"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
-            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
-            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
-            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
-            <li class="logout-item">
-                <form action="/admin/logout" method="POST">
-                    <button class="logout-btn" type="submit">
-                        <i class="fa-solid fa-right-from-bracket"></i> Logout
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </aside>
+    <script src="/js/orderDetails.js"></script>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        
-        <!-- Breadcrumb (Ultra Compact) -->
-        <div class="page-header-wrapper mb-2">
-            <nav aria-label="breadcrumb" class="breadcrumb-nav">
-                <ol class="breadcrumb">
-                    <li><a href="/admin/dashboard">Dashboard</a></li>
-                    <li><a href="/admin/orders">Orders</a></li>
-                    <li class="active">#<%= order.orderId %></li>
-                </ol>
-            </nav>
-        </div>
-
-        <!-- TOP ROW: Header & Customer Info merged to save space -->
-        <div class="top-compact-grid mb-3">
-            <!-- Header & Status -->
-            <div class="card-custom flex-column-justify">
-                <div>
-                    <h2 class="page-title">Order #<%= order.orderId %></h2>
-                    <p class="text-muted mb-3"><i class="fa-regular fa-calendar me-1"></i> <%= new Date(order.createdAt).toLocaleString() %></p>
-                </div>
-                <div class="status-dropdown mt-auto text-end">
-                    <label class="text-muted fw-bold mb-1" style="font-size: 0.75rem;">OVERALL STATUS</label>
-                    <div>
-                        <span class="badge <%= ['Cancelled', 'Returned', 'Refunded'].includes(order.status) ? 'bg-danger' : (order.status === 'Delivered' ? 'bg-success' : 'bg-primary') %> fs-6 px-3 py-2">
-                            <%= order.status %>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customer Info -->
-            <div class="card-custom">
-                <h3 class="section-title"><i class="fa-solid fa-address-card me-1 text-primary"></i> Customer</h3>
-                <div class="info-group mb-2">
-                    <p class="fw-bold text-dark mb-0"><i class="fa-regular fa-user me-1 text-muted"></i> <%=order.user.firstName%> <%=order.user.lastName%></p>
-                    <p class="text-dark mb-0"><i class="fa-regular fa-envelope me-1 text-muted"></i> <%=order.user.email%></p>
-                    <p class="text-dark mb-0"><i class="fa-solid fa-phone me-1 text-muted"></i> <%=order.user.phone%></p>
-                </div>
-            </div>
-
-            <!-- Shipping Info -->
-            <div class="card-custom">
-                <h3 class="section-title"><i class="fa-solid fa-truck me-1 text-primary"></i> Shipping To</h3>
-                <div class="info-group">
-                    <p class="fw-bold text-dark mb-0"><%=order.shippingAddress.fullName%> (<%=order.shippingAddress.addressType%>)</p>
-                    <p class="text-dark mb-0 text-truncate-2"><%=order.shippingAddress.landmark%>, <%=order.shippingAddress.city%></p>
-                    <p class="text-dark mb-0"><%=order.shippingAddress.state%> - <%=order.shippingAddress.pincode%></p>
-                    <p class="text-dark mb-0"><i class="fa-solid fa-phone me-1 text-muted"></i> <%=order.shippingAddress.phone%></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Split -->
-        <div class="order-layout">
-            
-            <!-- LEFT COLUMN -->
-            <div class="order-left">
-                
-                <!-- Ordered Items Table -->
-                <div class="table-custom-wrapper mb-3">
-                    <h3 class="section-title px-3 pt-3"><i class="fa-solid fa-box-open me-1 text-primary"></i> Items</h3>
-                    <div class="table-responsive">
-                        <table class="table-custom">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Qty</th>
-                                    <th>Original</th>
-                                    <th>Discount</th>
-                                    <th>Final</th>
-                                    <th>Total</th>
-                                    <th>Update Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <%order.items.forEach((item)=>{%>
-                                <tr>
-                                    <td>
-                                        <div class="product-cell">
-                                            <div class="product-img-wrapper">
-                                                <% if (item.product && item.product.images && item.product.images.length > 0) { %>
-                                                    <img src="/uploads/<%= item.product.images[0] %>" alt="<%= item.product.title %>" class="product-thumbnail">
-                                                <% } else { %>
-                                                    <div class="product-placeholder"><i class="fa-solid fa-image"></i></div>
-                                                <% } %>
-                                            </div>
-                                            <div>
-                                                <span class="fw-bold product-title"><%=item.product?.title || 'Unavailable product'%></span>
-                                                <span class="text-muted" style="font-size: 0.75rem;"><%=item.product?.author || ''%></span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="fw-bold">x<%=item.quantity%></td>
-                                    <td class="text-muted">₹<%=item.originalPrice%></td>
-                                    <td class="text-success"><%=item.discountPercentage%>% / ₹<%=item.discountAmount * item.quantity%></td>
-                                    <td class="text-muted">₹<%=item.finalPrice%></td>
-                                    <td class="fw-bold text-dark">₹<%=item.subtotal%></td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <select class="form-select form-select-sm item-status-select" id="status-<%=item._id%>" style="width: 130px; border-radius: 6px; border: 1px solid #ced4da;">
-                                                <option value="Ordered" <%= item.status === "Ordered" ? "selected" : "" %>>Ordered</option>
-                                                <option value="Confirmed" <%= item.status === "Confirmed" ? "selected" : "" %>>Confirmed</option>
-                                                <option value="Processing" <%= item.status === "Processing" ? "selected" : "" %>>Processing</option>
-                                                <option value="Packed" <%= item.status === "Packed" ? "selected" : "" %>>Packed</option>
-                                                <option value="Shipped" <%= item.status === "Shipped" ? "selected" : "" %>>Shipped</option>
-                                                <option value="Out for Delivery" <%= item.status === "Out for Delivery" ? "selected" : "" %>>Out for Delivery</option>
-                                                <option value="Delivered" <%= item.status === "Delivered" ? "selected" : "" %>>Delivered</option>
-                                                <option value="Cancelled" <%= item.status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
-                                                <option value="Returned" <%= item.status === "Returned" ? "selected" : "" %>>Returned</option>
-                                                <option value="Refunded" <%= item.status === "Refunded" ? "selected" : "" %>>Refunded</option>
-                                            </select>
-                                            <button class="btn btn-sm btn-primary update-item-btn" data-item-id="<%=item._id%>" data-order-id="<%=order._id%>" style="border-radius: 6px;">
-                                                <i class="fa-solid fa-check"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <%})%>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Bottom Left Grid (Timeline & Logistics combined) -->
-                <div class="timeline-shipping-grid">
-                    <div class="card-custom">
-                        <h3 class="section-title"><i class="fa-solid fa-route me-1 text-primary"></i> Timeline</h3>
-                        <div class="timeline">
-                            <% if (["Cancelled", "Returned", "Refunded"].includes(order.displayStatus || order.status)) { %>
-                                <div class="timeline-item last">
-                                    <div class="timeline-icon bg-danger text-white"><i class="fa-solid fa-xmark"></i></div>
-                                    <div class="timeline-content">
-                                        <strong class="text-danger">Order <%= order.displayStatus || order.status %></strong>
-                                    </div>
-                                </div>
-                            <% } else { %>
-                                <% 
-                                    const s = order.displayStatus || order.status;
-                                    const passedConfirmed = ["Confirmed", "Processing", "Packed", "Shipped", "Out for Delivery", "Delivered"].includes(s);
-                                    const passedPacked = ["Packed", "Shipped", "Out for Delivery", "Delivered"].includes(s);
-                                    const passedShipped = ["Shipped", "Out for Delivery", "Delivered"].includes(s);
-                                    const passedDelivered = ["Delivered"].includes(s);
-                                %>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon bg-primary text-white"><i class="fa-solid fa-check"></i></div>
-                                    <div class="timeline-content"><strong class="text-dark">Placed</strong></div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon <%= passedConfirmed ? 'bg-primary text-white' : 'bg-light text-muted' %>"><i class="fa-regular fa-credit-card"></i></div>
-                                    <div class="timeline-content"><strong class="<%= passedConfirmed ? 'text-dark' : 'text-muted' %>">Confirmed</strong></div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon <%= passedPacked ? 'bg-primary text-white' : 'bg-light text-muted' %>"><i class="fa-solid fa-box"></i></div>
-                                    <div class="timeline-content"><strong class="<%= passedPacked ? 'text-dark' : 'text-muted' %>">Packed</strong></div>
-                                </div>
-                                <div class="timeline-item <%= !passedDelivered ? 'last' : '' %>">
-                                    <div class="timeline-icon <%= passedShipped ? 'bg-primary text-white' : 'bg-light text-muted' %>"><i class="fa-solid fa-truck"></i></div>
-                                    <div class="timeline-content"><strong class="<%= passedShipped ? 'text-dark' : 'text-muted' %>">Shipped</strong></div>
-                                </div>
-                                <% if (passedShipped || passedDelivered) { %>
-                                <div class="timeline-item last">
-                                    <div class="timeline-icon <%= passedDelivered ? 'bg-success text-white' : 'bg-light text-muted' %>"><i class="fa-solid fa-house"></i></div>
-                                    <div class="timeline-content"><strong class="<%= passedDelivered ? 'text-success' : 'text-muted' %>">Delivered</strong></div>
-                                </div>
-                                <% } %>
-                            <% } %>
-                        </div>
-                    </div>
-
-                    <div class="card-custom">
-                        <h3 class="section-title"><i class="fa-solid fa-truck-fast me-1 text-primary"></i> Logistics</h3>
-                        <div class="shipping-info mt-1">
-                            <div class="info-group mb-2">
-                                <label>Courier Partner</label>
-                                <p class="fw-bold text-dark m-0">Delhivery</p>
-                            </div>
-                            <div class="info-group mb-2">
-                                <label>Tracking ID</label>
-                                <p class="fw-bold text-dark m-0">TRK<%= order.orderId ? order.orderId.toString().substring(0, 6).toUpperCase() : '458965' %></p>
-                            </div>
-                            <div class="info-group mb-2">
-                                <label>Est. Delivery</label>
-                                <% 
-                                    const estDate = new Date(order.createdAt);
-                                    estDate.setDate(estDate.getDate() + 5); 
-                                    const formattedEstDate = estDate.toLocaleDateString('en-GB', { 
-                                        day: 'numeric', 
-                                        month: 'short', 
-                                        year: 'numeric' 
-                                    });
-                                %>
-                                <p class="fw-bold text-success m-0"><%= formattedEstDate %></p>
-                            </div>
-                            <div class="info-group mb-2">
-                                <label>Created / Updated</label>
-                                <p class="fw-bold text-dark m-0"><%= new Date(order.createdAt).toLocaleString() %></p>
-                                <p class="text-muted m-0"><%= new Date(order.updatedAt).toLocaleString() %></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN -->
-            <div class="order-right flex-column-justify">
-                
-                <!-- Price Summary -->
-                <div class="card-custom mb-3">
-                    <h3 class="section-title"><i class="fa-solid fa-receipt me-1 text-primary"></i> Summary</h3>
-                    <div class="summary-list">
-                        <div class="summary-row">
-                            <span class="text-muted">Subtotal</span>
-                            <span class="fw-bold text-dark">₹<%= order.money.subtotal %></span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="text-muted">Coupon Discount</span>
-                            <span class="fw-bold text-success">-₹<%= order.money.couponDiscount || 0 %></span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="text-muted">Offer Discount</span>
-                            <span class="fw-bold text-success">-₹<%= order.money.offerDiscount || 0 %></span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="text-muted">Shipping</span>
-                            <span class="fw-bold text-dark">₹<%= order.money.shippingCharge %></span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="text-muted">Tax (GST)</span>
-                            <span class="fw-bold text-dark">₹<%= order.tax || 0 %></span>
-                        </div>
-                    </div>
-                    <hr class="summary-divider">
-                    <div class="summary-row total-row">
-                        <span class="fw-bold text-dark">Total</span>
-                        <span class="fw-bold text-primary" style="font-size: 1.3rem;">₹<%= order.money.finalTotal %></span>
-                    </div>
-                    <div class="mt-2 text-center">
-                        <span class="badge <%= order.paymentMethod === 'COD' ? 'badge-warning' : 'badge-success' %> px-2 py-1 w-100">
-                            <i class="fa-solid <%= order.paymentMethod === 'COD' ? 'fa-wallet' : 'fa-credit-card' %> me-1"></i> <%= order.paymentMethod %>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Admin Actions -->
-                <div class="card-custom">
-                    <h3 class="section-title"><i class="fa-solid fa-bolt me-1 text-primary"></i> Actions</h3>
-                    <div class="action-buttons-stack">
-                        <button id="downloadInvoiceBtn" class="btn-outline-pill w-100 mb-2" data-order-id="<%= order._id %>">
-                            <i class="fa-solid fa-download me-1"></i> Invoice
-                        </button>
-                        <button id="printInvoiceBtn" class="btn-outline-pill w-100 mb-2">
-                            <i class="fa-solid fa-print me-1"></i> Print
-                        </button>
-                        <% if (["Cancelled", "Returned"].includes(order.status)) { %>
-                        <button id="issueRefundBtn" class="btn-danger-pill w-100 mt-1" data-order-id="<%= order._id %>">
-                            <i class="fa-solid fa-rotate-left me-1"></i> Refund
-                        </button>
-                        <% } %>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </main>
-</div>
-
-<script src="/js/orderDetails.js"></script>
-
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>
