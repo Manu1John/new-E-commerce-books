@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: ecommerce-app
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env.production
+    volumes:
+      - ./uploads:/usr/src/app/uploads
+      - ./public:/usr/src/app/public

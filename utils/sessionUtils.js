@@ -1,3 +1,5 @@
+import MongoStore from 'connect-mongo';
+
 const ONE_HOUR = 1000 * 60 * 60;
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -25,6 +27,10 @@ const createSessionConfig = (name, path = "/") => ({
     resave: false,
     saveUninitialized: false,
     rolling: true,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI || "mongodb://localhost:27017/e-commerce",
+        collectionName: "sessions"
+    }),
     cookie: {
         ...baseCookieOptions,
         path

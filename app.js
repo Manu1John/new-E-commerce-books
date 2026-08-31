@@ -1,9 +1,9 @@
-import flash from "connect-flash";
 import dotenv from 'dotenv';
 dotenv.config();
+import passport from './config/passport.js'
+import flash from "connect-flash";
 import express from 'express';
 import session from 'express-session';
-import passport from './config/passport.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,7 +17,10 @@ import {
 } from './utils/sessionUtils.js';
 
 import methodOverride from "method-override";
-
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 
 // 🚨 console.log(process.env.BREVO_API_KEY) has been REMOVED for security.
 // 🧹 Unused middleware imports were removed from here.
@@ -29,6 +32,25 @@ const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV === "production") {
     app.set("trust proxy", 1);
+
+    // Security headers
+    app.use(helmet({
+        contentSecurityPolicy: false, // Disabling CSP by default to avoid breaking external scripts/styles
+    }));
+
+    // Compress responses
+    app.use(compression());
+
+    // HTTP request logging
+    app.use(morgan('combined'));
+
+    // Global Rate Limiting
+    const limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // Limit each IP to 100 requests per 15 minutes
+        message: "Too many requests from this IP, please try again after 15 minutes"
+    });
+    app.use(limiter);
 }
 
 // body parser
@@ -36,10 +58,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
-// static files
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// static files
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: process.env.NODE_ENV === "production" ? '1d' : 0
+}));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+    maxAge: process.env.NODE_ENV === "production" ? '30d' : 0
+}));
 // views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -72,9 +99,9 @@ app.use((req, res, next) => {
 // 500 Error Handler
 app.use((err, req, res, next) => {
     console.error("Global Error Handler:", err.stack);
-    
+
     const statusCode = err.statusCode || 500;
-    
+
     // Check if the request expects JSON or is an AJAX request
     if (req.xhr || (req.headers.accept && req.headers.accept.includes('json')) || req.is('json')) {
         return res.status(statusCode).json({
@@ -84,9 +111,9 @@ app.use((err, req, res, next) => {
         });
     }
 
-    res.status(statusCode).render("500", { 
-        title: "500 Server Error", 
-        error: process.env.NODE_ENV === "development" ? err : {} 
+    res.status(statusCode).render("500", {
+        title: "500 Server Error",
+        error: process.env.NODE_ENV === "development" ? err : {}
     });
 });
 
