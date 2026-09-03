@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Help Center - Booksaw</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+	<link rel="stylesheet" type="text/css" href="/css/index.css">
+	<link rel="stylesheet" href="/css/navbar.css?v=3">
+	<script defer src="/js/jquery-1.11.0.min.js"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+		crossorigin="anonymous"></script>
+	<script defer src="/js/plugins.js"></script>
+	<script defer src="/js/script.js"></script>
+</head>
+
+<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
+	<%- include('../partials/navbar') %>
+
+		<section class="py-5 my-5">
+			<div class="container">
+				<!-- Header -->
+
+
+				<div class="row g-4 mb-5">
+					<!-- Categories -->
+					<div class="col-md-3">
+						<a href="/orders" class="text-decoration-none">
+							<div class="card h-100 border-0 shadow-sm text-center py-4 help-category-card">
+								<div class="card-body text-dark">
+									<i class="fas fa-box-open fs-1 mb-3"></i>
+									<h5 class="card-title fw-bold">Orders</h5>
+									<p class="card-text text-muted small">Tracking, modifications & cancellations</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-md-3">
+						<a href="#returns-refunds" class="text-decoration-none">
+							<div class="card h-100 border-0 shadow-sm text-center py-4 help-category-card">
+								<div class="card-body text-dark">
+									<i class="fas fa-undo fs-1 mb-3"></i>
+									<h5 class="card-title fw-bold">Returns & Refunds</h5>
+									<p class="card-text text-muted small">Return policies and refund status</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-md-3">
+						<a href="/wallet" class="text-decoration-none">
+							<div class="card h-100 border-0 shadow-sm text-center py-4 help-category-card">
+								<div class="card-body text-dark">
+									<i class="fas fa-credit-card fs-1 mb-3"></i>
+									<h5 class="card-title fw-bold">Payments</h5>
+									<p class="card-text text-muted small">Wallet, Razorpay, and invoice issues</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-md-3">
+						<a href="/profile/user" class="text-decoration-none">
+							<div class="card h-100 border-0 shadow-sm text-center py-4 help-category-card">
+								<div class="card-body text-dark">
+									<i class="fas fa-user-circle fs-1 mb-3"></i>
+									<h5 class="card-title fw-bold">My Account</h5>
+									<p class="card-text text-muted small">Profile, addresses, and wishlist</p>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+
+				<!-- FAQ Sections -->
+				<div class="row">
+					<div class="col-md-10 mx-auto">
+						<h3 class="fw-bold mb-4 text-center">Frequently Asked Questions</h3>
+
+						<!-- Ordering & Payment -->
+						<h5 class="fw-bold mt-5 mb-3 text-primary border-bottom pb-2" id="ordering-payment">Ordering &
+							Payment</h5>
+						<div class="accordion accordion-flush shadow-sm border rounded mb-4" id="faqOrdering">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseOrd1">
+										How do I place a regular order or pre-order?
+									</button>
+								</h2>
+								<div id="collapseOrd1" class="accordion-collapse collapse"
+									data-bs-parent="#faqOrdering">
+									<div class="accordion-body text-muted">
+										To place a regular order, browse our collection, add your desired books to the
+										cart, and proceed to checkout. For upcoming book releases, look for the
+										"Pre-order" button on the product page to secure your copy before the release
+										date.
+									</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseOrd2">
+										What payment methods do you accept?
+									</button>
+								</h2>
+								<div id="collapseOrd2" class="accordion-collapse collapse"
+									data-bs-parent="#faqOrdering">
+									<div class="accordion-body text-muted">
+										We accept payments via Razorpay (Credit/Debit cards, UPI, NetBanking), Cash on
+										Delivery (COD), and our secure Booksaw Wallet.
+									</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseOrd3">
+										Can I request special titles or handle bulk purchases?
+									</button>
+								</h2>
+								<div id="collapseOrd3" class="accordion-collapse collapse"
+									data-bs-parent="#faqOrdering">
+									<div class="accordion-body text-muted">
+										Yes! For out-of-print titles, special requests, or corporate/bulk purchases,
+										please contact our support team directly. We'll check our extensive supplier
+										network to accommodate your needs.
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Shipping & Delivery -->
+						<h5 class="fw-bold mt-5 mb-3 text-primary border-bottom pb-2" id="shipping-delivery">Shipping &
+							Delivery</h5>
+						<div class="accordion accordion-flush shadow-sm border rounded mb-4" id="faqShipping">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseShip1">
+										How do I track my order?
+									</button>
+								</h2>
+								<div id="collapseShip1" class="accordion-collapse collapse"
+									data-bs-parent="#faqShipping">
+									<div class="accordion-body text-muted">
+										Log into your account, navigate to the <a href="/orders">My Orders</a>
+										section, and click on "Track Order" next to your purchase to view real-time
+										delivery status and courier updates.
+									</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseShip2">
+										What are your shipping rates and delivery timeframes?
+									</button>
+								</h2>
+								<div id="collapseShip2" class="accordion-collapse collapse"
+									data-bs-parent="#faqShipping">
+									<div class="accordion-body text-muted">
+										We offer domestic shipping that typically takes 3-7 business days. Shipping
+										costs are calculated at checkout based on your address. If an item is
+										temporarily out-of-stock or backordered, we will notify you immediately with an
+										updated timeframe.
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Returns, Refunds & Exchanges -->
+						<h5 class="fw-bold mt-5 mb-3 text-primary border-bottom pb-2" id="returns-refunds">Returns,
+							Refunds & Exchanges</h5>
+						<div class="accordion accordion-flush shadow-sm border rounded mb-4" id="faqReturns">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseRet1">
+										What is your return policy?
+									</button>
+								</h2>
+								<div id="collapseRet1" class="accordion-collapse collapse" data-bs-parent="#faqReturns">
+									<div class="accordion-body text-muted">
+										We offer a 7-day return window. Books must be in unused condition with undamaged
+										covers and pages. You can initiate a return directly from the <a
+											href="/orders">My Orders</a> page.
+									</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseRet2">
+										How long do refunds take?
+									</button>
+								</h2>
+								<div id="collapseRet2" class="accordion-collapse collapse" data-bs-parent="#faqReturns">
+									<div class="accordion-body text-muted">
+										Once we receive and inspect your returned item, your refund is processed.
+										Refunds to the Booksaw Wallet are credited instantly. Refunds to original
+										payment methods (via Razorpay) may take 5-7 business days.
+									</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseRet3">
+										What if I receive a damaged or incorrect book?
+									</button>
+								</h2>
+								<div id="collapseRet3" class="accordion-collapse collapse" data-bs-parent="#faqReturns">
+									<div class="accordion-body text-muted">
+										We apologize for the inconvenience! Please initiate a return from the <a
+											href="/orders">My Orders</a> section immediately and select "Damaged"
+										or "Incorrect Item" as the reason for an expedited resolution path.
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Digital Content & E-Books -->
+						<h5 class="fw-bold mt-5 mb-3 text-primary border-bottom pb-2" id="digital-content">Digital
+							Content & E-Books</h5>
+						<div class="accordion accordion-flush shadow-sm border rounded mb-4" id="faqDigital">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseDig1">
+										Do you sell E-Books or digital content?
+									</button>
+								</h2>
+								<div id="collapseDig1" class="accordion-collapse collapse" data-bs-parent="#faqDigital">
+									<div class="accordion-body text-muted">
+										Currently, Booksaw focuses exclusively on delivering high-quality physical books
+										to your doorstep. We are exploring digital bookshelf integrations and e-book
+										redemption keys for the future!
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Academic & Course Materials -->
+						<h5 class="fw-bold mt-5 mb-3 text-primary border-bottom pb-2" id="academic-materials">Academic &
+							Course Materials</h5>
+						<div class="accordion accordion-flush shadow-sm border rounded mb-4" id="faqAcademic">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseAca1">
+										Can I find textbooks or course materials?
+									</button>
+								</h2>
+								<div id="collapseAca1" class="accordion-collapse collapse"
+									data-bs-parent="#faqAcademic">
+									<div class="accordion-body text-muted">
+										Yes! You can search our repository for textbooks. While we don't have a direct
+										syllabus-matching tool yet, you can search by title or ISBN. If you need a
+										specific textbook that isn't listed, contact us for a special lookup.
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Account Management & Privacy -->
+						<h5 class="fw-bold mt-5 mb-3 text-primary border-bottom pb-2" id="account-privacy">Account
+							Management & Privacy</h5>
+						<div class="accordion accordion-flush shadow-sm border rounded mb-4" id="faqAccount">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseAcc1">
+										How do I manage my shipping addresses?
+									</button>
+								</h2>
+								<div id="collapseAcc1" class="accordion-collapse collapse" data-bs-parent="#faqAccount">
+									<div class="accordion-body text-muted">
+										You can update, add, or remove saved shipping addresses by visiting your <a
+											href="/address">Address Book</a> in your Profile section. You can also set a
+										default address for faster checkout.
+									</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed fw-semibold" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseAcc2">
+										How do I reset my password and manage data privacy?
+									</button>
+								</h2>
+								<div id="collapseAcc2" class="accordion-collapse collapse" data-bs-parent="#faqAccount">
+									<div class="accordion-body text-muted">
+										If you forgot your password, click on the "Forgot Password" link on the login
+										page to receive an OTP via email for secure reset. We are committed to your
+										privacy and do not share your data with third parties without consent. You can
+										review your profile details anytime in the <a href="/profile">My Account</a>
+										section.
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Customer Support & Contact Channels -->
+						<div class="text-center mt-5 p-5 bg-light rounded shadow-sm border border-light">
+							<h4 class="fw-bold mb-3">Customer Support & Contact Channels</h4>
+							<p class="text-muted mb-4">Can't find the answer you're looking for? Reach out for
+								personalized help through multiple channels!</p>
+							<div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
+								<div class="p-3"><i
+										class="fas fa-envelope text-primary fa-2x mb-2"></i><br><strong>Email
+										Support</strong><br><small class="text-muted">johnmanu353@gmail.com</small>
+								</div>
+								<div class="p-3"><i
+										class="fas fa-phone-alt text-primary fa-2x mb-2"></i><br><strong>Telephone
+										Support</strong><br><small class="text-muted">+916238421462/small></div>
+								<div class="p-3"><i class="fas fa-comments text-primary fa-2x mb-2"></i><br><strong>Live
+										Chat</strong><br><small class="text-muted">Available 9 AM - 6 PM</small></div>
+							</div>
+							<a href="/contact-us" class="btn btn-dark px-4 py-2"><i class="fas fa-paper-plane me-2"></i>
+								Send us a message</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<style>
+			.help-category-card {
+				transition: all 0.3s ease;
+				cursor: pointer;
+			}
+
+			.help-category-card:hover {
+				transform: translateY(-5px);
+				box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+			}
+
+			.accordion-button:not(.collapsed) {
+				background-color: #f8f9fa;
+				color: #212529;
+				box-shadow: none;
+			}
+
+			.accordion-button:focus {
+				box-shadow: none;
+				border-color: rgba(0, 0, 0, .125);
+			}
+		</style>
+
+		<footer id="footer" class="bg-dark text-white py-5 mt-5">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-4">
+						<div class="footer-item">
+							<div class="main-logo mb-3">
+								<a href="/home"><img src="/images/main-logo.png" alt="logo"
+										style="filter: brightness(0) invert(1);"></a>
+							</div>
+							<p>Explore thousands of books directly from our modern bookstore repository.</p>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="footer-item">
+							<h4>Help & Info</h4>
+							<ul class="list-unstyled">
+								<li><a href="/help-center" class="text-white text-decoration-none">Help center</a></li>
+								<li><a href="/contact-us" class="text-white text-decoration-none">Contact us</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="footer-item">
+							<h4>Legal</h4>
+							<p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+</body>
+
+</html>

@@ -29,7 +29,8 @@ const createSessionConfig = (name, path = "/") => ({
     rolling: true,
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URI || "mongodb://localhost:27017/e-commerce",
-        collectionName: "sessions"
+        collectionName: "sessions",
+        mongoOptions: { family: 4 }
     }),
     cookie: {
         ...baseCookieOptions,

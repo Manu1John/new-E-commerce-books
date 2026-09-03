@@ -1,581 +1,723 @@
-
 <title>Books Store</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-	<script defer src="/js/index.js"></script>
-	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
-	<link rel="stylesheet" type="text/css" href="/css/index.css">
-	<link rel="stylesheet" href="/css/navbar.css?v=3">
-	
-	<script defer src="/js/jquery-1.11.0.min.js"></script>
-	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-		crossorigin="anonymous"></script>
-	<script defer src="/js/plugins.js"></script>
-	<script defer src="/js/script.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+	integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+<script defer src="/js/index.js"></script>
+<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+<link rel="stylesheet" type="text/css" href="/css/index.css">
+<link rel="stylesheet" href="/css/navbar.css?v=3">
+
+<script defer src="/js/jquery-1.11.0.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+	crossorigin="anonymous"></script>
+<script defer src="/js/plugins.js"></script>
+<script defer src="/js/script.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const form = document.getElementById('newsletterForm');
+			if(form) {
+				form.addEventListener('submit', function(e) {
+					e.preventDefault();
+					const email = document.getElementById('newsletterEmail').value;
+					if(email) {
+						Swal.fire({
+							icon: 'success',
+							title: 'Thank You!',
+							text: 'Your request has been sent. Welcome to our newsletter!',
+							confirmButtonColor: '#3085d6',
+							customClass: {
+								popup: 'rounded-4 shadow'
+							}
+						});
+						this.reset();
+					}
+				});
+			}
+		});
+	</script>
 </head>
 
-<% 
-	let activeTabId = (typeof query !== 'undefined' && query.activeTab) ? query.activeTab : 'all-books';
-	if (activeTabId === 'all') { activeTabId = 'all-books'; }
-%>
+<% let activeTabId=(typeof query !=='undefined' && query.activeTab) ? query.activeTab : 'all-books' ; if
+	(activeTabId==='all' ) { activeTabId='all-books' ; } %>
 
-<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
+	<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
 
-<%- include('../partials/navbar') %>
+		<%- include('../partials/navbar') %>
 
-	<section id="billboard">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<button class="prev slick-arrow"><i class="icon icon-arrow-left"></i></button>
-					<div class="main-slider pattern-overlay">
-						<div class="slider-item">
-							<div class="banner-content">
-								<h2 class="banner-title">Life of the Wild</h2>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac.</p>
-								<div class="btn-wrap">
-									<a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i class="icon icon-ns-arrow-right"></i></a>
-								</div>
-							</div>
-							<img src="images/main-banner1.jpg" alt="banner" class="banner-image">
-						</div>
-						<div class="slider-item">
-							<div class="banner-content">
-								<h2 class="banner-title">Birds gonna be Happy</h2>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac.</p>
-								<div class="btn-wrap">
-									<a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i class="icon icon-ns-arrow-right"></i></a>
-								</div>
-							</div>
-							<img src="images/main-banner2.jpg" alt="banner" class="banner-image">
-						</div>
-					</div>
-					<button class="next slick-arrow"><i class="icon icon-arrow-right"></i></button>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="client-holder" data-aos="fade-up">
-		<div class="container">
-			<div class="row">
-				<div class="inner-content">
-					<div class="logo-wrap">
-						<div class="grid">
-							<a href="#"><img src="images/client-image1.png" alt="client"></a>
-							<a href="#"><img src="images/client-image2.png" alt="client"></a>
-							<a href="#"><img src="images/client-image3.png" alt="client"></a>
-							<a href="#"><img src="images/client-image4.png" alt="client"></a>
-							<a href="#"><img src="images/client-image5.png" alt="client"></a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="featured-books" class="py-5 my-5">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="section-header align-center">
-						<div class="title"><span>Some quality items</span></div>
-						<h2 class="section-title">Featured Books</h2>
-					</div>
-				
-					<div class="product-list" data-aos="fade-up">
-						<div class="row">
-							<% products.forEach(product => { %>
-								<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-									<div class="product-item">
-										<figure class="product-style">
-											<% if (product.images && product.images.length > 0) { %>
-												<a href="/product/<%= product._id %>">
-													<img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" class="img-fluid">
-												</a>
-											<% } else { %>
-												<a href="/product/<%= product._id %>">
-													<img src="images/product-item1.jpg" alt="Books" class="img-fluid">
-												</a>
-											<% } %>
-											<button type="button" class="add-to-cart" onclick="window.location.href='/login'">Add to Cart</button>
-										</figure>
-										<figcaption>
-											<h3><%= product.title %></h3>
-											<span><%= product.author %></span>
-											<div class="item-price">
-												<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
-													<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
-													₹<%= product.pricing.finalPrice %>
-													<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
-												<% } else { %>
-													₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
-												<% } %>
-											</div>
-										</figcaption>
-									</div>
-								</div>
-							<% }) %>
-						</div>
-
-						<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-							<a href="<%= featuredPage > 1 ? getPageUrl('page_featured', featuredPage - 1, '#featured-books') : '#' %>"
-							   class="btn btn-sm btn-outline-dark <%= featuredPage <= 1 ? 'disabled' : '' %>">
-								&laquo; Prev
-							</a>
-							
-							<% for(let i = 1; i <= featuredTotalPages; i++) { %>
-								<a href="<%= getPageUrl('page_featured', i, '#featured-books') %>"
-								   class="btn btn-sm <%= featuredPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-									<%= i %>
-								</a>
-							<% } %>
-							
-							<a href="<%= featuredPage < featuredTotalPages ? getPageUrl('page_featured', featuredPage + 1, '#featured-books') : '#' %>"
-							   class="btn btn-sm btn-outline-dark <%= featuredPage >= featuredTotalPages ? 'disabled' : '' %>">
-								Next &raquo;
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="best-selling" class="leaf-pattern-overlay">
-		<div class="corner-pattern-overlay"></div>
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-md-8">
+			<section id="billboard">
+				<div class="container">
 					<div class="row">
-						<div class="col-md-6">
-							<figure class="products-thumb">
-								<img src="images/single-image.jpg" alt="book" class="single-image">
-							</figure>
-						</div>
-						<div class="col-md-6">
-							<div class="product-entry">
-								<h2 class="section-title divider">Best Selling Book</h2>
-								<div class="products-content">
-									<div class="author-name">By Timbur Hood</div>
-									<h3 class="item-title">Birds gonna be happy</h3>
-									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-									<div class="item-price">₹ 45.00</div>
-									<div class="btn-wrap">
-										<a href="/login" class="btn-accent-arrow">shop it now <i class="icon icon-ns-arrow-right"></i></a>
+						<div class="col-md-12">
+							<button class="prev slick-arrow"><i class="icon icon-arrow-left"></i></button>
+							<div class="main-slider pattern-overlay">
+								<div class="slider-item">
+									<div class="banner-content">
+										<h2 class="banner-title">Life of the Wild</h2>
+										<p>Books are a uniquely portable form of magic that transcend ordinary
+											boundaries, allowing a dedicated reader to live a thousand rich lives before
+											ever dying, while those who never open a page live only a single, narrow
+											existence. Ultimately, a room without books is like a living human body
+											completely devoid of a soul, because compelling stories shape our inner
+											worlds and offer endless adventures waiting to be truly discovered..</p>
+										<div class="btn-wrap">
+											<a href="https://en.wikipedia.org/wiki/Book"
+												class="btn btn-outline-accent btn-accent-arrow">Read More<i
+													class="icon icon-ns-arrow-right"></i></a>
+										</div>
 									</div>
+									<img src="images/main-banner1.jpg" alt="banner" class="banner-image">
+								</div>
+								<div class="slider-item">
+									<div class="banner-content">
+										<h2 class="banner-title">Birds gonna be Happy</h2>
+										<p>Books are a uniquely portable form of magic that transcend ordinary
+											boundaries, allowing a dedicated reader to live a thousand rich lives before
+											ever dying, while those who never open a page live only a single, narrow
+											existence. Ultimately, a room without books is like a living human body
+											completely devoid of a soul, because compelling stories shape our inner
+											worlds and offer endless adventures waiting to be truly discovered.</p>
+										<div class="btn-wrap">
+											<a href="https://en.wikipedia.org/wiki/Book"
+												class="btn btn-outline-accent btn-accent-arrow">Read More<i
+													class="icon icon-ns-arrow-right"></i></a>
+										</div>
+									</div>
+									<img src="images/main-banner2.jpg" alt="banner" class="banner-image">
+								</div>
+							</div>
+							<button class="next slick-arrow"><i class="icon icon-arrow-right"></i></button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="client-holder" data-aos="fade-up">
+				<div class="container">
+					<div class="row">
+						<div class="inner-content">
+							<div class="logo-wrap">
+								<div class="grid">
+									<a href="#"><img src="images/client-image1.png" alt="client"></a>
+									<a href="#"><img src="images/client-image2.png" alt="client"></a>
+									<a href="#"><img src="images/client-image3.png" alt="client"></a>
+									<a href="#"><img src="images/client-image4.png" alt="client"></a>
+									<a href="#"><img src="images/client-image5.png" alt="client"></a>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-	</section>
+			</section>
 
-	<section id="popular-books" class="bookshelf py-5 my-5">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="section-header align-center">
-						<div class="title"><span>Browse Books</span></div>
-						<h2 class="section-title">Popular Books</h2>
-					</div>
-
-					<div class="filter-sort-bar mb-4 p-3 bg-light rounded border" data-aos="fade-up">
-						<form method="get" action="/" class="row g-3 align-items-end">
-							<% if (typeof query !== 'undefined' && query.search) { %>
-								<input type="hidden" name="search" value="<%= query.search %>">
-							<% } %>
-							<input type="hidden" name="activeTab" value="all-books">
-
-							<div class="col-lg-3 col-md-6">
-								<label class="form-label mb-1" style="font-size: 0.85em; font-weight: 600;">Category</label>
-								<select name="category" class="form-select form-select-sm">
-									<option value="">All Categories</option>
-									<% categoryData.forEach(item => { %>
-										<option value="<%= item.category._id %>" <%= typeof query !== 'undefined' && query.category == item.category._id ? 'selected' : '' %>>
-											<%= item.category.name %>
-										</option>
-									<% }) %>
-								</select>
+			<section id="featured-books" class="py-5 my-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="section-header align-center">
+								<div class="title"><span>Some quality items</span></div>
+								<h2 class="section-title">Featured Books</h2>
 							</div>
 
-							<div class="col-lg-4 col-md-6">
-								<label class="form-label mb-1" style="font-size: 0.85em; font-weight: 600;">Price Range (₹)</label>
-								<div class="d-flex gap-2 align-items-center">
-									<input type="number" name="minPrice" class="form-control form-control-sm" placeholder="Min" value="<%= typeof query !== 'undefined' ? query.minPrice : '' %>" min="0">
-									<span>-</span>
-									<input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="Max" value="<%= typeof query !== 'undefined' ? query.maxPrice : '' %>" min="0">
-								</div>
-							</div>
-
-							<div class="col-lg-3 col-md-6">
-								<label class="form-label mb-1" style="font-size: 0.85em; font-weight: 600;">Sort By</label>
-								<select name="sort" class="form-select form-select-sm">
-									<option value="">Default (Newest)</option>
-									<option value="price_asc" <%= typeof query !== 'undefined' && query.sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
-									<option value="price_desc" <%= typeof query !== 'undefined' && query.sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
-									<option value="az" <%= typeof query !== 'undefined' && query.sort === 'az' ? 'selected' : '' %>>Title: A - Z</option>
-									<option value="za" <%= typeof query !== 'undefined' && query.sort === 'za' ? 'selected' : '' %>>Title: Z - A</option>
-								</select>
-							</div>
-
-							<div class="col-lg-2 col-md-6 d-flex gap-2">
-								<button type="submit" class="btn btn-dark btn-sm flex-grow-1 m-0" style="height: 31px;">Apply</button>
-								<a href="/?activeTab=all-books#popular-books" class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center" style="height: 31px;">Clear</a>
-							</div>
-						</form>
-					</div>
-
-					<ul class="tabs">
-						<li class="tab <%= activeTabId === 'all-books' ? 'active' : '' %>" data-tab-target="#all-books">All Books</li>
-						<% categoryData.forEach(item => { %>
-							<li class="tab <%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>" data-tab-target="#cat-<%= item.category._id %>">
-								<%= item.category.name %>
-							</li>
-						<% }) %>
-					</ul>
-
-					<div class="tab-content">
-						<div id="all-books" data-tab-content class="<%= activeTabId === 'all-books' ? 'active' : '' %>">
-							<div class="row">
-								<% if (allProducts && allProducts.length === 0) { %>
-									<p class="text-muted p-3">No products matched your search or filters.</p>
-								<% } %>
-								<% if (allProducts) { %>
-									<% allProducts.forEach(product => { %>
-										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-											<div class="product-item">
-												<figure class="product-style">
-													<% if(product.images && product.images.length > 0){ %>
-														<a href="/product/<%= product._id %>">
-															<img src="/uploads/<%= product.images[0] %>" class="img-fluid">
-														</a>
-													<% } else { %>
-														<a href="/product/<%= product._id %>">
-															<img src="images/product-item1.jpg" class="img-fluid">
-														</a>
-													<% } %>
-													<button class="add-to-cart" onclick="window.location.href='/login'">Add To Cart</button>
-												</figure>
-												<figcaption>
-													<h3><%= product.title %></h3>
-													<span><%= product.author %></span>
-													<div class="item-price">
-														<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
-															<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
-															₹<%= product.pricing.finalPrice %>
-															<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
-														<% } else { %>
-															₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
-														<% } %>
-													</div>
-												</figcaption>
-											</div>
-										</div>
-									<% }) %>
-								<% } %>
-							</div>
-							
-							<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-								<a href="<%= allPage > 1 ? getPageUrl('page_all', allPage - 1, '#popular-books', activeTabId) : '#' %>"
-								   class="btn btn-sm btn-outline-dark <%= allPage <= 1 ? 'disabled' : '' %>">
-									&laquo; Prev
-								</a>
-								
-								<% for(let i = 1; i <= allTotalPages; i++) { %>
-									<a href="<%= getPageUrl('page_all', i, '#popular-books', activeTabId) %>"
-									   class="btn btn-sm <%= allPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-										<%= i %>
-									</a>
-								<% } %>
-								
-								<a href="<%= allPage < allTotalPages ? getPageUrl('page_all', allPage + 1, '#popular-books', activeTabId) : '#' %>"
-								   class="btn btn-sm btn-outline-dark <%= allPage >= allTotalPages ? 'disabled' : '' %>">
-									Next &raquo;
-								</a>
-							</div>
-						</div>
-
-						<% categoryData.forEach(item => { %>
-							<div id="cat-<%= item.category._id %>" data-tab-content class="<%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>">
+							<div class="product-list" data-aos="fade-up">
 								<div class="row">
-									<% if (item.products.length === 0) { %>
-										<p class="text-muted p-3">No products in this category</p>
-									<% } %>
-									<% item.products.forEach(product => { %>
+									<% products.forEach(product=> { %>
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
 											<div class="product-item">
 												<figure class="product-style">
-													<% if(product.images && product.images.length > 0){ %>
+													<% if (product.images && product.images.length> 0) { %>
 														<a href="/product/<%= product._id %>">
-															<img src="/uploads/<%= product.images[0] %>" class="img-fluid">
+															<img src="/uploads/<%= product.images[0] %>"
+																alt="<%= product.title %>" class="img-fluid">
 														</a>
-													<% } else { %>
-														<a href="/product/<%= product._id %>">
-															<img src="images/product-item1.jpg" class="img-fluid">
-														</a>
-													<% } %>
-													<button class="add-to-cart" onclick="window.location.href='/login'">Add To Cart</button>
+														<% } else { %>
+															<a href="/product/<%= product._id %>">
+																<img src="images/product-item1.jpg" alt="Books"
+																	class="img-fluid">
+															</a>
+															<% } %>
+																<button type="button" class="add-to-cart"
+																	onclick="window.location.href='/login'">Add to
+																	Cart</button>
 												</figure>
 												<figcaption>
-													<h3><%= product.title %></h3>
-													<span><%= product.author %></span>
+													<h3>
+														<%= product.title %>
+													</h3>
+													<span>
+														<%= product.author %>
+													</span>
 													<div class="item-price">
-														<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
-															<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
+														<% if (product.pricing && product.pricing.discountPercentage> 0)
+															{ %>
+															<span class="prev-price">₹<%= product.pricing.originalPrice
+																	%></span>
 															₹<%= product.pricing.finalPrice %>
-															<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
-														<% } else { %>
-															₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
-														<% } %>
+																<small class="text-success d-block">
+																	<%= product.pricing.discountPercentage %>% off
+																</small>
+																<% } else { %>
+																	₹<%= product.pricing ? product.pricing.finalPrice :
+																		product.price %>
+																		<% } %>
 													</div>
 												</figcaption>
 											</div>
 										</div>
-									<% }) %>
+										<% }) %>
 								</div>
-								
+
 								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-									<a href="<%= item.page > 1 ? getPageUrl('page_' + item.category._id, item.page - 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
-									   class="btn btn-sm btn-outline-dark <%= item.page <= 1 ? 'disabled' : '' %>">
+									<a href="<%= featuredPage > 1 ? getPageUrl('page_featured', featuredPage - 1, '#featured-books') : '#' %>"
+										class="btn btn-sm btn-outline-dark <%= featuredPage <= 1 ? 'disabled' : '' %>">
 										&laquo; Prev
 									</a>
-									
-									<% for(let i = 1; i <= item.totalPages; i++){ %>
-										<a href="<%= getPageUrl('page_' + item.category._id, i, '#popular-books', 'cat-' + item.category._id) %>"
-										   class="btn btn-sm <%= item.page === i ? 'btn-dark' : 'btn-outline-dark' %>">
+
+									<% for(let i=1; i <=featuredTotalPages; i++) { %>
+										<a href="<%= getPageUrl('page_featured', i, '#featured-books') %>"
+											class="btn btn-sm <%= featuredPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
 											<%= i %>
 										</a>
-									<% } %>
-									
-									<a href="<%= item.page < item.totalPages ? getPageUrl('page_' + item.category._id, item.page + 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
-									   class="btn btn-sm btn-outline-dark <%= item.page >= item.totalPages ? 'disabled' : '' %>">
-										Next &raquo;
-									</a>
-								</div>
-							</div>
-						<% }) %>
-					</div>
+										<% } %>
 
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="quotation" class="align-center pb-5 mb-5">
-		<div class="inner-content">
-			<h2 class="section-title divider">Quote of the day</h2>
-			<blockquote data-aos="fade-up">
-				<q>“The more that you read, the more things you will know. The more that you learn, the more places you’ll go.”</q>
-				<div class="author-name">Dr. Seuss</div>
-			</blockquote>
-		</div>
-	</section>
-
-	<section id="special-offer" class="bookshelf pb-5 mb-5">
-		<div class="section-header align-center">
-			<div class="title"><span>Grab your opportunity</span></div>
-			<h2 class="section-title">Books with offer</h2>
-		</div>
-		<div class="container">
-			<div class="row">
-				<div class="inner-content">
-					<div class="product-list" data-aos="fade-up">
-						<div class="row">
-							<% offerProducts.forEach(product => { %>
-								<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-									<div class="product-item">
-										<figure class="product-style">
-											<a href="/product/<%= product._id %>">
-												<% if (product.images && product.images.length > 0) { %>
-													<img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" class="img-fluid">
-												<% } else { %>
-													<img src="images/product-item5.jpg" alt="Books" class="img-fluid">
-												<% } %>
+											<a href="<%= featuredPage < featuredTotalPages ? getPageUrl('page_featured', featuredPage + 1, '#featured-books') : '#' %>"
+												class="btn btn-sm btn-outline-dark <%= featuredPage >= featuredTotalPages ? 'disabled' : '' %>">
+												Next &raquo;
 											</a>
-											<button type="button" class="add-to-cart" onclick="window.location.href='/login'">Add to Cart</button>
-										</figure>
-										<figcaption>
-											<h3><%= product.title %></h3>
-											<span><%= product.author %></span>
-											<div class="item-price">
-												<% if (product.pricing && product.pricing.discountPercentage > 0) { %>
-													<span class="prev-price">₹<%= product.pricing.originalPrice %></span>
-													₹<%= product.pricing.finalPrice %>
-													<small class="text-success d-block"><%= product.pricing.discountPercentage %>% off</small>
-												<% } else { %>
-													₹<%= product.pricing ? product.pricing.finalPrice : product.price %>
-												<% } %>
-											</div>
-										</figcaption>
-									</div>
 								</div>
-							<% }) %>
-						</div>
-						
-						<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-							<a href="<%= offerPage > 1 ? getPageUrl('page_offer', offerPage - 1, '#special-offer') : '#' %>" 
-							   class="btn btn-sm btn-outline-dark <%= offerPage <= 1 ? 'disabled' : '' %>">
-								&laquo; Prev
-							</a>
-							
-							<% for(let i = 1; i <= offerTotalPages; i++) { %>
-								<a href="<%= getPageUrl('page_offer', i, '#special-offer') %>" class="btn btn-sm <%= offerPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-									<%= i %>
-								</a>
-							<% } %>
-							
-							<a href="<%= offerPage < offerTotalPages ? getPageUrl('page_offer', offerPage + 1, '#special-offer') : '#' %>" 
-							   class="btn btn-sm btn-outline-dark <%= offerPage >= offerTotalPages ? 'disabled' : '' %>">
-								Next &raquo;
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="latest-blog" class="py-5 my-5">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="section-header align-center">
-						<div class="title"><span>Read our articles</span></div>
-						<h2 class="section-title">Latest Articles</h2>
-					</div>
-					<div class="row">
-						<div class="col-md-4">
-							<article class="column" data-aos="fade-up">
-								<figure>
-									<a href="#" class="image-hvr-effect"><img src="images/post-img1.jpg" alt="post" class="post-image"></a>
-								</figure>
-								<div class="post-item">
-									<div class="meta-date">Mar 30, 2021</div>
-									<h3><a href="#">Reading books always makes the moments happy</a></h3>
-									<div class="links-element">
-										<div class="categories">inspiration</div>
-									</div>
-								</div>
-							</article>
-						</div>
-						<div class="col-md-4">
-							<article class="column" data-aos="fade-up" data-aos-delay="200">
-								<figure>
-									<a href="#" class="image-hvr-effect"><img src="images/post-img2.jpg" alt="post" class="post-image"></a>
-								</figure>
-								<div class="post-item">
-									<div class="meta-date">Mar 29, 2021</div>
-									<h3><a href="#">Reading books always makes the moments happy</a></h3>
-									<div class="links-element">
-										<div class="categories">inspiration</div>
-									</div>
-								</div>
-							</article>
-						</div>
-						<div class="col-md-4">
-							<article class="column" data-aos="fade-up" data-aos-delay="400">
-								<figure>
-									<a href="#" class="image-hvr-effect"><img src="images/post-img3.jpg" alt="post" class="post-image"></a>
-								</figure>
-								<div class="post-item">
-									<div class="meta-date">Feb 27, 2021</div>
-									<h3><a href="#">Reading books always makes the moments happy</a></h3>
-									<div class="links-element">
-										<div class="categories">inspiration</div>
-									</div>
-								</div>
-							</article>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section id="subscribe">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-md-8">
-					<div class="row">
-						<div class="col-md-6">
-							<div class="title-element">
-								<h2 class="section-title divider">Subscribe to our newsletter</h2>
 							</div>
 						</div>
-						<div class="col-md-6">
-							<div class="subscribe-content" data-aos="fade-up">
-								<p>Sed eu feugiat amet, libero ipsum enim pharetra hac dolor sit amet.</p>
-								<form id="form">
-									<input type="text" name="email" placeholder="Enter your email addresss here">
-									<button class="btn-submit">submit</button>
+					</div>
+				</div>
+			</section>
+
+			<section id="best-selling" class="leaf-pattern-overlay">
+				<div class="corner-pattern-overlay"></div>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-md-6">
+									<figure class="products-thumb">
+										<img src="images/single-image.jpg" alt="book" class="single-image">
+									</figure>
+								</div>
+								<div class="col-md-6">
+									<div class="product-entry">
+										<h2 class="section-title divider">Best Selling Book</h2>
+										<div class="products-content">
+											<div class="author-name">By Timbur Hood</div>
+											<h3 class="item-title">Birds gonna be happy</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+											<div class="item-price">₹ 1450.00</div>
+											<div class="btn-wrap">
+												<a href="/login" class="btn-accent-arrow">shop it now <i
+														class="icon icon-ns-arrow-right"></i></a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="popular-books" class="bookshelf py-5 my-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="section-header align-center">
+								<div class="title"><span>Browse Books</span></div>
+								<h2 class="section-title">Popular Books</h2>
+							</div>
+
+							<div class="filter-sort-bar mb-4 p-3 bg-light rounded border" data-aos="fade-up">
+								<form method="get" action="/" class="row g-3 align-items-end">
+									<% if (typeof query !=='undefined' && query.search) { %>
+										<input type="hidden" name="search" value="<%= query.search %>">
+										<% } %>
+											<input type="hidden" name="activeTab" value="all-books">
+
+											<div class="col-lg-3 col-md-6">
+												<label class="form-label mb-1"
+													style="font-size: 0.85em; font-weight: 600;">Category</label>
+												<select name="category" class="form-select form-select-sm">
+													<option value="">All Categories</option>
+													<% categoryData.forEach(item=> { %>
+														<option value="<%= item.category._id %>" <%=typeof query
+															!=='undefined' && query.category==item.category._id
+															? 'selected' : '' %>>
+															<%= item.category.name %>
+														</option>
+														<% }) %>
+												</select>
+											</div>
+
+											<div class="col-lg-4 col-md-6">
+												<label class="form-label mb-1"
+													style="font-size: 0.85em; font-weight: 600;">Price Range (₹)</label>
+												<div class="d-flex gap-2 align-items-center">
+													<input type="number" name="minPrice"
+														class="form-control form-control-sm" placeholder="Min"
+														value="<%= typeof query !== 'undefined' ? query.minPrice : '' %>"
+														min="0">
+													<span>-</span>
+													<input type="number" name="maxPrice"
+														class="form-control form-control-sm" placeholder="Max"
+														value="<%= typeof query !== 'undefined' ? query.maxPrice : '' %>"
+														min="0">
+												</div>
+											</div>
+
+											<div class="col-lg-3 col-md-6">
+												<label class="form-label mb-1"
+													style="font-size: 0.85em; font-weight: 600;">Sort By</label>
+												<select name="sort" class="form-select form-select-sm">
+													<option value="">Default (Newest)</option>
+													<option value="price_asc" <%=typeof query !=='undefined' &&
+														query.sort==='price_asc' ? 'selected' : '' %>>Price: Low to High
+													</option>
+													<option value="price_desc" <%=typeof query !=='undefined' &&
+														query.sort==='price_desc' ? 'selected' : '' %>>Price: High to
+														Low</option>
+													<option value="az" <%=typeof query !=='undefined' &&
+														query.sort==='az' ? 'selected' : '' %>>Title: A - Z</option>
+													<option value="za" <%=typeof query !=='undefined' &&
+														query.sort==='za' ? 'selected' : '' %>>Title: Z - A</option>
+												</select>
+											</div>
+
+											<div class="col-lg-2 col-md-6 d-flex gap-2">
+												<button type="submit" class="btn btn-dark btn-sm flex-grow-1 m-0"
+													style="height: 31px;">Apply</button>
+												<a href="/?activeTab=all-books#popular-books"
+													class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center"
+													style="height: 31px;">Clear</a>
+											</div>
 								</form>
 							</div>
+
+							<ul class="tabs">
+								<li class="tab <%= activeTabId === 'all-books' ? 'active' : '' %>"
+									data-tab-target="#all-books">All Books</li>
+								<% categoryData.forEach(item=> { %>
+									<li class="tab <%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>"
+										data-tab-target="#cat-<%= item.category._id %>">
+										<%= item.category.name %>
+									</li>
+									<% }) %>
+							</ul>
+
+							<div class="tab-content">
+								<div id="all-books" data-tab-content
+									class="<%= activeTabId === 'all-books' ? 'active' : '' %>">
+									<div class="row">
+										<% if (allProducts && allProducts.length===0) { %>
+											<p class="text-muted p-3">No products matched your search or filters.</p>
+											<% } %>
+												<% if (allProducts) { %>
+													<% allProducts.forEach(product=> { %>
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	<% if(product.images && product.images.length> 0){
+																		%>
+																		<a href="/product/<%= product._id %>">
+																			<img src="/uploads/<%= product.images[0] %>"
+																				class="img-fluid">
+																		</a>
+																		<% } else { %>
+																			<a href="/product/<%= product._id %>">
+																				<img src="images/product-item1.jpg"
+																					class="img-fluid">
+																			</a>
+																			<% } %>
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		<%= product.title %>
+																	</h3>
+																	<span>
+																		<%= product.author %>
+																	</span>
+																	<div class="item-price">
+																		<% if (product.pricing &&
+																			product.pricing.discountPercentage> 0) { %>
+																			<span class="prev-price">₹<%=
+																					product.pricing.originalPrice %>
+																			</span>
+																			₹<%= product.pricing.finalPrice %>
+																				<small class="text-success d-block">
+																					<%= product.pricing.discountPercentage
+																						%>% off
+																				</small>
+																				<% } else { %>
+																					₹<%= product.pricing ?
+																						product.pricing.finalPrice :
+																						product.price %>
+																						<% } %>
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														<% }) %>
+															<% } %>
+									</div>
+
+									<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+										<a href="<%= allPage > 1 ? getPageUrl('page_all', allPage - 1, '#popular-books', activeTabId) : '#' %>"
+											class="btn btn-sm btn-outline-dark <%= allPage <= 1 ? 'disabled' : '' %>">
+											&laquo; Prev
+										</a>
+
+										<% for(let i=1; i <=allTotalPages; i++) { %>
+											<a href="<%= getPageUrl('page_all', i, '#popular-books', activeTabId) %>"
+												class="btn btn-sm <%= allPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+												<%= i %>
+											</a>
+											<% } %>
+
+												<a href="<%= allPage < allTotalPages ? getPageUrl('page_all', allPage + 1, '#popular-books', activeTabId) : '#' %>"
+													class="btn btn-sm btn-outline-dark <%= allPage >= allTotalPages ? 'disabled' : '' %>">
+													Next &raquo;
+												</a>
+									</div>
+								</div>
+
+								<% categoryData.forEach(item=> { %>
+									<div id="cat-<%= item.category._id %>" data-tab-content
+										class="<%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>">
+										<div class="row">
+											<% if (item.products.length===0) { %>
+												<p class="text-muted p-3">No products in this category</p>
+												<% } %>
+													<% item.products.forEach(product=> { %>
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	<% if(product.images && product.images.length> 0){
+																		%>
+																		<a href="/product/<%= product._id %>">
+																			<img src="/uploads/<%= product.images[0] %>"
+																				class="img-fluid">
+																		</a>
+																		<% } else { %>
+																			<a href="/product/<%= product._id %>">
+																				<img src="images/product-item1.jpg"
+																					class="img-fluid">
+																			</a>
+																			<% } %>
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		<%= product.title %>
+																	</h3>
+																	<span>
+																		<%= product.author %>
+																	</span>
+																	<div class="item-price">
+																		<% if (product.pricing &&
+																			product.pricing.discountPercentage> 0) { %>
+																			<span class="prev-price">₹<%=
+																					product.pricing.originalPrice %>
+																			</span>
+																			₹<%= product.pricing.finalPrice %>
+																				<small class="text-success d-block">
+																					<%= product.pricing.discountPercentage
+																						%>% off
+																				</small>
+																				<% } else { %>
+																					₹<%= product.pricing ?
+																						product.pricing.finalPrice :
+																						product.price %>
+																						<% } %>
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														<% }) %>
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="<%= item.page > 1 ? getPageUrl('page_' + item.category._id, item.page - 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
+												class="btn btn-sm btn-outline-dark <%= item.page <= 1 ? 'disabled' : '' %>">
+												&laquo; Prev
+											</a>
+
+											<% for(let i=1; i <=item.totalPages; i++){ %>
+												<a href="<%= getPageUrl('page_' + item.category._id, i, '#popular-books', 'cat-' + item.category._id) %>"
+													class="btn btn-sm <%= item.page === i ? 'btn-dark' : 'btn-outline-dark' %>">
+													<%= i %>
+												</a>
+												<% } %>
+
+													<a href="<%= item.page < item.totalPages ? getPageUrl('page_' + item.category._id, item.page + 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
+														class="btn btn-sm btn-outline-dark <%= item.page >= item.totalPages ? 'disabled' : '' %>">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									<% }) %>
+							</div>
+
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-	</section>
+			</section>
 
-	<section id="download-app" class="leaf-pattern-overlay">
-		<div class="corner-pattern-overlay"></div>
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-md-8">
+			<section id="quotation" class="align-center pb-5 mb-5">
+				<div class="inner-content">
+					<h2 class="section-title divider">Quote of the day</h2>
+					<blockquote data-aos="fade-up">
+						<q>“The more that you read, the more things you will know. The more that you learn, the more
+							places you’ll go.”</q>
+						<div class="author-name">Dr. Seuss</div>
+					</blockquote>
+				</div>
+			</section>
+
+			<section id="special-offer" class="bookshelf pb-5 mb-5">
+				<div class="section-header align-center">
+					<div class="title"><span>Grab your opportunity</span></div>
+					<h2 class="section-title">Books with offer</h2>
+				</div>
+				<div class="container">
 					<div class="row">
-						<div class="col-md-5">
-							<figure>
-								<img src="images/device.png" alt="phone" class="single-image">
-							</figure>
-						</div>
-						<div class="col-md-7">
-							<div class="app-info">
-								<h2 class="section-title divider">Download our app now !</h2>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus nonet psryroin.</p>
-								<div class="google-app">
-									<img src="images/google-play.jpg" alt="google play">
-									<img src="images/app-store.jpg" alt="app store">
+						<div class="inner-content">
+							<div class="product-list" data-aos="fade-up">
+								<div class="row">
+									<% offerProducts.forEach(product=> { %>
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<a href="/product/<%= product._id %>">
+														<% if (product.images && product.images.length> 0) { %>
+															<img src="/uploads/<%= product.images[0] %>"
+																alt="<%= product.title %>" class="img-fluid">
+															<% } else { %>
+																<img src="images/product-item5.jpg" alt="Books"
+																	class="img-fluid">
+																<% } %>
+													</a>
+													<button type="button" class="add-to-cart"
+														onclick="window.location.href='/login'">Add to Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														<%= product.title %>
+													</h3>
+													<span>
+														<%= product.author %>
+													</span>
+													<div class="item-price">
+														<% if (product.pricing && product.pricing.discountPercentage> 0)
+															{ %>
+															<span class="prev-price">₹<%= product.pricing.originalPrice
+																	%></span>
+															₹<%= product.pricing.finalPrice %>
+																<small class="text-success d-block">
+																	<%= product.pricing.discountPercentage %>% off
+																</small>
+																<% } else { %>
+																	₹<%= product.pricing ? product.pricing.finalPrice :
+																		product.price %>
+																		<% } %>
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										<% }) %>
+								</div>
+
+								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+									<a href="<%= offerPage > 1 ? getPageUrl('page_offer', offerPage - 1, '#special-offer') : '#' %>"
+										class="btn btn-sm btn-outline-dark <%= offerPage <= 1 ? 'disabled' : '' %>">
+										&laquo; Prev
+									</a>
+
+									<% for(let i=1; i <=offerTotalPages; i++) { %>
+										<a href="<%= getPageUrl('page_offer', i, '#special-offer') %>"
+											class="btn btn-sm <%= offerPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+											<%= i %>
+										</a>
+										<% } %>
+
+											<a href="<%= offerPage < offerTotalPages ? getPageUrl('page_offer', offerPage + 1, '#special-offer') : '#' %>"
+												class="btn btn-sm btn-outline-dark <%= offerPage >= offerTotalPages ? 'disabled' : '' %>">
+												Next &raquo;
+											</a>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-	</section>
-<!-- Footer -->
-	<footer id="footer" class="bg-dark text-white py-5 mt-5">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-4">
-					<div class="footer-item">
-						<div class="main-logo mb-3">
-							<a href="/home"><img src="/images/main-logo.png" alt="logo" style="filter: brightness(0) invert(1);"></a>
-						</div>
-						<p>Explore thousands of books directly from our modern bookstore repository.</p>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="footer-item">
-						<h4>Help & Info</h4>
-						<ul class="list-unstyled">
-							<li><a href="#" class="text-white text-decoration-none">Help center</a></li>
-							<li><a href="#" class="text-white text-decoration-none">Contact us</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="footer-item">
-						<h4>Legal</h4>
-						<p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</footer>
+			</section>
 
-</body>
+			<section id="latest-blog" class="py-5 my-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="section-header align-center">
+								<div class="title"><span>Read our articles</span></div>
+								<h2 class="section-title">Latest Articles</h2>
+							</div>
+							<div class="row">
+								<div class="col-md-4">
+									<article class="column" data-aos="fade-up">
+										<figure>
+											<a href="https://www.newyorker.com/culture/cultural-comment/can-reading-make-you-happier"
+												class="image-hvr-effect"><img src="images/post-img1.jpg" alt="post"
+													class="post-image"></a>
+										</figure>
+										<div class="post-item">
+											<div class="meta-date">Mar 30, 2021</div>
+											<h3><a
+													href="https://www.newyorker.com/culture/cultural-comment/can-reading-make-you-happier">Reading
+													books always makes the moments happy</a>
+											</h3>
+											<div class="links-element">
+												<div class="categories">inspiration</div>
+											</div>
+										</div>
+									</article>
+								</div>
+								<div class="col-md-4">
+									<article class="column" data-aos="fade-up" data-aos-delay="200">
+										<figure>
+											<a href="https://booksmakeusfree.blogspot.com/"
+												class="image-hvr-effect"><img src="images/post-img2.jpg" alt="post"
+													class="post-image"></a>
+										</figure>
+										<div class="post-item">
+											<div class="meta-date">Mar 29, 2021</div>
+											<h3><a
+													href="https://www.newyorker.com/culture/cultural-comment/can-reading-make-you-happier">Some
+													books leave us free and some books make us
+													free.</a>
+											</h3>
+											<div class="links-element">
+												<div class="categories">inspiration</div>
+											</div>
+										</div>
+									</article>
+								</div>
+								<div class="col-md-4">
+									<article class="column" data-aos="fade-up" data-aos-delay="400">
+										<figure>
+											<a href="https://medium.com/books-that-cannot-be-unread/we-read-to-know-were-not-alone-2dcf16788cd8"
+												class="image-hvr-effect"><img src="images/post-img3.jpg" alt="post"
+													class="post-image"></a>
+										</figure>
+										<div class="post-item">
+											<div class="meta-date">Feb 27, 2021</div>
+											<h3><a
+													href="https://medium.com/books-that-cannot-be-unread/we-read-to-know-were-not-alone-2dcf16788cd8">We
+													read to know we are not alone</a>
+											</h3>
+											<div class="links-element">
+												<div class="categories">inspiration</div>
+											</div>
+										</div>
+									</article>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="subscribe">
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="title-element">
+										<h2 class="section-title divider">Subscribe to our newsletter</h2>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="subscribe-content" data-aos="fade-up">
+										<p>Stay updated with our latest releases, exclusive author interviews, and special bookish offers delivered straight to your inbox.</p>
+										<form id="newsletterForm">
+											<input type="email" name="email" id="newsletterEmail" required
+												placeholder="Enter your email address here">
+											<button type="submit" class="btn-submit">submit</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="download-app" class="leaf-pattern-overlay">
+				<div class="corner-pattern-overlay"></div>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-md-5">
+									<figure>
+										<img src="images/device.png" alt="phone" class="single-image">
+									</figure>
+								</div>
+								<div class="col-md-7">
+									<div class="app-info">
+										<h2 class="section-title divider">Download our app now !</h2>
+										<p>Discover the untamed beauty of nature through an inspiring journey that
+											reconnects you with the wilderness and your inner self.</p>
+										<div class="google-app">
+											<img src="images/google-play.jpg" alt="google play">
+											<img src="images/app-store.jpg" alt="app store">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Footer -->
+			<footer id="footer" class="bg-dark text-white py-5 mt-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-4">
+							<div class="footer-item">
+								<div class="main-logo mb-3">
+									<a href="/home"><img src="/images/main-logo.png" alt="logo"
+											style="filter: brightness(0) invert(1);"></a>
+								</div>
+								<p>Explore thousands of books directly from our modern bookstore repository.</p>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="footer-item">
+								<h4>Help & Info</h4>
+								<ul class="list-unstyled">
+									<li><a href="/help-center" class="text-white text-decoration-none">Help
+											center</a></li>
+									<li><a href="/contact-us" class="text-white text-decoration-none">Contact us</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="footer-item">
+								<h4>Legal</h4>
+								<p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+
+	</body>
