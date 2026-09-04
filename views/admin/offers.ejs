@@ -156,10 +156,29 @@
                     </a>
                 <% } %>
                 
-                <% for(let i = 1; i <= totalPages; i++) { %> <!--[cite: 21] -->
-                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 21] -->
-                        <%= i %> <!--[cite: 21] -->
+                <% 
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, currentPage + 2);
+                %>
+
+                <% if (startPage > 1) { %>
+                    <a href="?page=1<%= search ? '&search=' + search : '' %>" class="page-link">1</a>
+                    <% if (startPage > 2) { %>
+                        <span class="page-link disabled">...</span>
+                    <% } %>
+                <% } %>
+
+                <% for(let i = startPage; i <= endPage; i++) { %>
+                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>" class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
                     </a>
+                <% } %>
+
+                <% if (endPage < totalPages) { %>
+                    <% if (endPage < totalPages - 1) { %>
+                        <span class="page-link disabled">...</span>
+                    <% } %>
+                    <a href="?page=<%= totalPages %><%= search ? '&search=' + search : '' %>" class="page-link"><%= totalPages %></a>
                 <% } %>
                 
                 <% if (currentPage < totalPages) { %> <!--[cite: 21] -->

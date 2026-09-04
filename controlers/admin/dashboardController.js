@@ -20,3 +20,19 @@ export const getAdminDashboard = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
+
+export const getTopProducts = async (req, res) => {
+  try {
+    const topProducts = await dashboardService.getAllTopProducts();
+    
+    return res.render("admin/topProducts", {
+      title: "Top Selling Products",
+      cssFile: "dashboard.css", // or a specific CSS if needed, using dashboard.css for now
+      jsFile: "dashboard.js",
+      topProducts
+    });
+  } catch (error) {
+    console.error("GET TOP PRODUCTS ERROR:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};

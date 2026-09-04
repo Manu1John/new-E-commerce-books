@@ -120,7 +120,7 @@ const reportService = {
     return await Order.aggregate([
       { $match: query },
       { $group: { _id: "$user", totalOrders: { $sum: 1 }, totalAmount: { $sum: "$finalAmount" } } },
-      { $lookup: { from: "users", localField: "_id", foreignField: "_id", as: "user" } },
+      { $lookup: { from: "userauthentications", localField: "_id", foreignField: "_id", as: "user" } },
       { $unwind: "$user" },
       { $project: { _id: 0, userId: "$user._id", firstName: "$user.firstName", lastName: "$user.lastName", name: "$user.name", email: "$user.email", totalOrders: 1, totalAmount: 1 } },
       { $sort: { totalAmount: -1 } },

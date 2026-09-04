@@ -139,11 +139,30 @@
                     </a>
                 <%}%> <!--[cite: 20] -->
 
-                <%for(let i=1;i<=totalPages;i++){%> <!--[cite: 20] -->
-                    <a href="/admin/orders?page=<%=i%>&search=<%=search%>" class="page-link <%= currentPage === i ? 'active' : '' %>"> <!--[cite: 20] -->
-                        <%=i%> <!--[cite: 20] -->
+                <% 
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, currentPage + 2);
+                %>
+
+                <% if (startPage > 1) { %>
+                    <a href="/admin/orders?page=1&search=<%=search%>" class="page-link">1</a>
+                    <% if (startPage > 2) { %>
+                        <span class="page-link disabled">...</span>
+                    <% } %>
+                <% } %>
+
+                <% for(let i = startPage; i <= endPage; i++) { %>
+                    <a href="/admin/orders?page=<%=i%>&search=<%=search%>" class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%=i%>
                     </a>
-                <%}%> <!--[cite: 20] -->
+                <% } %>
+
+                <% if (endPage < totalPages) { %>
+                    <% if (endPage < totalPages - 1) { %>
+                        <span class="page-link disabled">...</span>
+                    <% } %>
+                    <a href="/admin/orders?page=<%=totalPages%>&search=<%=search%>" class="page-link"><%=totalPages%></a>
+                <% } %>
 
                 <%if(currentPage< totalPages){%> <!--[cite: 20] -->
                     <a href="/admin/orders?page=<%=currentPage+1%>&search=<%=search%>" class="page-link prev-next"> <!--[cite: 20] -->

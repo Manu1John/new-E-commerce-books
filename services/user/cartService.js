@@ -17,7 +17,9 @@ export async function getCartService({userId}) {
         await cart.save()
     }
    const activeCategories = await Category.find({ 
-    isDeleted: false, status: "active" }).select("_id");
+    isDeleted: { $ne: true }, 
+    status: "active" 
+  }).select("_id");
     const activeCategoryIds = activeCategories.map((c) => c._id.toString()); 
     let hasUnavailableItems = false;
     let hasStockIssues = false;
@@ -37,8 +39,7 @@ for (let item of cart.items) {
         product.category.status !== "active" ||
         !activeCategoryIds.includes(product.category._id.toString())
       ) {
-        isUnavailable = true;
-        hasUnavailableItems = true;
+        continue; // Hide deleted/inactive products from user completely
       } else {
         // Verify stock
         if (product.quantity === 0) {
@@ -57,7 +58,7 @@ for (let item of cart.items) {
         product: product,
         pricing: itemPricing,
         quantity: item.quantity,
-        isUnavailable,
+        isUnavailable: false,
         stockError,
         itemTotal: itemPricing ? itemPricing.subtotal : 0
       });
@@ -144,11 +145,12 @@ export async function AddToCartService({ userId, productId, quantity }) {
 // Helper to recalculate cart subtotal and count
 const calculateCartTotals = async (userId) => {
   const cart = await Cart.findOne({ user: userId }).populate("items.product");
-  const cartCount = cart ? cart.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+  let cartCount = 0;
   let cartSubtotal = 0;
 
   for (let item of cart?.items || []) {
     if (item.product && !item.product.isDeleted && item.product.status === "active") {
+      cartCount += item.quantity;
       const itemPricing = await getItemPricing(item.product, item.quantity);
       cartSubtotal += itemPricing.subtotal;
     }
@@ -222,7 +224,7 @@ export const getCheckoutDetailsService = async (userId) => {
     return { success: false, status: "EMPTY_CART", error: "Your cart is empty. Add products to checkout." };
   }
 
-  const activeCategories = await Category.find({ isDeleted: false, status: "active" }).select("_id");
+  const activeCategories = await Category.find({ isDeleted: { $ne: true }, status: "active" }).select("_id");
   const activeCategoryIds = activeCategories.map((c) => c._id.toString());
 
   for (let item of cart.items) {
@@ -232,7 +234,7 @@ export const getCheckoutDetailsService = async (userId) => {
       !product.category || product.category.isDeleted || product.category.status !== "active" ||
       !activeCategoryIds.includes(product.category._id.toString())
     ) {
-      return { success: false, error: "Checkout disabled. Some items in your cart are currently unavailable." };
+      continue; // Simply skip deleted products instead of blocking checkout
     }
     if (product.quantity === 0) {
       return { success: false, error: `Checkout disabled. "${product.title}" is out of stock.` };
@@ -244,10 +246,15 @@ export const getCheckoutDetailsService = async (userId) => {
 
   const addresses = await Address.find({ userId });
   let cartSubtotal = 0;
+  let cartCount = 0;
   const checkoutItems = [];
   for (let item of cart.items) {
+    const product = item.product;
+    if (!product || product.isDeleted || product.status !== "active") continue;
+
     const itemPricing = await getItemPricing(item.product, item.quantity);
     cartSubtotal += itemPricing.subtotal;
+    cartCount += item.quantity;
     checkoutItems.push({
       product: item.product,
       quantity: item.quantity,
@@ -256,12 +263,16 @@ export const getCheckoutDetailsService = async (userId) => {
     });
   }
 
+  if (checkoutItems.length === 0) {
+    return { success: false, status: "EMPTY_CART", error: "Your cart is empty. Add products to checkout." };
+  }
+
   return {
     success: true,
     items: checkoutItems,
     cartSubtotal: roundMoney(cartSubtotal),
     addresses,
-    cartCount: cart.items.reduce((sum, item) => sum + item.quantity, 0)
+    cartCount
   };
 };
 
@@ -272,21 +283,27 @@ export const placeOrderService = async ({ userId, addressId }) => {
   if (!cart || cart.items.length === 0) return { success: false, error: "Cart is empty." };
 
   // Revalidate stock
+  const validOrderItems = [];
   for (let item of cart.items) {
     const product = item.product;
     if (!product || product.isDeleted || product.status !== "active") {
-      return { success: false, error: "Checkout failed. Some items in your cart are no longer available." };
+      continue; // Skip deleted items
     }
     if (product.quantity < item.quantity) {
       return { success: false, error: `Checkout failed. "${product.title}" does not have enough stock remaining.` };
     }
+    validOrderItems.push(item);
+  }
+
+  if (validOrderItems.length === 0) {
+    return { success: false, error: "Checkout failed. No available items to order." };
   }
 
   try {
     let totalAmount = 0;
     const orderItems = [];
 
-    for (let item of cart.items) {
+    for (let item of validOrderItems) {
       await Product.findByIdAndUpdate(
         item.product._id,
         { $inc: { quantity: -item.quantity } }

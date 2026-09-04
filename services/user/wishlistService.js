@@ -15,7 +15,7 @@ export async function getWishlistService({ userId }) {
   }
   
   // Active Category check
-  const activeCategories = await Category.find({ isDeleted: false, status: "active" }).select("_id");
+  const activeCategories = await Category.find({ isDeleted: { $ne: true }, status: "active" }).select("_id");
   const activeCategoryIds = activeCategories.map((c) => c._id.toString());
   
   // Filter out inactive/deleted products or products from inactive/deleted categories

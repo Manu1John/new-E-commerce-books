@@ -167,24 +167,13 @@
 										<% }) %>
 								</div>
 
-								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-									<a href="<%= featuredPage > 1 ? getPageUrl('page_featured', featuredPage - 1, '#featured-books') : '#' %>"
-										class="btn btn-sm btn-outline-dark <%= featuredPage <= 1 ? 'disabled' : '' %>">
-										&laquo; Prev
-									</a>
-
-									<% for(let i=1; i <=featuredTotalPages; i++) { %>
-										<a href="<%= getPageUrl('page_featured', i, '#featured-books') %>"
-											class="btn btn-sm <%= featuredPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-											<%= i %>
-										</a>
-										<% } %>
-
-											<a href="<%= featuredPage < featuredTotalPages ? getPageUrl('page_featured', featuredPage + 1, '#featured-books') : '#' %>"
-												class="btn btn-sm btn-outline-dark <%= featuredPage >= featuredTotalPages ? 'disabled' : '' %>">
-												Next &raquo;
-											</a>
-								</div>
+								<%- include('../partials/pagination', { 
+    currentPage: featuredPage, 
+    totalPages: featuredTotalPages, 
+    pageParam: 'page_featured', 
+    hash: '#featured-books',
+    activeTab: '' 
+}) %>
 							</div>
 						</div>
 					</div>
@@ -368,24 +357,13 @@
 															<% } %>
 									</div>
 
-									<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-										<a href="<%= allPage > 1 ? getPageUrl('page_all', allPage - 1, '#popular-books', activeTabId) : '#' %>"
-											class="btn btn-sm btn-outline-dark <%= allPage <= 1 ? 'disabled' : '' %>">
-											&laquo; Prev
-										</a>
-
-										<% for(let i=1; i <=allTotalPages; i++) { %>
-											<a href="<%= getPageUrl('page_all', i, '#popular-books', activeTabId) %>"
-												class="btn btn-sm <%= allPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-												<%= i %>
-											</a>
-											<% } %>
-
-												<a href="<%= allPage < allTotalPages ? getPageUrl('page_all', allPage + 1, '#popular-books', activeTabId) : '#' %>"
-													class="btn btn-sm btn-outline-dark <%= allPage >= allTotalPages ? 'disabled' : '' %>">
-													Next &raquo;
-												</a>
-									</div>
+									<%- include('../partials/pagination', { 
+    currentPage: allPage, 
+    totalPages: allTotalPages, 
+    pageParam: 'page_all', 
+    hash: '#popular-books',
+    activeTab: activeTabId 
+}) %>
 								</div>
 
 								<% categoryData.forEach(item=> { %>
@@ -445,24 +423,13 @@
 														<% }) %>
 										</div>
 
-										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-											<a href="<%= item.page > 1 ? getPageUrl('page_' + item.category._id, item.page - 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
-												class="btn btn-sm btn-outline-dark <%= item.page <= 1 ? 'disabled' : '' %>">
-												&laquo; Prev
-											</a>
-
-											<% for(let i=1; i <=item.totalPages; i++){ %>
-												<a href="<%= getPageUrl('page_' + item.category._id, i, '#popular-books', 'cat-' + item.category._id) %>"
-													class="btn btn-sm <%= item.page === i ? 'btn-dark' : 'btn-outline-dark' %>">
-													<%= i %>
-												</a>
-												<% } %>
-
-													<a href="<%= item.page < item.totalPages ? getPageUrl('page_' + item.category._id, item.page + 1, '#popular-books', 'cat-' + item.category._id) : '#' %>"
-														class="btn btn-sm btn-outline-dark <%= item.page >= item.totalPages ? 'disabled' : '' %>">
-														Next &raquo;
-													</a>
-										</div>
+										<%- include('../partials/pagination', { 
+    currentPage: item.page, 
+    totalPages: item.totalPages, 
+    pageParam: 'page_' + item.category._id, 
+    hash: '#popular-books',
+    activeTab: 'cat-' + item.category._id 
+}) %>
 									</div>
 									<% }) %>
 							</div>
@@ -536,24 +503,13 @@
 										<% }) %>
 								</div>
 
-								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-									<a href="<%= offerPage > 1 ? getPageUrl('page_offer', offerPage - 1, '#special-offer') : '#' %>"
-										class="btn btn-sm btn-outline-dark <%= offerPage <= 1 ? 'disabled' : '' %>">
-										&laquo; Prev
-									</a>
-
-									<% for(let i=1; i <=offerTotalPages; i++) { %>
-										<a href="<%= getPageUrl('page_offer', i, '#special-offer') %>"
-											class="btn btn-sm <%= offerPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-											<%= i %>
-										</a>
-										<% } %>
-
-											<a href="<%= offerPage < offerTotalPages ? getPageUrl('page_offer', offerPage + 1, '#special-offer') : '#' %>"
-												class="btn btn-sm btn-outline-dark <%= offerPage >= offerTotalPages ? 'disabled' : '' %>">
-												Next &raquo;
-											</a>
-								</div>
+								<%- include('../partials/pagination', { 
+    currentPage: offerPage, 
+    totalPages: offerTotalPages, 
+    pageParam: 'page_offer', 
+    hash: '#special-offer',
+    activeTab: '' 
+}) %>
 							</div>
 						</div>
 					</div>

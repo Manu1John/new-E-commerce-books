@@ -52,14 +52,18 @@ const offerService = {
         return { success: false, message: "An offer with this name already exists." };
     }
 
-    // Duplicate Check 2: Same Product/Category already has an active offer
-    const duplicateQuery = { type, isDeleted: { $ne: true }, isActive: true };
-    if (type === 'product') duplicateQuery.productRef = productRef;
-    if (type === 'category') duplicateQuery.categoryRef = categoryRef;
-    
-    const existingOfferOnItem = await Offer.findOne(duplicateQuery);
-    if (existingOfferOnItem) {
-        return { success: false, message: "An active offer already exists for this specific item." };
+    // Duplicate Check 2: Same Product/Category/Referral already has an active offer
+    const isOfferActive = isActive === "true" || isActive === true;
+
+    if (isOfferActive) {
+        const duplicateQuery = { type, isDeleted: { $ne: true }, isActive: true };
+        if (type === 'product') duplicateQuery.productRef = productRef;
+        if (type === 'category') duplicateQuery.categoryRef = categoryRef;
+        
+        const existingOfferOnItem = await Offer.findOne(duplicateQuery);
+        if (existingOfferOnItem) {
+            return { success: false, message: "An active offer already exists for this specific item." };
+        }
     }
 
     const offerData = {
@@ -90,6 +94,25 @@ const offerService = {
     const existingName = await Offer.findOne({ _id: { $ne: id }, name: { $regex: `^${name}$`, $options: 'i' }, isDeleted: { $ne: true } });
     if (existingName) {
         return { success: false, message: "An offer with this name already exists." };
+    }
+
+    // Duplicate Check 2: Same Product/Category/Referral already has an active offer
+    const isOfferActive = isActive === "true" || isActive === true;
+    
+    if (isOfferActive) {
+        const duplicateQuery = { 
+            _id: { $ne: id }, 
+            type, 
+            isDeleted: { $ne: true }, 
+            isActive: true 
+        };
+        if (type === 'product') duplicateQuery.productRef = productRef;
+        if (type === 'category') duplicateQuery.categoryRef = categoryRef;
+        
+        const existingOfferOnItem = await Offer.findOne(duplicateQuery);
+        if (existingOfferOnItem) {
+            return { success: false, message: "An active offer already exists for this specific item." };
+        }
     }
 
     const updateData = {

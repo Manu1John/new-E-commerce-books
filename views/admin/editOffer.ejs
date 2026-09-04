@@ -58,47 +58,53 @@
                         <div class="form-group">
                             <label>Offer Name <span class="text-danger">*</span></label>
                             <div class="input-wrapper">
-                                <input type="text" name="name" class="form-control-custom" value="<%= offer.name %>" required>
+                                <input type="text" name="name" id="name" class="form-control-custom" value="<%= offer.name %>">
                                 <i class="fa-solid fa-pen input-icon text-muted"></i>
                             </div>
+                            <small class="text-danger error-msg" id="nameError" style="display:none;"></small>
                         </div>
 
                         <div class="form-group">
                             <label id="discountLabel">Discount Percentage <span class="text-danger">*</span></label>
                             <div class="input-wrapper">
-                                <input type="number" name="discountPercentage" class="form-control-custom pe-5" value="<%= offer.discountPercentage %>" required>
+                                <input type="number" name="discountPercentage" id="discountPercentage" class="form-control-custom pe-5" value="<%= offer.discountPercentage %>">
                                 <i class="fa-solid fa-percent input-icon text-muted"></i>
                             </div>
+                            <small class="text-danger error-msg" id="discountPercentageError" style="display:none;"></small>
                         </div>
                     </div>
 
                     <div class="row-grid">
                         <div class="form-group">
                             <label>Offer Type <span class="text-danger">*</span></label>
-                            <select name="type" id="offerType" class="form-select-custom" required>
+                            <select name="type" id="offerType" class="form-select-custom">
                                 <option value="product" <%= offer.type === 'product' ? 'selected' : '' %>>Product Specific</option>
                                 <option value="category" <%= offer.type === 'category' ? 'selected' : '' %>>Category Specific</option>
                                 <option value="referral" <%= offer.type === 'referral' ? 'selected' : '' %>>Referral Bonus</option>
                             </select>
+                            <small class="text-danger error-msg" id="offerTypeError" style="display:none;"></small>
                         </div>
 
                         <div class="form-group">
                             <label id="dynamicLabel">Select Item <span class="text-danger">*</span></label>
-                            <select name="productRef" id="dynamicSelect" class="form-select-custom" required>
+                            <select name="productRef" id="dynamicSelect" class="form-select-custom">
                                 <!-- Populated dynamically by JS -->
                             </select>
+                            <small class="text-danger error-msg" id="dynamicSelectError" style="display:none;"></small>
                         </div>
                     </div>
 
                     <div class="row-grid">
                         <div class="form-group">
                             <label>Start Date <span class="text-danger">*</span></label>
-                            <input type="date" name="startDate" id="startDate" class="form-control-custom" required value="<%= new Date(offer.startDate).toISOString().split('T')[0] %>">
+                            <input type="date" name="startDate" id="startDate" class="form-control-custom" value="<%= new Date(offer.startDate).toISOString().split('T')[0] %>">
+                            <small class="text-danger error-msg" id="startDateError" style="display:none;"></small>
                         </div>
 
                         <div class="form-group">
                             <label>Expiry Date <span class="text-danger">*</span></label>
-                            <input type="date" name="expiryDate" id="expiryDate" class="form-control-custom" required value="<%= new Date(offer.expiryDate).toISOString().split('T')[0] %>">
+                            <input type="date" name="expiryDate" id="expiryDate" class="form-control-custom" value="<%= new Date(offer.expiryDate).toISOString().split('T')[0] %>">
+                            <small class="text-danger error-msg" id="expiryDateError" style="display:none;"></small>
                         </div>
                     </div>
 

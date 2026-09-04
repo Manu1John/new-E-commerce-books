@@ -57,28 +57,54 @@ document.addEventListener("DOMContentLoaded", function() {
             const formData = new FormData(offerForm);
             const data = Object.fromEntries(formData.entries());
 
+            // --- Clear previous errors ---
+            document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+            let isValid = true;
+
+            const showError = (id, msg) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = msg;
+                    el.style.display = 'block';
+                }
+                isValid = false;
+            };
+
             // Validations
             if (!data.name.trim()) {
-                return Swal.fire('Validation Error', 'Offer Name cannot be empty.', 'error');
+                showError('nameError', 'Offer Name is required.');
             }
 
             const offerType = document.getElementById('offerType').value;
             if (offerType === 'referral') {
-                if (Number(data.discountPercentage) <= 0) {
-                    return Swal.fire('Validation Error', 'Bonus amount must be greater than 0.', 'error');
+                if (!data.discountPercentage || Number(data.discountPercentage) <= 0) {
+                    showError('discountPercentageError', 'Bonus amount must be greater than 0.');
                 }
             } else {
-                if (Number(data.discountPercentage) <= 0 || Number(data.discountPercentage) >= 100) {
-                    return Swal.fire('Validation Error', 'Discount must be between 1% and 99%.', 'error');
+                if (!data.discountPercentage || Number(data.discountPercentage) <= 0 || Number(data.discountPercentage) >= 100) {
+                    showError('discountPercentageError', 'Discount must be between 1% and 99%.');
+                }
+                const dynamicSelectValue = document.getElementById('dynamicSelect').value;
+                if (!dynamicSelectValue || dynamicSelectValue === "") {
+                    showError('dynamicSelectError', 'Please select an item.');
                 }
             }
             
-            if (new Date(data.startDate) > new Date(data.expiryDate)) {
-                return Swal.fire('Validation Error', 'Expiry Date must be after the Start Date.', 'error');
+            if (!data.startDate) {
+                showError('startDateError', 'Start Date is required.');
             }
-            if (new Date(data.expiryDate) < new Date().setHours(0,0,0,0)) {
-                return Swal.fire('Validation Error', 'Expiry Date cannot be in the past.', 'error');
+            
+            if (!data.expiryDate) {
+                showError('expiryDateError', 'Expiry Date is required.');
+            } else if (new Date(data.expiryDate) < new Date().setHours(0,0,0,0)) {
+                showError('expiryDateError', 'Expiry Date cannot be in the past.');
             }
+            
+            if (data.startDate && data.expiryDate && new Date(data.startDate) > new Date(data.expiryDate)) {
+                showError('expiryDateError', 'Expiry Date must be after the Start Date.');
+            }
+
+            if (!isValid) return;
 
             try {
                 // Submit to current edit URL if edit, else to add URL

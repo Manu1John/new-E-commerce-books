@@ -1,0 +1,2511 @@
+<title>Books Store</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+	integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+<script defer src="/js/index.js"></script>
+<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+<link rel="stylesheet" type="text/css" href="/css/index.css">
+<link rel="stylesheet" href="/css/navbar.css?v=3">
+
+<script defer src="/js/jquery-1.11.0.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+	crossorigin="anonymous"></script>
+<script defer src="/js/plugins.js"></script>
+<script defer src="/js/script.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const form = document.getElementById('newsletterForm');
+			if(form) {
+				form.addEventListener('submit', function(e) {
+					e.preventDefault();
+					const email = document.getElementById('newsletterEmail').value;
+					if(email) {
+						Swal.fire({
+							icon: 'success',
+							title: 'Thank You!',
+							text: 'Your request has been sent. Welcome to our newsletter!',
+							confirmButtonColor: '#3085d6',
+							customClass: {
+								popup: 'rounded-4 shadow'
+							}
+						});
+						this.reset();
+					}
+				});
+			}
+		});
+	</script>
+</head>
+
+
+
+	<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
+
+		
+
+
+<!-- ===== UNIFIED STICKY NAVBAR ===== -->
+<div id="header-wrap" class="unified-header fixed-top bg-white shadow-sm py-2">
+    <header id="header" class="p-0 border-0 bg-transparent shadow-none" style="position:static !important;">
+        <div class="container-fluid px-2 px-md-4">
+            <div class="row align-items-center justify-content-between flex-wrap flex-md-nowrap g-0">
+
+                <!-- 1. LOGO -->
+                <div class="col-auto order-1">
+                    <div class="main-logo m-0">
+                        <a href="/">
+                            <img src="/images/main-logo.png" alt="BookSaw logo" style="max-height:40px;">
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. NAV LINKS + MOBILE SEARCH -->
+                <div class="col-12 col-md collapse d-md-flex flex-column flex-md-row justify-content-center order-3 order-md-2 mt-3 mt-md-0" id="unifiedMobileMenu">
+
+                    <!-- Mobile Search -->
+                    <form role="search" method="get" action="/" class="d-md-none w-100 mb-3 px-2 mt-2">
+                        
+                        
+                        
+                        
+                        <div class="d-flex align-items-center w-100">
+                            <input class="form-control border border-secondary-subtle bg-light w-100"
+                                   placeholder="Search books..." type="text" name="search"
+                                   value=""
+                                   style="border-radius:20px 0 0 20px; padding:8px 15px;">
+                            <button type="submit" class="btn border-0 text-white"
+                                    style="background:#111; border-radius:0 20px 20px 0; padding:8px 18px;">
+                                <i class="icon icon-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Main Nav Links -->
+                    <nav id="navbar" class="w-100">
+                        <div class="main-menu stellarnav m-0 p-0">
+                            <ul class="menu-list mb-0 d-flex flex-column flex-md-row gap-4 list-unstyled fw-medium text-uppercase align-items-center py-3 py-md-0" style="letter-spacing:0.05em">
+                                <li class="menu-item"><a href="/#home"          class="nav-link-item">Home</a></li>
+                                <li class="menu-item"><a href="/#featured-books" class="nav-link-item">Featured</a></li>
+                                <li class="menu-item"><a href="/#popular-books"  class="nav-link-item">Popular</a></li>
+                                <li class="menu-item"><a href="/#special-offer"  class="nav-link-item">Offer</a></li>
+                                <li class="menu-item"><a href="/#latest-blog"    class="nav-link-item">Articles</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- 3. DESKTOP SEARCH + USER ACTIONS -->
+                <div class="col-auto d-flex align-items-center gap-2 gap-md-3 gap-lg-4 order-2 order-md-3">
+
+                    <!-- Desktop Search -->
+                    <form role="search" method="get" action="/"
+                          id="unifiedSearchForm"
+                          class="unified-search-form d-none d-lg-flex m-0"
+                          style="width:230px;">
+                        
+                        
+                        
+                        
+
+                        <input id="unifiedSearchInput"
+                               class="form-control unified-search-input border border-secondary-subtle bg-light"
+                               placeholder="Search..." type="text" name="search"
+                               value=""
+                               style="border-radius:20px 0 0 20px; padding:8px 15px;">
+
+                        <button type="button" id="unifiedClearBtn"
+                                class="clear-search-btn border-0 text-white"
+                                style="background:#dc3545; border-radius:0 20px 20px 0; padding:8px 18px; font-size:18px; line-height:1; display:none">
+                            &times;
+                        </button>
+                        <button type="submit" id="unifiedSearchBtn"
+                                class="search-btn border-0 text-white"
+                                style="background:#111; border-radius:0 20px 20px 0; padding:8px 18px; display:block">
+                            <i class="icon icon-search"></i>
+                        </button>
+                    </form>
+
+                    <!-- User Action Icons -->
+                    <div class="user-actions d-flex align-items-center gap-2 gap-md-3 fs-5">
+                        
+                            <!-- Guest: Login only -->
+                            <a href="/login" class="text-dark action-hover text-decoration-none d-flex align-items-center gap-1" title="Login">
+                                <i class="icon icon-user"></i>
+                                <span class="fs-6 fw-semibold d-none d-sm-inline">Login</span>
+                            </a>
+                        
+                    </div>
+
+                    <!-- Mobile Hamburger -->
+                    <div class="hamburger d-md-none ms-2 d-flex flex-column justify-content-center align-items-center"
+                         style="width:35px; height:35px; cursor:pointer;"
+                         data-bs-toggle="collapse"
+                         data-bs-target="#unifiedMobileMenu"
+                         aria-expanded="false"
+                         aria-controls="unifiedMobileMenu">
+                        <span class="bar d-block bg-dark rounded" style="width:25px; height:3px; margin-bottom:5px;"></span>
+                        <span class="bar d-block bg-dark rounded" style="width:25px; height:3px; margin-bottom:5px;"></span>
+                        <span class="bar d-block bg-dark rounded" style="width:25px; height:3px;"></span>
+                    </div>
+
+                </div><!-- /col-auto -->
+
+            </div><!-- /row -->
+        </div><!-- /container-fluid -->
+    </header>
+</div>
+<!-- ===== END UNIFIED NAVBAR ===== -->
+
+<script>
+(function () {
+    var input     = document.getElementById('unifiedSearchInput');
+    var clearBtn  = document.getElementById('unifiedClearBtn');
+    var searchBtn = document.getElementById('unifiedSearchBtn');
+    if (!input) return;
+    input.addEventListener('input', function () {
+        var hasVal = this.value.trim().length > 0;
+        if (clearBtn)  clearBtn.style.display  = hasVal ? 'block' : 'none';
+        if (searchBtn) searchBtn.style.display = hasVal ? 'none'  : 'block';
+    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            input.value = '';
+            this.style.display = 'none';
+            if (searchBtn) searchBtn.style.display = 'block';
+            input.focus();
+            document.getElementById('unifiedSearchForm').submit();
+        });
+    }
+})();
+</script>
+
+
+
+			<section id="billboard">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<button class="prev slick-arrow"><i class="icon icon-arrow-left"></i></button>
+							<div class="main-slider pattern-overlay">
+								<div class="slider-item">
+									<div class="banner-content">
+										<h2 class="banner-title">Life of the Wild</h2>
+										<p>Books are a uniquely portable form of magic that transcend ordinary
+											boundaries, allowing a dedicated reader to live a thousand rich lives before
+											ever dying, while those who never open a page live only a single, narrow
+											existence. Ultimately, a room without books is like a living human body
+											completely devoid of a soul, because compelling stories shape our inner
+											worlds and offer endless adventures waiting to be truly discovered..</p>
+										<div class="btn-wrap">
+											<a href="https://en.wikipedia.org/wiki/Book"
+												class="btn btn-outline-accent btn-accent-arrow">Read More<i
+													class="icon icon-ns-arrow-right"></i></a>
+										</div>
+									</div>
+									<img src="images/main-banner1.jpg" alt="banner" class="banner-image">
+								</div>
+								<div class="slider-item">
+									<div class="banner-content">
+										<h2 class="banner-title">Birds gonna be Happy</h2>
+										<p>Books are a uniquely portable form of magic that transcend ordinary
+											boundaries, allowing a dedicated reader to live a thousand rich lives before
+											ever dying, while those who never open a page live only a single, narrow
+											existence. Ultimately, a room without books is like a living human body
+											completely devoid of a soul, because compelling stories shape our inner
+											worlds and offer endless adventures waiting to be truly discovered.</p>
+										<div class="btn-wrap">
+											<a href="https://en.wikipedia.org/wiki/Book"
+												class="btn btn-outline-accent btn-accent-arrow">Read More<i
+													class="icon icon-ns-arrow-right"></i></a>
+										</div>
+									</div>
+									<img src="images/main-banner2.jpg" alt="banner" class="banner-image">
+								</div>
+							</div>
+							<button class="next slick-arrow"><i class="icon icon-arrow-right"></i></button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="client-holder" data-aos="fade-up">
+				<div class="container">
+					<div class="row">
+						<div class="inner-content">
+							<div class="logo-wrap">
+								<div class="grid">
+									<a href="#"><img src="images/client-image1.png" alt="client"></a>
+									<a href="#"><img src="images/client-image2.png" alt="client"></a>
+									<a href="#"><img src="images/client-image3.png" alt="client"></a>
+									<a href="#"><img src="images/client-image4.png" alt="client"></a>
+									<a href="#"><img src="images/client-image5.png" alt="client"></a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="featured-books" class="py-5 my-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="section-header align-center">
+								<div class="title"><span>Some quality items</span></div>
+								<h2 class="section-title">Featured Books</h2>
+							</div>
+
+							<div class="product-list" data-aos="fade-up">
+								<div class="row">
+									
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													
+														<a href="/product/6a95bc38ddcb90e3c043f406">
+															<img src="/uploads/1788197943501.jpg"
+																alt="dfsdfds" class="img-fluid">
+														</a>
+														
+																<button type="button" class="add-to-cart"
+																	onclick="window.location.href='/login'">Add to
+																	Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														dfsdfds
+													</h3>
+													<span>
+														fdsfds
+													</span>
+													<div class="item-price">
+														
+																	₹300
+																		
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													
+														<a href="/product/6a94190aef89587e4517134d">
+															<img src="/uploads/1788090634726.jpg"
+																alt="ffcadsfh" class="img-fluid">
+														</a>
+														
+																<button type="button" class="add-to-cart"
+																	onclick="window.location.href='/login'">Add to
+																	Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														ffcadsfh
+													</h3>
+													<span>
+														fdsafsda
+													</span>
+													<div class="item-price">
+														
+																	₹120
+																		
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													
+														<a href="/product/6a93ea574676b4bab439b7a8">
+															<img src="/uploads/1788078679099.png"
+																alt="afddft" class="img-fluid">
+														</a>
+														
+																<button type="button" class="add-to-cart"
+																	onclick="window.location.href='/login'">Add to
+																	Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														afddft
+													</h3>
+													<span>
+														fadsfdsa
+													</span>
+													<div class="item-price">
+														
+																	₹302
+																		
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													
+														<a href="/product/6a91bd2564cab52c382275a4">
+															<img src="/uploads/1787936037463.png"
+																alt="fadsfsafh" class="img-fluid">
+														</a>
+														
+																<button type="button" class="add-to-cart"
+																	onclick="window.location.href='/login'">Add to
+																	Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														fadsfsafh
+													</h3>
+													<span>
+														dasfasd
+													</span>
+													<div class="item-price">
+														
+																	₹200
+																		
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+								</div>
+
+								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+									<a href="#"
+										class="btn btn-sm btn-outline-dark disabled">
+										&laquo; Prev
+									</a>
+
+									
+										<a href="?page_featured=1#featured-books"
+											class="btn btn-sm btn-dark">
+											1
+										</a>
+										
+										<a href="?page_featured=2#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											2
+										</a>
+										
+										<a href="?page_featured=3#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											3
+										</a>
+										
+										<a href="?page_featured=4#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											4
+										</a>
+										
+										<a href="?page_featured=5#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											5
+										</a>
+										
+										<a href="?page_featured=6#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											6
+										</a>
+										
+										<a href="?page_featured=7#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											7
+										</a>
+										
+										<a href="?page_featured=8#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											8
+										</a>
+										
+										<a href="?page_featured=9#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											9
+										</a>
+										
+										<a href="?page_featured=10#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											10
+										</a>
+										
+										<a href="?page_featured=11#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											11
+										</a>
+										
+										<a href="?page_featured=12#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											12
+										</a>
+										
+										<a href="?page_featured=13#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											13
+										</a>
+										
+										<a href="?page_featured=14#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											14
+										</a>
+										
+										<a href="?page_featured=15#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											15
+										</a>
+										
+										<a href="?page_featured=16#featured-books"
+											class="btn btn-sm btn-outline-dark">
+											16
+										</a>
+										
+
+											<a href="?page_featured=2#featured-books"
+												class="btn btn-sm btn-outline-dark ">
+												Next &raquo;
+											</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="best-selling" class="leaf-pattern-overlay">
+				<div class="corner-pattern-overlay"></div>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-md-6">
+									<figure class="products-thumb">
+										<img src="images/single-image.jpg" alt="book" class="single-image">
+									</figure>
+								</div>
+								<div class="col-md-6">
+									<div class="product-entry">
+										<h2 class="section-title divider">Best Selling Book</h2>
+										<div class="products-content">
+											<div class="author-name">By Timbur Hood</div>
+											<h3 class="item-title">Birds gonna be happy</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+											<div class="item-price">₹ 1450.00</div>
+											<div class="btn-wrap">
+												<a href="/login" class="btn-accent-arrow">shop it now <i
+														class="icon icon-ns-arrow-right"></i></a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="popular-books" class="bookshelf py-5 my-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="section-header align-center">
+								<div class="title"><span>Browse Books</span></div>
+								<h2 class="section-title">Popular Books</h2>
+							</div>
+
+							<div class="filter-sort-bar mb-4 p-3 bg-light rounded border" data-aos="fade-up">
+								<form method="get" action="/" class="row g-3 align-items-end">
+									
+											<input type="hidden" name="activeTab" value="all-books">
+
+											<div class="col-lg-3 col-md-6">
+												<label class="form-label mb-1"
+													style="font-size: 0.85em; font-weight: 600;">Category</label>
+												<select name="category" class="form-select form-select-sm">
+													<option value="">All Categories</option>
+													
+														<option value="6a31192594c1c45a2fc8e19e" >
+															business
+														</option>
+														
+														<option value="6a312118181c3e6e07c56600" >
+															drama
+														</option>
+														
+														<option value="6a312123181c3e6e07c56601" >
+															romance
+														</option>
+														
+														<option value="6a313c9492a7ac1c081a0922" >
+															inspirational
+														</option>
+														
+														<option value="6a313cab92a7ac1c081a0923" >
+															politics
+														</option>
+														
+														<option value="6a34d98445cac84c87ee5fa3" >
+															adventure
+														</option>
+														
+														<option value="6a34d9ba45cac84c87ee5fa4" >
+															fictional
+														</option>
+														
+														<option value="6a34da1f45cac84c87ee5fa5" >
+															technology
+														</option>
+														
+												</select>
+											</div>
+
+											<div class="col-lg-4 col-md-6">
+												<label class="form-label mb-1"
+													style="font-size: 0.85em; font-weight: 600;">Price Range (₹)</label>
+												<div class="d-flex gap-2 align-items-center">
+													<input type="number" name="minPrice"
+														class="form-control form-control-sm" placeholder="Min"
+														value=""
+														min="0">
+													<span>-</span>
+													<input type="number" name="maxPrice"
+														class="form-control form-control-sm" placeholder="Max"
+														value=""
+														min="0">
+												</div>
+											</div>
+
+											<div class="col-lg-3 col-md-6">
+												<label class="form-label mb-1"
+													style="font-size: 0.85em; font-weight: 600;">Sort By</label>
+												<select name="sort" class="form-select form-select-sm">
+													<option value="">Default (Newest)</option>
+													<option value="price_asc" >Price: Low to High
+													</option>
+													<option value="price_desc" >Price: High to
+														Low</option>
+													<option value="az" >Title: A - Z</option>
+													<option value="za" >Title: Z - A</option>
+												</select>
+											</div>
+
+											<div class="col-lg-2 col-md-6 d-flex gap-2">
+												<button type="submit" class="btn btn-dark btn-sm flex-grow-1 m-0"
+													style="height: 31px;">Apply</button>
+												<a href="/?activeTab=all-books#popular-books"
+													class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center"
+													style="height: 31px;">Clear</a>
+											</div>
+								</form>
+							</div>
+
+							<ul class="tabs">
+								<li class="tab active"
+									data-tab-target="#all-books">All Books</li>
+								
+									<li class="tab "
+										data-tab-target="#cat-6a31192594c1c45a2fc8e19e">
+										business
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a312118181c3e6e07c56600">
+										drama
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a312123181c3e6e07c56601">
+										romance
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a313c9492a7ac1c081a0922">
+										inspirational
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a313cab92a7ac1c081a0923">
+										politics
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a34d98445cac84c87ee5fa3">
+										adventure
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a34d9ba45cac84c87ee5fa4">
+										fictional
+									</li>
+									
+									<li class="tab "
+										data-tab-target="#cat-6a34da1f45cac84c87ee5fa5">
+										technology
+									</li>
+									
+							</ul>
+
+							<div class="tab-content">
+								<div id="all-books" data-tab-content
+									class="active">
+									<div class="row">
+										
+												
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a95bc38ddcb90e3c043f406">
+																			<img src="/uploads/1788197943501.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		dfsdfds
+																	</h3>
+																	<span>
+																		fdsfds
+																	</span>
+																	<div class="item-price">
+																		
+																					₹300
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a94190aef89587e4517134d">
+																			<img src="/uploads/1788090634726.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		ffcadsfh
+																	</h3>
+																	<span>
+																		fdsafsda
+																	</span>
+																	<div class="item-price">
+																		
+																					₹120
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a93ea574676b4bab439b7a8">
+																			<img src="/uploads/1788078679099.png"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		afddft
+																	</h3>
+																	<span>
+																		fadsfdsa
+																	</span>
+																	<div class="item-price">
+																		
+																					₹302
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a91bd2564cab52c382275a4">
+																			<img src="/uploads/1787936037463.png"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fadsfsafh
+																	</h3>
+																	<span>
+																		dasfasd
+																	</span>
+																	<div class="item-price">
+																		
+																					₹200
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+															
+									</div>
+
+									<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+										<a href="#"
+											class="btn btn-sm btn-outline-dark disabled">
+											&laquo; Prev
+										</a>
+
+										
+											<a href="?page_all=1&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-dark">
+												1
+											</a>
+											
+											<a href="?page_all=2&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												2
+											</a>
+											
+											<a href="?page_all=3&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												3
+											</a>
+											
+											<a href="?page_all=4&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												4
+											</a>
+											
+											<a href="?page_all=5&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												5
+											</a>
+											
+											<a href="?page_all=6&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												6
+											</a>
+											
+											<a href="?page_all=7&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												7
+											</a>
+											
+											<a href="?page_all=8&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												8
+											</a>
+											
+											<a href="?page_all=9&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												9
+											</a>
+											
+											<a href="?page_all=10&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												10
+											</a>
+											
+											<a href="?page_all=11&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												11
+											</a>
+											
+											<a href="?page_all=12&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												12
+											</a>
+											
+											<a href="?page_all=13&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												13
+											</a>
+											
+											<a href="?page_all=14&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												14
+											</a>
+											
+											<a href="?page_all=15&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												15
+											</a>
+											
+											<a href="?page_all=16&amp;activeTab=all-books#popular-books"
+												class="btn btn-sm btn-outline-dark">
+												16
+											</a>
+											
+
+												<a href="?page_all=2&amp;activeTab=all-books#popular-books"
+													class="btn btn-sm btn-outline-dark ">
+													Next &raquo;
+												</a>
+									</div>
+								</div>
+
+								
+									<div id="cat-6a31192594c1c45a2fc8e19e" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a6b16746bdd4b0930e52e21">
+																			<img src="/uploads/1785402996035.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		kkkkkkkkkkkk
+																	</h3>
+																	<span>
+																		dstgsfgvafd
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹600
+																			</span>
+																			₹492
+																				<small class="text-success d-block">
+																					18% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a4d2146a48dafdd7d3cc215">
+																			<img src="/uploads/1783439685952.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fffffffffffaa
+																	</h3>
+																	<span>
+																		ddddd
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹500
+																			</span>
+																			₹410
+																				<small class="text-success d-block">
+																					18% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a3ca3defd0fd97a1c3c009b">
+																			<img src="/uploads/1782359006291.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		zero to one
+																	</h3>
+																	<span>
+																		 Peter Thiel
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹1300
+																			</span>
+																			₹1066
+																				<small class="text-success d-block">
+																					18% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a3ca2c5fd0fd97a1c3c009a">
+																			<img src="/uploads/1782358725179.webp"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		good to great
+																	</h3>
+																	<span>
+																		 Jim Collins
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹1200
+																			</span>
+																			₹984
+																				<small class="text-success d-block">
+																					18% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a31192594c1c45a2fc8e19e=1&amp;activeTab=cat-6a31192594c1c45a2fc8e19e#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a31192594c1c45a2fc8e19e=2&amp;activeTab=cat-6a31192594c1c45a2fc8e19e#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+
+													<a href="?page_6a31192594c1c45a2fc8e19e=2&amp;activeTab=cat-6a31192594c1c45a2fc8e19e#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a312118181c3e6e07c56600" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a918a9ba2e9e9aab5d95c7e">
+																			<img src="/uploads/1787923099513.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		ffffffaa
+																	</h3>
+																	<span>
+																		asfasdf
+																	</span>
+																	<div class="item-price">
+																		
+																					₹200
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a911712054311065054a61b">
+																			<img src="/uploads/1787893522790.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		ggggggf
+																	</h3>
+																	<span>
+																		fdsfs
+																	</span>
+																	<div class="item-price">
+																		
+																					₹205
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a7f0f625b62fc7ec0592e6d">
+																			<img src="/uploads/1786711905540.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fgfgfdgss
+																	</h3>
+																	<span>
+																		fdffdsd
+																	</span>
+																	<div class="item-price">
+																		
+																					₹500
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a745c113ec09bd4cfba366e">
+																			<img src="/uploads/1786010641139.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		rerewrwerssaad
+																	</h3>
+																	<span>
+																		erewqrweq
+																	</span>
+																	<div class="item-price">
+																		
+																					₹300
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a312118181c3e6e07c56600=1&amp;activeTab=cat-6a312118181c3e6e07c56600#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a312118181c3e6e07c56600=2&amp;activeTab=cat-6a312118181c3e6e07c56600#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+												<a href="?page_6a312118181c3e6e07c56600=3&amp;activeTab=cat-6a312118181c3e6e07c56600#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													3
+												</a>
+												
+												<a href="?page_6a312118181c3e6e07c56600=4&amp;activeTab=cat-6a312118181c3e6e07c56600#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													4
+												</a>
+												
+
+													<a href="?page_6a312118181c3e6e07c56600=2&amp;activeTab=cat-6a312118181c3e6e07c56600#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a312123181c3e6e07c56601" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a91bd2564cab52c382275a4">
+																			<img src="/uploads/1787936037463.png"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fadsfsafh
+																	</h3>
+																	<span>
+																		dasfasd
+																	</span>
+																	<div class="item-price">
+																		
+																					₹200
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a74b4a7ac9e76c3b10e0962">
+																			<img src="/uploads/1786033318937.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		ggg
+																	</h3>
+																	<span>
+																		dfadsfas
+																	</span>
+																	<div class="item-price">
+																		
+																					₹200
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a6b1a9e6bdd4b0930e52e23">
+																			<img src="/uploads/1785404062853.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fdsfdsaf
+																	</h3>
+																	<span>
+																		DFSADF
+																	</span>
+																	<div class="item-price">
+																		
+																					₹200
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a3e13b7ad631e85024f2f3f">
+																			<img src="/uploads/1782453175679.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fdsf
+																	</h3>
+																	<span>
+																		fsdafs
+																	</span>
+																	<div class="item-price">
+																		
+																					₹500
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a312123181c3e6e07c56601=1&amp;activeTab=cat-6a312123181c3e6e07c56601#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a312123181c3e6e07c56601=2&amp;activeTab=cat-6a312123181c3e6e07c56601#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+												<a href="?page_6a312123181c3e6e07c56601=3&amp;activeTab=cat-6a312123181c3e6e07c56601#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													3
+												</a>
+												
+
+													<a href="?page_6a312123181c3e6e07c56601=2&amp;activeTab=cat-6a312123181c3e6e07c56601#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a313c9492a7ac1c081a0922" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44bd63d64365c7510e45b6">
+																			<img src="/uploads/1782889852496.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		the power of now
+																	</h3>
+																	<span>
+																		Eckhart Tolle
+																	</span>
+																	<div class="item-price">
+																		
+																					₹799
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44bc76d64365c7510e45b5">
+																			<img src="/uploads/1782889590682.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		the alchemist
+																	</h3>
+																	<span>
+																		Paulo Coelho
+																	</span>
+																	<div class="item-price">
+																		
+																					₹1899
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44b3ce080c3bc4e3de417f">
+																			<img src="/uploads/1782887373503.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		Atomic Habitss
+																	</h3>
+																	<span>
+																		fdasf
+																	</span>
+																	<div class="item-price">
+																		
+																					₹500
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a438e65080c3bc4e3de417e">
+																			<img src="/uploads/1782812261420.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		Atomic habits
+																	</h3>
+																	<span>
+																		gfdsgs
+																	</span>
+																	<div class="item-price">
+																		
+																					₹500
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a313c9492a7ac1c081a0922=1&amp;activeTab=cat-6a313c9492a7ac1c081a0922#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a313c9492a7ac1c081a0922=2&amp;activeTab=cat-6a313c9492a7ac1c081a0922#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+
+													<a href="?page_6a313c9492a7ac1c081a0922=2&amp;activeTab=cat-6a313c9492a7ac1c081a0922#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a313cab92a7ac1c081a0923" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a95bc38ddcb90e3c043f406">
+																			<img src="/uploads/1788197943501.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		dfsdfds
+																	</h3>
+																	<span>
+																		fdsfds
+																	</span>
+																	<div class="item-price">
+																		
+																					₹300
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a91ae9795df872178353cec">
+																			<img src="/uploads/1787932311887.png"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		reqr
+																	</h3>
+																	<span>
+																		fadsfsd
+																	</span>
+																	<div class="item-price">
+																		
+																					₹203
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a91ad344fbdf625b4379206">
+																			<img src="/uploads/1787931956115.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		gfdsggk
+																	</h3>
+																	<span>
+																		fsdafs
+																	</span>
+																	<div class="item-price">
+																		
+																					₹200
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a8c63316b990e21425612be">
+																			<img src="/uploads/1787585328699.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		dadsad
+																	</h3>
+																	<span>
+																		fdasfss
+																	</span>
+																	<div class="item-price">
+																		
+																					₹250
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a313cab92a7ac1c081a0923=1&amp;activeTab=cat-6a313cab92a7ac1c081a0923#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a313cab92a7ac1c081a0923=2&amp;activeTab=cat-6a313cab92a7ac1c081a0923#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+												<a href="?page_6a313cab92a7ac1c081a0923=3&amp;activeTab=cat-6a313cab92a7ac1c081a0923#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													3
+												</a>
+												
+
+													<a href="?page_6a313cab92a7ac1c081a0923=2&amp;activeTab=cat-6a313cab92a7ac1c081a0923#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a34d98445cac84c87ee5fa3" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a94190aef89587e4517134d">
+																			<img src="/uploads/1788090634726.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		ffcadsfh
+																	</h3>
+																	<span>
+																		fdsafsda
+																	</span>
+																	<div class="item-price">
+																		
+																					₹120
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a93ea574676b4bab439b7a8">
+																			<img src="/uploads/1788078679099.png"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		afddft
+																	</h3>
+																	<span>
+																		fadsfdsa
+																	</span>
+																	<div class="item-price">
+																		
+																					₹302
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44c8a5d64365c7510e45bc">
+																			<img src="/uploads/1782892709699.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		around the world in eighty days
+																	</h3>
+																	<span>
+																		Jules Verne 
+																	</span>
+																	<div class="item-price">
+																		
+																					₹799
+																						
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44c5e0d64365c7510e45bb">
+																			<img src="/uploads/1782892000350.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		life of pi
+																	</h3>
+																	<span>
+																		Yann Martel
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹1299
+																			</span>
+																			₹1039.2
+																				<small class="text-success d-block">
+																					20% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a34d98445cac84c87ee5fa3=1&amp;activeTab=cat-6a34d98445cac84c87ee5fa3#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a34d98445cac84c87ee5fa3=2&amp;activeTab=cat-6a34d98445cac84c87ee5fa3#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+
+													<a href="?page_6a34d98445cac84c87ee5fa3=2&amp;activeTab=cat-6a34d98445cac84c87ee5fa3#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a34d9ba45cac84c87ee5fa4" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a910b6f81274a0562bacc1e">
+																			<img src="/uploads/1787890542921.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		haaaaada
+																	</h3>
+																	<span>
+																		SADASDAD
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹300
+																			</span>
+																			₹225
+																				<small class="text-success d-block">
+																					25% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a857d09ff07571007f0b8ac">
+																			<img src="/uploads/1787133193196.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		dfsdaf
+																	</h3>
+																	<span>
+																		fdfsda
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹300
+																			</span>
+																			₹225
+																				<small class="text-success d-block">
+																					25% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44e90fd64365c7510e45c3">
+																			<img src="/uploads/1782901007111.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		project hail mary
+																	</h3>
+																	<span>
+																		 Andy Weir
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹899
+																			</span>
+																			₹674.25
+																				<small class="text-success d-block">
+																					25% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44e4b8d64365c7510e45c2">
+																			<img src="/uploads/1782899896282.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		dark matter
+																	</h3>
+																	<span>
+																		Blake Crouch
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹899
+																			</span>
+																			₹674.25
+																				<small class="text-success d-block">
+																					25% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a34d9ba45cac84c87ee5fa4=1&amp;activeTab=cat-6a34d9ba45cac84c87ee5fa4#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a34d9ba45cac84c87ee5fa4=2&amp;activeTab=cat-6a34d9ba45cac84c87ee5fa4#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+
+													<a href="?page_6a34d9ba45cac84c87ee5fa4=2&amp;activeTab=cat-6a34d9ba45cac84c87ee5fa4#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+									<div id="cat-6a34da1f45cac84c87ee5fa5" data-tab-content
+										class="">
+										<div class="row">
+											
+													
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a910d90054311065054a619">
+																			<img src="/uploads/1787891088708.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		fdsfdsfas
+																	</h3>
+																	<span>
+																		fdsafas
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹200
+																			</span>
+																			₹180
+																				<small class="text-success d-block">
+																					10% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44d246d64365c7510e45bf">
+																			<img src="/uploads/1782895174216.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		the innovators
+																	</h3>
+																	<span>
+																		Walter Isaacson
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹899
+																			</span>
+																			₹809.1
+																				<small class="text-success d-block">
+																					10% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44d173d64365c7510e45be">
+																			<img src="/uploads/1782894963434.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		the coming wave
+																	</h3>
+																	<span>
+																		Mustafa Suleyman
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹899
+																			</span>
+																			₹809.1
+																				<small class="text-success d-block">
+																					10% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+															<div class="product-item">
+																<figure class="product-style">
+																	
+																		<a href="/product/6a44c984d64365c7510e45bd">
+																			<img src="/uploads/1782892932865.jpg"
+																				class="img-fluid">
+																		</a>
+																		
+																				<button class="add-to-cart"
+																					onclick="window.location.href='/login'">Add
+																					To Cart</button>
+																</figure>
+																<figcaption>
+																	<h3>
+																		chip war
+																	</h3>
+																	<span>
+																		Chris Miller
+																	</span>
+																	<div class="item-price">
+																		
+																			<span class="prev-price">₹899
+																			</span>
+																			₹809.1
+																				<small class="text-success d-block">
+																					10% off
+																				</small>
+																				
+																	</div>
+																</figcaption>
+															</div>
+														</div>
+														
+										</div>
+
+										<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+											<a href="#"
+												class="btn btn-sm btn-outline-dark disabled">
+												&laquo; Prev
+											</a>
+
+											
+												<a href="?page_6a34da1f45cac84c87ee5fa5=1&amp;activeTab=cat-6a34da1f45cac84c87ee5fa5#popular-books"
+													class="btn btn-sm btn-dark">
+													1
+												</a>
+												
+												<a href="?page_6a34da1f45cac84c87ee5fa5=2&amp;activeTab=cat-6a34da1f45cac84c87ee5fa5#popular-books"
+													class="btn btn-sm btn-outline-dark">
+													2
+												</a>
+												
+
+													<a href="?page_6a34da1f45cac84c87ee5fa5=2&amp;activeTab=cat-6a34da1f45cac84c87ee5fa5#popular-books"
+														class="btn btn-sm btn-outline-dark ">
+														Next &raquo;
+													</a>
+										</div>
+									</div>
+									
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="quotation" class="align-center pb-5 mb-5">
+				<div class="inner-content">
+					<h2 class="section-title divider">Quote of the day</h2>
+					<blockquote data-aos="fade-up">
+						<q>“The more that you read, the more things you will know. The more that you learn, the more
+							places you’ll go.”</q>
+						<div class="author-name">Dr. Seuss</div>
+					</blockquote>
+				</div>
+			</section>
+
+			<section id="special-offer" class="bookshelf pb-5 mb-5">
+				<div class="section-header align-center">
+					<div class="title"><span>Grab your opportunity</span></div>
+					<h2 class="section-title">Books with offer</h2>
+				</div>
+				<div class="container">
+					<div class="row">
+						<div class="inner-content">
+							<div class="product-list" data-aos="fade-up">
+								<div class="row">
+									
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<a href="/product/6a910d90054311065054a619">
+														
+															<img src="/uploads/1787891088708.jpg"
+																alt="fdsfdsfas" class="img-fluid">
+															
+													</a>
+													<button type="button" class="add-to-cart"
+														onclick="window.location.href='/login'">Add to Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														fdsfdsfas
+													</h3>
+													<span>
+														fdsafas
+													</span>
+													<div class="item-price">
+														
+															<span class="prev-price">₹200</span>
+															₹180
+																<small class="text-success d-block">
+																	10% off
+																</small>
+																
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<a href="/product/6a857d09ff07571007f0b8ac">
+														
+															<img src="/uploads/1787133193196.jpg"
+																alt="dfsdaf" class="img-fluid">
+															
+													</a>
+													<button type="button" class="add-to-cart"
+														onclick="window.location.href='/login'">Add to Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														dfsdaf
+													</h3>
+													<span>
+														fdfsda
+													</span>
+													<div class="item-price">
+														
+															<span class="prev-price">₹300</span>
+															₹225
+																<small class="text-success d-block">
+																	25% off
+																</small>
+																
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<a href="/product/6a910b6f81274a0562bacc1e">
+														
+															<img src="/uploads/1787890542921.jpg"
+																alt="haaaaada" class="img-fluid">
+															
+													</a>
+													<button type="button" class="add-to-cart"
+														onclick="window.location.href='/login'">Add to Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														haaaaada
+													</h3>
+													<span>
+														SADASDAD
+													</span>
+													<div class="item-price">
+														
+															<span class="prev-price">₹300</span>
+															₹225
+																<small class="text-success d-block">
+																	25% off
+																</small>
+																
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+											<div class="product-item">
+												<figure class="product-style">
+													<a href="/product/6a34ee6b45cac84c87ee5fa9">
+														
+															<img src="/uploads/1781853803136.png"
+																alt="how democracies die" class="img-fluid">
+															
+													</a>
+													<button type="button" class="add-to-cart"
+														onclick="window.location.href='/login'">Add to Cart</button>
+												</figure>
+												<figcaption>
+													<h3>
+														how democracies die
+													</h3>
+													<span>
+														Steven Levitsky and Daniel Ziblatt
+													</span>
+													<div class="item-price">
+														
+															<span class="prev-price">₹499</span>
+															₹389.22
+																<small class="text-success d-block">
+																	22% off
+																</small>
+																
+													</div>
+												</figcaption>
+											</div>
+										</div>
+										
+								</div>
+
+								<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+									<a href="#"
+										class="btn btn-sm btn-outline-dark disabled">
+										&laquo; Prev
+									</a>
+
+									
+										<a href="?page_offer=1#special-offer"
+											class="btn btn-sm btn-dark">
+											1
+										</a>
+										
+										<a href="?page_offer=2#special-offer"
+											class="btn btn-sm btn-outline-dark">
+											2
+										</a>
+										
+										<a href="?page_offer=3#special-offer"
+											class="btn btn-sm btn-outline-dark">
+											3
+										</a>
+										
+										<a href="?page_offer=4#special-offer"
+											class="btn btn-sm btn-outline-dark">
+											4
+										</a>
+										
+										<a href="?page_offer=5#special-offer"
+											class="btn btn-sm btn-outline-dark">
+											5
+										</a>
+										
+										<a href="?page_offer=6#special-offer"
+											class="btn btn-sm btn-outline-dark">
+											6
+										</a>
+										
+
+											<a href="?page_offer=2#special-offer"
+												class="btn btn-sm btn-outline-dark ">
+												Next &raquo;
+											</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="latest-blog" class="py-5 my-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="section-header align-center">
+								<div class="title"><span>Read our articles</span></div>
+								<h2 class="section-title">Latest Articles</h2>
+							</div>
+							<div class="row">
+								<div class="col-md-4">
+									<article class="column" data-aos="fade-up">
+										<figure>
+											<a href="https://www.newyorker.com/culture/cultural-comment/can-reading-make-you-happier"
+												class="image-hvr-effect"><img src="images/post-img1.jpg" alt="post"
+													class="post-image"></a>
+										</figure>
+										<div class="post-item">
+											<div class="meta-date">Mar 30, 2021</div>
+											<h3><a
+													href="https://www.newyorker.com/culture/cultural-comment/can-reading-make-you-happier">Reading
+													books always makes the moments happy</a>
+											</h3>
+											<div class="links-element">
+												<div class="categories">inspiration</div>
+											</div>
+										</div>
+									</article>
+								</div>
+								<div class="col-md-4">
+									<article class="column" data-aos="fade-up" data-aos-delay="200">
+										<figure>
+											<a href="https://booksmakeusfree.blogspot.com/"
+												class="image-hvr-effect"><img src="images/post-img2.jpg" alt="post"
+													class="post-image"></a>
+										</figure>
+										<div class="post-item">
+											<div class="meta-date">Mar 29, 2021</div>
+											<h3><a
+													href="https://www.newyorker.com/culture/cultural-comment/can-reading-make-you-happier">Some
+													books leave us free and some books make us
+													free.</a>
+											</h3>
+											<div class="links-element">
+												<div class="categories">inspiration</div>
+											</div>
+										</div>
+									</article>
+								</div>
+								<div class="col-md-4">
+									<article class="column" data-aos="fade-up" data-aos-delay="400">
+										<figure>
+											<a href="https://medium.com/books-that-cannot-be-unread/we-read-to-know-were-not-alone-2dcf16788cd8"
+												class="image-hvr-effect"><img src="images/post-img3.jpg" alt="post"
+													class="post-image"></a>
+										</figure>
+										<div class="post-item">
+											<div class="meta-date">Feb 27, 2021</div>
+											<h3><a
+													href="https://medium.com/books-that-cannot-be-unread/we-read-to-know-were-not-alone-2dcf16788cd8">We
+													read to know we are not alone</a>
+											</h3>
+											<div class="links-element">
+												<div class="categories">inspiration</div>
+											</div>
+										</div>
+									</article>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="subscribe">
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="title-element">
+										<h2 class="section-title divider">Subscribe to our newsletter</h2>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="subscribe-content" data-aos="fade-up">
+										<p>Stay updated with our latest releases, exclusive author interviews, and special bookish offers delivered straight to your inbox.</p>
+										<form id="newsletterForm">
+											<input type="email" name="email" id="newsletterEmail" required
+												placeholder="Enter your email address here">
+											<button type="submit" class="btn-submit">submit</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="download-app" class="leaf-pattern-overlay">
+				<div class="corner-pattern-overlay"></div>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-md-5">
+									<figure>
+										<img src="images/device.png" alt="phone" class="single-image">
+									</figure>
+								</div>
+								<div class="col-md-7">
+									<div class="app-info">
+										<h2 class="section-title divider">Download our app now !</h2>
+										<p>Discover the untamed beauty of nature through an inspiring journey that
+											reconnects you with the wilderness and your inner self.</p>
+										<div class="google-app">
+											<img src="images/google-play.jpg" alt="google play">
+											<img src="images/app-store.jpg" alt="app store">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Footer -->
+			<footer id="footer" class="bg-dark text-white py-5 mt-5">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-4">
+							<div class="footer-item">
+								<div class="main-logo mb-3">
+									<a href="/home"><img src="/images/main-logo.png" alt="logo"
+											style="filter: brightness(0) invert(1);"></a>
+								</div>
+								<p>Explore thousands of books directly from our modern bookstore repository.</p>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="footer-item">
+								<h4>Help & Info</h4>
+								<ul class="list-unstyled">
+									<li><a href="/help-center" class="text-white text-decoration-none">Help
+											center</a></li>
+									<li><a href="/contact-us" class="text-white text-decoration-none">Contact us</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="footer-item">
+								<h4>Legal</h4>
+								<p>© 2026 All rights reserved. Premium Booksaw Book Store.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+
+	</body>

@@ -1,0 +1,50 @@
+<%
+  // Inputs: currentPage, totalPages, pageParam, hash, activeTab
+  activeTab = typeof activeTab !== 'undefined' ? activeTab : '';
+  hash = typeof hash !== 'undefined' ? hash : '';
+  
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+%>
+
+<% if (totalPages > 1) { %>
+<div class="pagination mt-4 d-flex gap-2 justify-content-center">
+  <a href="<%= currentPage > 1 ? getPageUrl(pageParam, currentPage - 1, hash, activeTab) : '#' %>"
+    class="btn btn-sm btn-outline-dark <%= currentPage <= 1 ? 'disabled' : '' %>">
+    &laquo; Prev
+  </a>
+
+  <% if (startPage > 1) { %>
+    <a href="<%= getPageUrl(pageParam, 1, hash, activeTab) %>"
+      class="btn btn-sm btn-outline-dark">1</a>
+    <% if (startPage > 2) { %>
+      <span class="btn btn-sm btn-outline-dark disabled border-0 bg-transparent">...</span>
+    <% } %>
+  <% } %>
+
+  <% for(let i=startPage; i <= endPage; i++) { %>
+    <a href="<%= getPageUrl(pageParam, i, hash, activeTab) %>"
+      class="btn btn-sm <%= currentPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <% if (endPage < totalPages) { %>
+    <% if (endPage < totalPages - 1) { %>
+      <span class="btn btn-sm btn-outline-dark disabled border-0 bg-transparent">...</span>
+    <% } %>
+    <a href="<%= getPageUrl(pageParam, totalPages, hash, activeTab) %>"
+      class="btn btn-sm btn-outline-dark"><%= totalPages %></a>
+  <% } %>
+
+  <a href="<%= currentPage < totalPages ? getPageUrl(pageParam, currentPage + 1, hash, activeTab) : '#' %>"
+    class="btn btn-sm btn-outline-dark <%= currentPage >= totalPages ? 'disabled' : '' %>">
+    Next &raquo;
+  </a>
+</div>
+<% } %>

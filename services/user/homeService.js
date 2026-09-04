@@ -17,11 +17,11 @@ export const getListingParamsService = async (query) => {
   const maxPrice = query.maxPrice ? Number(query.maxPrice) : Infinity;
   const sortOption = query.sort ? query.sort : "";
 
-  const activeCategories = await Category.find({ isDeleted: false, status: "active" });
+  const activeCategories = await Category.find({ isDeleted: { $ne: true }, status: "active" });
   const activeCategoryIds = activeCategories.map((c) => c._id.toString());
 
   const baseCondition = {
-    isDeleted: false,
+    isDeleted: { $ne: true },
     status: "active",
   };
 
@@ -108,7 +108,7 @@ export const getIndexAndHomeProductsService = async (query) => {
   const now = new Date();
   const activeOffers = await Offer.find({
     isActive: true,
-    isDeleted: false,
+    isDeleted: { $ne: true },
     startDate: { $lte: now },
     expiryDate: { $gt: now },
   }).lean();
@@ -152,16 +152,24 @@ export const getIndexAndHomeProductsService = async (query) => {
 export const getCartCountService = async (userId) => {
   if (!userId) return 0;
   let cartCount = 0;
-  const cart = await Cart.findOne({ user: userId });
-  if (cart) cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+  const cart = await Cart.findOne({ user: userId }).populate("items.product");
+  if (cart) {
+    for (let item of cart.items) {
+      if (item.product && !item.product.isDeleted && item.product.status === "active") {
+        cartCount += item.quantity;
+      }
+    }
+  }
   return cartCount;
 };
 
 export const getWishlistCountService = async (userId) => {
   if (!userId) return 0;
   let wishlistCount = 0;
-  const wishlist = await Wishlist.findOne({ user: userId });
-  if (wishlist && wishlist.products) wishlistCount = wishlist.products.length;
+  const wishlist = await Wishlist.findOne({ user: userId }).populate("products");
+  if (wishlist && wishlist.products) {
+    wishlistCount = wishlist.products.filter(p => p && !p.isDeleted && p.status === "active").length;
+  }
   return wishlistCount;
 };
 
@@ -179,7 +187,7 @@ export const getProductDetailsService = async (productId, userId) => {
   const relatedProducts = await Products.find({
     category: product.category._id,
     _id: { $ne: product._id },
-    isDeleted: false,
+    isDeleted: { $ne: true },
     status: "active"
   }).limit(4);
 

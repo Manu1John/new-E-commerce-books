@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/adminLayout.css">
+<!-- FontAwesome for professional icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="dashboard-container">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h1 class="logo">Admin Panel</h1>
+        <button id="sidebarToggle" class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h1 class="logo">Admin Panel</h1>
+        </div>
+        <ul class="menu">
+            <li><a href="/admin/dashboard" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="/admin/sales-report"><i class="fa-solid fa-file-invoice"></i> Reports</a></li>
+            <li><a href="/admin/products"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="/admin/orders"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            <li><a href="/admin/offers"><i class="fa-solid fa-tags"></i> Offers</a></li>
+            <li><a href="/admin/coupons"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+            <li><a href="/admin/category"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li class="logout-item">
+                <form action="/admin/logout" method="POST">
+                    <button class="logout-btn" type="submit">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header-wrapper mb-4">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <ol class="breadcrumb">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="active">Top Selling Products</li>
+                </ol>
+            </nav>
+            <h2 class="page-title">All Top Selling Products</h2>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header">
+                <h3>Top Selling Products</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Sold</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (topProducts && topProducts.length > 0) { %>
+                            <% topProducts.forEach(item => { %>
+                                <tr>
+                                    <td class="product-name"><%= item.product.title || item.product.name %></td>
+                                    <td><span class="fw-bold"><%= item.unitsSold %></span> units</td>
+                                    <td class="text-success fw-bold">₹<%= item.revenue.toLocaleString() %></td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr><td colspan="3" class="text-center">No product sales recorded yet.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../partials/footer') %>

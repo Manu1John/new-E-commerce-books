@@ -103,6 +103,31 @@ const dashboardService = {
         orderStatusCounts
       }
     };
+  },
+
+  getAllTopProducts: async () => {
+    const topProducts = await Order.aggregate([
+      { $match: { status: { $in: ["Delivered", "Confirmed", "Paid"] } } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product",
+          unitsSold: { $sum: "$items.quantity" },
+          revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } }
+        }
+      },
+      { $sort: { unitsSold: -1 } },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      { $unwind: "$product" }
+    ]);
+    return topProducts;
   }
 };
 

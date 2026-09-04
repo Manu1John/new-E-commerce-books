@@ -39,16 +39,45 @@ document.addEventListener("DOMContentLoaded", function() {
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
+            // --- Clear previous errors ---
+            document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+            let isValid = true;
+
+            const showError = (id, msg) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = msg;
+                    el.style.display = 'block';
+                }
+                isValid = false;
+            };
+
             // --- Validations ---
             if (!data.code || !data.code.trim()) {
-                return Swal.fire('Error', 'Coupon Code is required', 'error');
+                showError('codeError', 'Coupon Code is required');
             }
-            if (new Date(data.startDate) > new Date(data.expiryDate)) {
-                return Swal.fire('Error', 'Expiry Date must be after Start Date', 'error');
+            if (!data.discountValue || Number(data.discountValue) < 0) {
+                showError('discountValueError', 'Please enter a valid discount value');
             }
-            if (data.discountType === 'percentage' && (Number(data.discountValue) <= 0 || Number(data.discountValue) > 99)) {
-                return Swal.fire('Error', 'Percentage discount must be between 1 and 99', 'error');
+            if (!data.discountType) {
+                showError('discountTypeError', 'Please select a discount type');
+            } else if (data.discountType === 'percentage' && (Number(data.discountValue) <= 0 || Number(data.discountValue) > 99)) {
+                showError('discountValueError', 'Percentage discount must be between 1 and 99');
             }
+            if (!data.minPurchaseAmount || Number(data.minPurchaseAmount) < 0) {
+                showError('minPurchaseAmountError', 'Please enter a valid min purchase amount');
+            }
+            if (!data.startDate) {
+                showError('startDateError', 'Start Date is required');
+            }
+            if (!data.expiryDate) {
+                showError('expiryDateError', 'Expiry Date is required');
+            }
+            if (data.startDate && data.expiryDate && new Date(data.startDate) > new Date(data.expiryDate)) {
+                showError('expiryDateError', 'Expiry Date must be after Start Date');
+            }
+
+            if (!isValid) return;
 
             try {
                 const response = await fetch('/admin/coupons/add', {
