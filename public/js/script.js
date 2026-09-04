@@ -11,10 +11,14 @@
       tabContents.forEach(tabContent => {
         tabContent.classList.remove('active')
       })
-      tabs.forEach(tab => {
-        tab.classList.remove('active')
+      tabs.forEach(t => {
+        t.classList.remove('active')
+        t.classList.remove('cat-tab-active')
       })
       tab.classList.add('active')
+      if (tab.classList.contains('cat-tab-btn')) {
+        tab.classList.add('cat-tab-active')
+      }
       target.classList.add('active')
     })
   });

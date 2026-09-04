@@ -1,0 +1,182 @@
+/* =======================================================
+   PRODUCT CARD SHARED STYLES
+   Used by the product-card.ejs partial across all pages.
+======================================================= */
+
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+}
+
+.action-hover {
+    transition: all 0.2s ease;
+}
+
+.action-hover:hover {
+    transform: scale(1.1);
+}
+
+.wishlist-btn {
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+    background-color: #f8f9fa !important;
+}
+
+.wishlist-btn:hover i {
+    color: #dc3545 !important;
+}
+
+/* =======================================================
+   PAGINATION – Modern E-Commerce Style
+======================================================= */
+
+.pagination-wrapper {
+    user-select: none;
+}
+
+.pagination-info {
+    font-family: inherit;
+}
+
+.pagination-modern {
+    padding: 0;
+    margin: 0;
+}
+
+/* Base button */
+.pgn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.pgn-btn:hover {
+    color: #fff;
+    background: #222;
+    border-color: #222;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+/* Active page */
+.pgn-btn.pgn-active {
+    color: #fff;
+    background: #222;
+    border-color: #222;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+    pointer-events: none;
+}
+
+/* Disabled prev/next */
+.pgn-btn.pgn-disabled {
+    color: #ccc;
+    background: #f8f8f8;
+    border-color: #eee;
+    pointer-events: none;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Prev / Next arrows – slightly wider */
+.pgn-prev,
+.pgn-next {
+    width: 42px;
+    height: 42px;
+    font-size: 0.8rem;
+}
+
+/* Ellipsis dots */
+.pgn-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 40px;
+    color: #aaa;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    pointer-events: none;
+}
+
+/* Responsive – shrink on small screens */
+@media (max-width: 576px) {
+    .pgn-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 0.8rem;
+    }
+    .pgn-prev,
+    .pgn-next {
+        width: 36px;
+        height: 36px;
+    }
+    .pagination-modern {
+        gap: 0.3rem !important;
+    }
+}
+
+/* =======================================================
+   CATEGORY TABS – Modern Pill Style
+======================================================= */
+
+.cat-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    border: 1.5px solid #e0e0e0;
+    background: #fff;
+    color: #555;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.cat-tab-btn:hover {
+    color: #222;
+    border-color: #222;
+    background: #f8f8f8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.cat-tab-btn.cat-tab-active {
+    color: #fff;
+    background: #222;
+    border-color: #222;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.cat-tab-btn.cat-tab-active:hover {
+    background: #333;
+    border-color: #333;
+}
+

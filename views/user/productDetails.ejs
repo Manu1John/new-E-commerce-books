@@ -168,57 +168,7 @@
                                 <div class="row">
                                     <% relatedProducts.forEach(rel=> { %>
                                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                            <div class="product-item">
-                                                <figure class="product-style">
-                                                    <% if(rel.images && rel.images.length> 0){ %>
-                                                        <a href="/product/<%= rel._id %>">
-                                                            <img src="/uploads/<%= rel.images[0] %>" class="img-fluid"
-                                                                style="height: 300px; object-fit: cover; width:100%;">
-                                                        </a>
-                                                        <% } else { %>
-                                                            <a href="/product/<%= rel._id %>">
-                                                                <img src="/images/product-item1.jpg" class="img-fluid"
-                                                                    style="height: 300px; object-fit: cover; width:100%;">
-                                                            </a>
-                                                            <% } %>
-                                                </figure>
-                                                <figcaption class="pt-3 pb-2 text-center">
-                                                    <h3 class="mb-1" style="font-size: 1.1em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                        <%= rel.title %>
-                                                    </h3>
-                                                    <span class="text-muted" style="font-size: 0.9em;">
-                                                        <%= rel.author %>
-                                                    </span>
-                                                    <div class="item-price mt-2 mb-3 fw-bold">
-                                                        <% if (rel.pricing && rel.pricing.discountPercentage> 0) { %>
-                                                            <span class="prev-price">₹<%= rel.pricing.originalPrice %>
-                                                            </span>
-                                                            ₹<%= rel.pricing.finalPrice %>
-                                                                <small class="text-success d-block">
-                                                                    <%= rel.pricing.discountPercentage %>% off
-                                                                </small>
-                                                                <% } else { %>
-                                                                    ₹<%= rel.pricing ? rel.pricing.finalPrice : rel.price %>
-                                                                <% } %>
-                                                    </div>
-                                                    
-                                                    <!-- Attractive Buttons -->
-                                                    <div class="d-flex justify-content-center gap-2 mt-2">
-                                                        <% if (rel.quantity > 0) { %>
-                                                            <button class="btn btn-sm btn-dark flex-grow-1" onclick="addToCart('<%= rel._id %>')">
-                                                                Add to Cart
-                                                            </button>
-                                                        <% } else { %>
-                                                            <button class="btn btn-sm btn-secondary flex-grow-1" disabled>
-                                                                Out of Stock
-                                                            </button>
-                                                        <% } %>
-                                                        <button class="btn btn-sm btn-outline-danger px-3" onclick="addToWishlist('<%= rel._id %>')" title="Add to Wishlist">
-                                                            <i class="icon icon-heart-o"></i>
-                                                        </button>
-                                                    </div>
-                                                </figcaption>
-                                            </div>
+                                            <%- include('../partials/product-card', { product: rel, user: typeof user !== 'undefined' ? user : null }) %>
                                         </div>
                                         <% }) %>
                                 </div>

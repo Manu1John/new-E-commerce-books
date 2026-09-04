@@ -1,0 +1,83 @@
+<div class="card h-100 border-0 shadow-sm rounded-4 product-card overflow-hidden">
+    <div class="position-relative overflow-hidden group">
+        <a href="/product/<%= product._id %>" class="d-block bg-light d-flex justify-content-center align-items-center p-4" style="height: 250px;">
+            <% if (product.images && product.images.length > 0) { %>
+                <img src="/uploads/<%= product.images[0] %>" class="img-fluid" alt="<%= product.title %>" style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
+            <% } else { %>
+                <img src="/images/product-item1.jpg" class="img-fluid" alt="<%= product.title %>" style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
+            <% } %>
+        </a>
+        
+        <!-- Wishlist Action -->
+        <% if (typeof user !== 'undefined' && user) { %>
+            <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 p-2 wishlist-btn action-hover" onclick="toggleWishlist('<%= product._id %>', this)" style="width: 38px; height: 38px; z-index: 10;" title="Add to Wishlist">
+                <i class="fa-solid fa-heart text-danger"></i>
+            </button>
+        <% } else { %>
+            <a href="/login" class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 p-2 action-hover" style="width: 38px; height: 38px; z-index: 10;" title="Login to add to Wishlist">
+                <i class="fa-regular fa-heart text-muted"></i>
+            </a>
+        <% } %>
+        
+        <!-- Badges -->
+        <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-1">
+            <% if (product.quantity <= 0) { %>
+                <span class="badge bg-danger rounded-pill px-3 py-2 fw-medium shadow-sm">Out of Stock</span>
+            <% } else if (product.quantity <= 5) { %>
+                <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-medium shadow-sm">Only <%= product.quantity %> Left</span>
+            <% } %>
+            
+            <% 
+                // Determine discount based on product.appliedDiscount or product.pricing.discountPercentage
+                let discountPercent = 0;
+                if (typeof product.appliedDiscount !== 'undefined' && product.appliedDiscount > 0) {
+                    discountPercent = product.appliedDiscount;
+                } else if (product.pricing && product.pricing.discountPercentage > 0) {
+                    discountPercent = product.pricing.discountPercentage;
+                }
+            %>
+            <% if (discountPercent > 0) { %>
+                <span class="badge bg-success rounded-pill px-3 py-2 fw-medium shadow-sm"><%= discountPercent %>% OFF</span>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="card-body p-4 d-flex flex-column">
+        <p class="text-muted small mb-1 fw-medium text-uppercase tracking-wider"><%= (product.category && product.category.name) ? product.category.name : 'Uncategorized' %></p>
+        <h5 class="card-title fw-bold mb-1 text-truncate">
+            <a href="/product/<%= product._id %>" class="text-dark text-decoration-none"><%= product.title %></a>
+        </h5>
+        <p class="text-muted small mb-3">By <%= product.author %></p>
+        
+        <div class="mt-auto d-flex justify-content-between align-items-center">
+            <div class="price-wrap">
+                <% 
+                    let finalP = product.finalPrice || (product.pricing && product.pricing.finalPrice) || product.price;
+                    let origP = product.price || (product.pricing && product.pricing.originalPrice) || product.price;
+                %>
+                <% if (discountPercent > 0) { %>
+                    <span class="fw-bold fs-5 text-dark">₹<%= parseFloat(finalP).toFixed(2) %></span>
+                    <del class="text-muted ms-2 small">₹<%= parseFloat(origP).toFixed(2) %></del>
+                <% } else { %>
+                    <span class="fw-bold fs-5 text-dark">₹<%= parseFloat(finalP).toFixed(2) %></span>
+                <% } %>
+            </div>
+            
+            <% if (product.quantity > 0) { %>
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <button class="btn btn-dark rounded-circle p-2 shadow-sm action-hover d-flex justify-content-center align-items-center" onclick="addToCart('<%= product._id %>', 1)" style="width: 40px; height: 40px;" title="Add to Cart">
+                        <i class="fa-solid fa-cart-shopping text-white"></i>
+                    </button>
+                <% } else { %>
+                    <a href="/login" class="btn btn-dark rounded-circle p-2 shadow-sm action-hover d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;" title="Login to add to Cart">
+                        <i class="fa-solid fa-cart-shopping text-white"></i>
+                    </a>
+                <% } %>
+            <% } else { %>
+                <button class="btn btn-secondary rounded-circle p-2 disabled d-flex justify-content-center align-items-center" style="width: 40px; height: 40px; cursor: not-allowed;" title="Out of Stock">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </button>
+            <% } %>
+        </div>
+    </div>
+</div>

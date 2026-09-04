@@ -14,7 +14,9 @@
 	<link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
 	<link rel="stylesheet" type="text/css" href="/css/index.css">
 	<link rel="stylesheet" href="/css/navbar.css?v=3">
+	<link rel="stylesheet" href="/css/product-card.css">
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="/js/product-card.js"></script>
 	<script defer src="/js/jquery-1.11.0.min.js"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
@@ -22,21 +24,7 @@
 	<script defer src="/js/plugins.js"></script>
 	<script defer src="/js/script.js"></script>
 
-	<style>
-		.wishlist-btn {
-			transition: transform 0.2s ease, background-color 0.2s ease;
-		}
-
-		.wishlist-btn:hover {
-			transform: scale(1.1);
-			background-color: #f8f9fa !important;
-			color: #dc3545 !important;
-		}
-
-		.wishlist-btn:hover i {
-			color: #dc3545 !important;
-		}
-	</style>
+	<!-- product-card styles loaded via product-card.css -->
 </head>
 
 <% let activeTabId=(typeof query !=='undefined' && query.activeTab) ? query.activeTab : 'all-genre' ; if
@@ -124,54 +112,7 @@
 								<div class="row">
 									<% products.forEach(product=> { %>
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-											<div class="product-item">
-												<figure class="product-style position-relative">
-													<button
-														class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center"
-														style="width: 35px; height: 35px; z-index: 10;"
-														onclick="addToWishlist('<%= product._id %>', this)"
-														title="Add to Wishlist">
-														<i class="fa-regular fa-heart text-dark"
-															style="font-size: 1.1rem;"></i>
-													</button>
-													<% if (product.images && product.images.length> 0) { %>
-														<a href="/product/<%= product._id %>">
-															<img src="/uploads/<%= product.images[0] %>"
-																alt="<%= product.title %>" class="img-fluid">
-														</a>
-														<% } else { %>
-															<a href="/product/<%= product._id %>">
-																<img src="images/product-item1.jpg" alt="Books"
-																	class="img-fluid">
-															</a>
-															<% } %>
-																<button type="button" class="add-to-cart"
-																	onclick="addToCart('<%= product._id %>')">Add to
-																	Cart</button>
-												</figure>
-												<figcaption>
-													<h3>
-														<%= product.title %>
-													</h3>
-													<span>
-														<%= product.author %>
-													</span>
-													<div class="item-price">
-														<% if (product.pricing && product.pricing.discountPercentage> 0)
-															{ %>
-															<span class="prev-price">₹<%= product.pricing.originalPrice
-																	%></span>
-															₹<%= product.pricing.finalPrice %>
-																<small class="text-success d-block">
-																	<%= product.pricing.discountPercentage %>% off
-																</small>
-																<% } else { %>
-																	₹<%= product.pricing ? product.pricing.finalPrice :
-																		product.price %>
-																		<% } %>
-													</div>
-												</figcaption>
-											</div>
+											<%- include('../partials/product-card', { product: product, user: typeof user !== 'undefined' ? user : null }) %>
 										</div>
 										<% }) %>
 								</div>
@@ -221,92 +162,80 @@
 				</div>
 			</section>
 
-			<section id="popular-books" class="bookshelf py-5 my-5">
+			<section id="popular-books" class="py-5 my-5" style="background: linear-gradient(180deg, #fafafa 0%, #fff 100%);">
 				<div class="container">
 					<div class="row">
 						<div class="col-md-12">
-							<div class="section-header align-center">
-								<div class="title"><span>Browse Books</span></div>
-								<h2 class="section-title">Popular Books</h2>
+
+							<!-- Section Header -->
+							<div class="text-center mb-5">
+								<span class="d-inline-block text-uppercase fw-semibold text-muted mb-2" style="font-size: 0.8rem; letter-spacing: 0.15em;">Browse Our Collection</span>
+								<h2 class="fw-bold mb-3" style="font-size: 2.2rem; color: #1a1a1a;">Popular Books</h2>
+								<div class="mx-auto" style="width: 50px; height: 3px; background: #222; border-radius: 2px;"></div>
 							</div>
 
-							<div class="filter-sort-bar mb-4 p-3 bg-light rounded border" data-aos="fade-up">
-								<form method="get" action="<%= (typeof user !== 'undefined' && user) ? '/home' : '/' %>"
-									class="row g-3 align-items-end">
+							<!-- Filter Bar -->
+							<div class="filter-bar mb-4 p-4 rounded-4 shadow-sm border-0" style="background: #fff; border: 1px solid #f0f0f0 !important;" data-aos="fade-up">
+								<form method="get" action="<%= (typeof user !== 'undefined' && user) ? '/home' : '/' %>" class="row g-3 align-items-end">
 									<% if (typeof query !=='undefined' && query.search) { %>
 										<input type="hidden" name="search" value="<%= query.search %>">
-										<% } %>
-											<input type="hidden" name="activeTab" value="all-genre">
+									<% } %>
+									<input type="hidden" name="activeTab" value="all-genre">
 
-											<div class="col-lg-3 col-md-6">
-												<label class="form-label mb-1"
-													style="font-size: 0.85em; font-weight: 600;">Category</label>
-												<select name="category" class="form-select form-select-sm">
-													<option value="">All Categories</option>
-													<% categoryData.forEach(item=> { %>
-														<option value="<%= item.category._id %>" <%=typeof query
-															!=='undefined' && query.category==item.category._id
-															? 'selected' : '' %>>
-															<%= item.category.name %>
-														</option>
-														<% }) %>
-												</select>
-											</div>
+									<div class="col-lg-3 col-md-6">
+										<label class="form-label mb-1 text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;">Category</label>
+										<select name="category" class="form-select form-select-sm rounded-pill border-secondary-subtle" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+											<option value="">All Categories</option>
+											<% categoryData.forEach(item=> { %>
+												<option value="<%= item.category._id %>" <%=typeof query !=='undefined' && query.category==item.category._id ? 'selected' : '' %>><%= item.category.name %></option>
+											<% }) %>
+										</select>
+									</div>
 
-											<div class="col-lg-4 col-md-6">
-												<label class="form-label mb-1"
-													style="font-size: 0.85em; font-weight: 600;">Price Range (₹)</label>
-												<div class="d-flex gap-2 align-items-center">
-													<input type="number" name="minPrice"
-														class="form-control form-control-sm" placeholder="Min"
-														value="<%= typeof query !== 'undefined' ? query.minPrice : '' %>"
-														min="0">
-													<span>-</span>
-													<input type="number" name="maxPrice"
-														class="form-control form-control-sm" placeholder="Max"
-														value="<%= typeof query !== 'undefined' ? query.maxPrice : '' %>"
-														min="0">
-												</div>
-											</div>
+									<div class="col-lg-4 col-md-6">
+										<label class="form-label mb-1 text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;">Price Range (₹)</label>
+										<div class="d-flex gap-2 align-items-center">
+											<input type="number" name="minPrice" class="form-control form-control-sm rounded-pill border-secondary-subtle" placeholder="Min" value="<%= typeof query !== 'undefined' ? query.minPrice : '' %>" min="0" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+											<span class="text-muted fw-bold">–</span>
+											<input type="number" name="maxPrice" class="form-control form-control-sm rounded-pill border-secondary-subtle" placeholder="Max" value="<%= typeof query !== 'undefined' ? query.maxPrice : '' %>" min="0" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+										</div>
+									</div>
 
-											<div class="col-lg-3 col-md-6">
-												<label class="form-label mb-1"
-													style="font-size: 0.85em; font-weight: 600;">Sort By</label>
-												<select name="sort" class="form-select form-select-sm">
-													<option value="">Default (Newest)</option>
-													<option value="price_asc" <%=typeof query !=='undefined' &&
-														query.sort==='price_asc' ? 'selected' : '' %>>Price: Low to High
-													</option>
-													<option value="price_desc" <%=typeof query !=='undefined' &&
-														query.sort==='price_desc' ? 'selected' : '' %>>Price: High to
-														Low</option>
-													<option value="az" <%=typeof query !=='undefined' &&
-														query.sort==='az' ? 'selected' : '' %>>Title: A - Z</option>
-													<option value="za" <%=typeof query !=='undefined' &&
-														query.sort==='za' ? 'selected' : '' %>>Title: Z - A</option>
-												</select>
-											</div>
+									<div class="col-lg-3 col-md-6">
+										<label class="form-label mb-1 text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;">Sort By</label>
+										<select name="sort" class="form-select form-select-sm rounded-pill border-secondary-subtle" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+											<option value="">Default (Newest)</option>
+											<option value="price_asc" <%=typeof query !=='undefined' && query.sort==='price_asc' ? 'selected' : '' %>>Price: Low → High</option>
+											<option value="price_desc" <%=typeof query !=='undefined' && query.sort==='price_desc' ? 'selected' : '' %>>Price: High → Low</option>
+											<option value="az" <%=typeof query !=='undefined' && query.sort==='az' ? 'selected' : '' %>>Title: A → Z</option>
+											<option value="za" <%=typeof query !=='undefined' && query.sort==='za' ? 'selected' : '' %>>Title: Z → A</option>
+										</select>
+									</div>
 
-											<div class="col-lg-2 col-md-6 d-flex gap-2">
-												<button type="submit" class="btn btn-dark btn-sm flex-grow-1 m-0"
-													style="height: 31px;">Apply</button>
-												<a href="<%= (typeof user !== 'undefined' && user) ? '/home?activeTab=all-genre#popular-books' : '/?activeTab=all-genre#popular-books' %>"
-													class="btn btn-outline-secondary btn-sm flex-grow-1 m-0 d-flex align-items-center justify-content-center"
-													style="height: 31px;">Clear</a>
-											</div>
+									<div class="col-lg-2 col-md-6 d-flex gap-2">
+										<button type="submit" class="btn btn-dark btn-sm flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1" style="height: 34px; font-size: 0.82rem; font-weight: 600;">
+											<i class="fa-solid fa-filter" style="font-size: 0.7rem;"></i> Apply
+										</button>
+										<a href="<%= (typeof user !== 'undefined' && user) ? '/home?activeTab=all-genre#popular-books' : '/?activeTab=all-genre#popular-books' %>"
+											class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1"
+											style="height: 34px; font-size: 0.82rem; font-weight: 600;">
+											<i class="fa-solid fa-xmark" style="font-size: 0.75rem;"></i> Clear
+										</a>
+									</div>
 								</form>
 							</div>
 
-							<ul class="tabs">
-								<li class="tab <%= activeTabId === 'all-genre' ? 'active' : '' %>"
-									data-tab-target="#all-genre">All Genre</li>
+							<!-- Category Tabs -->
+							<div class="category-tabs-wrapper d-flex flex-wrap justify-content-center gap-2 mb-4 pb-2">
+								<button class="cat-tab-btn <%= activeTabId === 'all-genre' ? 'cat-tab-active' : '' %>" data-tab-target="#all-genre">
+									<i class="fa-solid fa-book-open" style="font-size: 0.75rem;"></i> All Genre
+								</button>
 								<% categoryData.forEach(item=> { %>
-									<li class="tab <%= activeTabId === 'cat-' + item.category._id ? 'active' : '' %>"
-										data-tab-target="#cat-<%= item.category._id %>">
+									<button class="cat-tab-btn <%= activeTabId === 'cat-' + item.category._id ? 'cat-tab-active' : '' %>" data-tab-target="#cat-<%= item.category._id %>">
 										<%= item.category.name %>
-									</li>
-									<% }) %>
-							</ul>
+									</button>
+								<% }) %>
+							</div>
 
 							<div class="tab-content">
 								<div id="all-genre" data-tab-content
@@ -318,58 +247,7 @@
 												<% if (allProducts) { %>
 													<% allProducts.forEach(product=> { %>
 														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-															<div class="product-item">
-																<figure class="product-style position-relative">
-																	<button
-																		class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center"
-																		style="width: 35px; height: 35px; z-index: 10;"
-																		onclick="addToWishlist('<%= product._id %>', this)"
-																		title="Add to Wishlist">
-																		<i class="fa-regular fa-heart text-dark"
-																			style="font-size: 1.1rem;"></i>
-																	</button>
-																	<% if(product.images && product.images.length> 0){
-																		%>
-																		<a href="/product/<%= product._id %>">
-																			<img src="/uploads/<%= product.images[0] %>"
-																				class="img-fluid">
-																		</a>
-																		<% } else { %>
-																			<a href="/product/<%= product._id %>">
-																				<img src="images/product-item1.jpg"
-																					class="img-fluid">
-																			</a>
-																			<% } %>
-																				<button class="add-to-cart"
-																					onclick="addToCart('<%= product._id %>')">Add
-																					To Cart</button>
-																</figure>
-																<figcaption>
-																	<h3>
-																		<%= product.title %>
-																	</h3>
-																	<span>
-																		<%= product.author %>
-																	</span>
-																	<div class="item-price">
-																		<% if (product.pricing &&
-																			product.pricing.discountPercentage> 0) { %>
-																			<span class="prev-price">₹<%=
-																					product.pricing.originalPrice %>
-																			</span>
-																			₹<%= product.pricing.finalPrice %>
-																				<small class="text-success d-block">
-																					<%= product.pricing.discountPercentage
-																						%>% off
-																				</small>
-																				<% } else { %>
-																					₹<%= product.pricing ?
-																						product.pricing.finalPrice :
-																						product.price %>
-																						<% } %>
-																	</div>
-																</figcaption>
-															</div>
+															<%- include('../partials/product-card', { product: product, user: typeof user !== 'undefined' ? user : null }) %>
 														</div>
 														<% }) %>
 															<% } %>
@@ -393,58 +271,7 @@
 												<% } %>
 													<% item.products.forEach(product=> { %>
 														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-															<div class="product-item">
-																<figure class="product-style position-relative">
-																	<button
-																		class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center"
-																		style="width: 35px; height: 35px; z-index: 10;"
-																		onclick="addToWishlist('<%= product._id %>', this)"
-																		title="Add to Wishlist">
-																		<i class="fa-regular fa-heart text-dark"
-																			style="font-size: 1.1rem;"></i>
-																	</button>
-																	<% if(product.images && product.images.length> 0){
-																		%>
-																		<a href="/product/<%= product._id %>">
-																			<img src="/uploads/<%= product.images[0] %>"
-																				class="img-fluid">
-																		</a>
-																		<% } else { %>
-																			<a href="/product/<%= product._id %>">
-																				<img src="images/product-item1.jpg"
-																					class="img-fluid">
-																			</a>
-																			<% } %>
-																				<button class="add-to-cart"
-																					onclick="addToCart('<%= product._id %>')">Add
-																					To Cart</button>
-																</figure>
-																<figcaption>
-																	<h3>
-																		<%= product.title %>
-																	</h3>
-																	<span>
-																		<%= product.author %>
-																	</span>
-																	<div class="item-price">
-																		<% if (product.pricing &&
-																			product.pricing.discountPercentage> 0) { %>
-																			<span class="prev-price">₹<%=
-																					product.pricing.originalPrice %>
-																			</span>
-																			₹<%= product.pricing.finalPrice %>
-																				<small class="text-success d-block">
-																					<%= product.pricing.discountPercentage
-																						%>% off
-																				</small>
-																				<% } else { %>
-																					₹<%= product.pricing ?
-																						product.pricing.finalPrice :
-																						product.price %>
-																						<% } %>
-																	</div>
-																</figcaption>
-															</div>
+															<%- include('../partials/product-card', { product: product, user: typeof user !== 'undefined' ? user : null }) %>
 														</div>
 														<% }) %>
 										</div>
@@ -488,51 +315,7 @@
 								<div class="row">
 									<% offerProducts.forEach(product=> { %>
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-											<div class="product-item">
-												<figure class="product-style position-relative">
-													<button
-														class="wishlist-btn position-absolute top-0 end-0 m-2 border-0 bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center"
-														style="width: 35px; height: 35px; z-index: 10;"
-														onclick="addToWishlist('<%= product._id %>', this)"
-														title="Add to Wishlist">
-														<i class="fa-regular fa-heart text-dark"
-															style="font-size: 1.1rem;"></i>
-													</button>
-													<a href="/product/<%= product._id %>">
-														<% if (product.images && product.images.length> 0) { %>
-															<img src="/uploads/<%= product.images[0] %>"
-																alt="<%= product.title %>" class="img-fluid">
-															<% } else { %>
-																<img src="images/product-item5.jpg" alt="Books"
-																	class="img-fluid">
-																<% } %>
-													</a>
-													<button type="button" class="add-to-cart"
-														onclick="addToCart('<%= product._id %>')">Add to Cart</button>
-												</figure>
-												<figcaption>
-													<h3>
-														<%= product.title %>
-													</h3>
-													<span>
-														<%= product.author %>
-													</span>
-													<div class="item-price">
-														<% if (product.pricing && product.pricing.discountPercentage> 0)
-															{ %>
-															<span class="prev-price">₹<%= product.pricing.originalPrice
-																	%></span>
-															₹<%= product.pricing.finalPrice %>
-																<small class="text-success d-block">
-																	<%= product.pricing.discountPercentage %>% off
-																</small>
-																<% } else { %>
-																	₹<%= product.pricing ? product.pricing.finalPrice :
-																		product.price %>
-																		<% } %>
-													</div>
-												</figcaption>
-											</div>
+											<%- include('../partials/product-card', { product: product, user: typeof user !== 'undefined' ? user : null }) %>
 										</div>
 										<% }) %>
 								</div>

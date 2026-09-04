@@ -13,38 +13,65 @@
 %>
 
 <% if (totalPages > 1) { %>
-<div class="pagination mt-4 d-flex gap-2 justify-content-center">
-  <a href="<%= currentPage > 1 ? getPageUrl(pageParam, currentPage - 1, hash, activeTab) : '#' %>"
-    class="btn btn-sm btn-outline-dark <%= currentPage <= 1 ? 'disabled' : '' %>">
-    &laquo; Prev
-  </a>
+<nav class="pagination-wrapper mt-5 d-flex flex-column align-items-center gap-3" aria-label="Page navigation">
+  
+  <!-- Page info -->
+  <p class="pagination-info text-muted mb-0" style="font-size: 0.85rem; letter-spacing: 0.03em;">
+    Page <strong class="text-dark"><%= currentPage %></strong> of <strong class="text-dark"><%= totalPages %></strong>
+  </p>
 
-  <% if (startPage > 1) { %>
-    <a href="<%= getPageUrl(pageParam, 1, hash, activeTab) %>"
-      class="btn btn-sm btn-outline-dark">1</a>
-    <% if (startPage > 2) { %>
-      <span class="btn btn-sm btn-outline-dark disabled border-0 bg-transparent">...</span>
+  <ul class="pagination-modern d-flex align-items-center gap-2 list-unstyled mb-0">
+    
+    <!-- Previous -->
+    <li>
+      <a href="<%= currentPage > 1 ? getPageUrl(pageParam, currentPage - 1, hash, activeTab) : '#' %>"
+         class="pgn-btn pgn-prev <%= currentPage <= 1 ? 'pgn-disabled' : '' %>"
+         aria-label="Previous page"
+         <%= currentPage <= 1 ? 'tabindex="-1"' : '' %>>
+        <i class="fa-solid fa-chevron-left" style="font-size: 0.7rem;"></i>
+      </a>
+    </li>
+
+    <!-- First page + ellipsis -->
+    <% if (startPage > 1) { %>
+      <li>
+        <a href="<%= getPageUrl(pageParam, 1, hash, activeTab) %>" class="pgn-btn">1</a>
+      </li>
+      <% if (startPage > 2) { %>
+        <li><span class="pgn-ellipsis">&hellip;</span></li>
+      <% } %>
     <% } %>
-  <% } %>
 
-  <% for(let i=startPage; i <= endPage; i++) { %>
-    <a href="<%= getPageUrl(pageParam, i, hash, activeTab) %>"
-      class="btn btn-sm <%= currentPage === i ? 'btn-dark' : 'btn-outline-dark' %>">
-      <%= i %>
-    </a>
-  <% } %>
-
-  <% if (endPage < totalPages) { %>
-    <% if (endPage < totalPages - 1) { %>
-      <span class="btn btn-sm btn-outline-dark disabled border-0 bg-transparent">...</span>
+    <!-- Page numbers -->
+    <% for(let i = startPage; i <= endPage; i++) { %>
+      <li>
+        <a href="<%= getPageUrl(pageParam, i, hash, activeTab) %>"
+           class="pgn-btn <%= currentPage === i ? 'pgn-active' : '' %>"
+           <%= currentPage === i ? 'aria-current="page"' : '' %>>
+          <%= i %>
+        </a>
+      </li>
     <% } %>
-    <a href="<%= getPageUrl(pageParam, totalPages, hash, activeTab) %>"
-      class="btn btn-sm btn-outline-dark"><%= totalPages %></a>
-  <% } %>
 
-  <a href="<%= currentPage < totalPages ? getPageUrl(pageParam, currentPage + 1, hash, activeTab) : '#' %>"
-    class="btn btn-sm btn-outline-dark <%= currentPage >= totalPages ? 'disabled' : '' %>">
-    Next &raquo;
-  </a>
-</div>
+    <!-- Last page + ellipsis -->
+    <% if (endPage < totalPages) { %>
+      <% if (endPage < totalPages - 1) { %>
+        <li><span class="pgn-ellipsis">&hellip;</span></li>
+      <% } %>
+      <li>
+        <a href="<%= getPageUrl(pageParam, totalPages, hash, activeTab) %>" class="pgn-btn"><%= totalPages %></a>
+      </li>
+    <% } %>
+
+    <!-- Next -->
+    <li>
+      <a href="<%= currentPage < totalPages ? getPageUrl(pageParam, currentPage + 1, hash, activeTab) : '#' %>"
+         class="pgn-btn pgn-next <%= currentPage >= totalPages ? 'pgn-disabled' : '' %>"
+         aria-label="Next page"
+         <%= currentPage >= totalPages ? 'tabindex="-1"' : '' %>>
+        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
 <% } %>

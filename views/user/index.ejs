@@ -3,8 +3,11 @@
 	integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 <script defer src="/js/index.js"></script>
 <link rel="stylesheet" type="text/css" href="/icomoon/icomoon.css">
+<!-- Global Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 <link rel="stylesheet" type="text/css" href="/css/index.css">
 <link rel="stylesheet" href="/css/navbar.css?v=3">
+<link rel="stylesheet" href="/css/product-card.css">
 
 <script defer src="/js/jquery-1.11.0.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
@@ -13,6 +16,7 @@
 <script defer src="/js/plugins.js"></script>
 <script defer src="/js/script.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="/js/product-card.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			const form = document.getElementById('newsletterForm');
@@ -123,46 +127,7 @@
 								<div class="row">
 									<% products.forEach(product=> { %>
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-											<div class="product-item">
-												<figure class="product-style">
-													<% if (product.images && product.images.length> 0) { %>
-														<a href="/product/<%= product._id %>">
-															<img src="/uploads/<%= product.images[0] %>"
-																alt="<%= product.title %>" class="img-fluid">
-														</a>
-														<% } else { %>
-															<a href="/product/<%= product._id %>">
-																<img src="images/product-item1.jpg" alt="Books"
-																	class="img-fluid">
-															</a>
-															<% } %>
-																<button type="button" class="add-to-cart"
-																	onclick="window.location.href='/login'">Add to
-																	Cart</button>
-												</figure>
-												<figcaption>
-													<h3>
-														<%= product.title %>
-													</h3>
-													<span>
-														<%= product.author %>
-													</span>
-													<div class="item-price">
-														<% if (product.pricing && product.pricing.discountPercentage> 0)
-															{ %>
-															<span class="prev-price">₹<%= product.pricing.originalPrice
-																	%></span>
-															₹<%= product.pricing.finalPrice %>
-																<small class="text-success d-block">
-																	<%= product.pricing.discountPercentage %>% off
-																</small>
-																<% } else { %>
-																	₹<%= product.pricing ? product.pricing.finalPrice :
-																		product.price %>
-																		<% } %>
-													</div>
-												</figcaption>
-											</div>
+											<%- include('../partials/product-card', { product: product, user: null }) %>
 										</div>
 										<% }) %>
 								</div>
@@ -308,50 +273,7 @@
 												<% if (allProducts) { %>
 													<% allProducts.forEach(product=> { %>
 														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-															<div class="product-item">
-																<figure class="product-style">
-																	<% if(product.images && product.images.length> 0){
-																		%>
-																		<a href="/product/<%= product._id %>">
-																			<img src="/uploads/<%= product.images[0] %>"
-																				class="img-fluid">
-																		</a>
-																		<% } else { %>
-																			<a href="/product/<%= product._id %>">
-																				<img src="images/product-item1.jpg"
-																					class="img-fluid">
-																			</a>
-																			<% } %>
-																				<button class="add-to-cart"
-																					onclick="window.location.href='/login'">Add
-																					To Cart</button>
-																</figure>
-																<figcaption>
-																	<h3>
-																		<%= product.title %>
-																	</h3>
-																	<span>
-																		<%= product.author %>
-																	</span>
-																	<div class="item-price">
-																		<% if (product.pricing &&
-																			product.pricing.discountPercentage> 0) { %>
-																			<span class="prev-price">₹<%=
-																					product.pricing.originalPrice %>
-																			</span>
-																			₹<%= product.pricing.finalPrice %>
-																				<small class="text-success d-block">
-																					<%= product.pricing.discountPercentage
-																						%>% off
-																				</small>
-																				<% } else { %>
-																					₹<%= product.pricing ?
-																						product.pricing.finalPrice :
-																						product.price %>
-																						<% } %>
-																	</div>
-																</figcaption>
-															</div>
+															<%- include('../partials/product-card', { product: product, user: null }) %>
 														</div>
 														<% }) %>
 															<% } %>
@@ -375,50 +297,7 @@
 												<% } %>
 													<% item.products.forEach(product=> { %>
 														<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-															<div class="product-item">
-																<figure class="product-style">
-																	<% if(product.images && product.images.length> 0){
-																		%>
-																		<a href="/product/<%= product._id %>">
-																			<img src="/uploads/<%= product.images[0] %>"
-																				class="img-fluid">
-																		</a>
-																		<% } else { %>
-																			<a href="/product/<%= product._id %>">
-																				<img src="images/product-item1.jpg"
-																					class="img-fluid">
-																			</a>
-																			<% } %>
-																				<button class="add-to-cart"
-																					onclick="window.location.href='/login'">Add
-																					To Cart</button>
-																</figure>
-																<figcaption>
-																	<h3>
-																		<%= product.title %>
-																	</h3>
-																	<span>
-																		<%= product.author %>
-																	</span>
-																	<div class="item-price">
-																		<% if (product.pricing &&
-																			product.pricing.discountPercentage> 0) { %>
-																			<span class="prev-price">₹<%=
-																					product.pricing.originalPrice %>
-																			</span>
-																			₹<%= product.pricing.finalPrice %>
-																				<small class="text-success d-block">
-																					<%= product.pricing.discountPercentage
-																						%>% off
-																				</small>
-																				<% } else { %>
-																					₹<%= product.pricing ?
-																						product.pricing.finalPrice :
-																						product.price %>
-																						<% } %>
-																	</div>
-																</figcaption>
-															</div>
+															<%- include('../partials/product-card', { product: product, user: null }) %>
 														</div>
 														<% }) %>
 										</div>
@@ -462,43 +341,7 @@
 								<div class="row">
 									<% offerProducts.forEach(product=> { %>
 										<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-											<div class="product-item">
-												<figure class="product-style">
-													<a href="/product/<%= product._id %>">
-														<% if (product.images && product.images.length> 0) { %>
-															<img src="/uploads/<%= product.images[0] %>"
-																alt="<%= product.title %>" class="img-fluid">
-															<% } else { %>
-																<img src="images/product-item5.jpg" alt="Books"
-																	class="img-fluid">
-																<% } %>
-													</a>
-													<button type="button" class="add-to-cart"
-														onclick="window.location.href='/login'">Add to Cart</button>
-												</figure>
-												<figcaption>
-													<h3>
-														<%= product.title %>
-													</h3>
-													<span>
-														<%= product.author %>
-													</span>
-													<div class="item-price">
-														<% if (product.pricing && product.pricing.discountPercentage> 0)
-															{ %>
-															<span class="prev-price">₹<%= product.pricing.originalPrice
-																	%></span>
-															₹<%= product.pricing.finalPrice %>
-																<small class="text-success d-block">
-																	<%= product.pricing.discountPercentage %>% off
-																</small>
-																<% } else { %>
-																	₹<%= product.pricing ? product.pricing.finalPrice :
-																		product.price %>
-																		<% } %>
-													</div>
-												</figcaption>
-											</div>
+											<%- include('../partials/product-card', { product: product, user: null }) %>
 										</div>
 										<% }) %>
 								</div>

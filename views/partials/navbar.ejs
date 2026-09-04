@@ -32,7 +32,7 @@
                 <div class="col-12 col-md collapse d-md-flex flex-column flex-md-row justify-content-center order-3 order-md-2 mt-3 mt-md-0" id="unifiedMobileMenu">
 
                     <!-- Mobile Search -->
-                    <form role="search" method="get" action="<%= _base %>" class="d-md-none w-100 mb-3 px-2 mt-2">
+                    <form role="search" method="get" action="/shop" class="d-md-none w-100 mb-3 px-2 mt-2">
                         <% if (typeof query !== 'undefined' && query.sort)     { %><input type="hidden" name="sort"     value="<%= query.sort %>"><% } %>
                         <% if (typeof query !== 'undefined' && query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
                         <% if (typeof query !== 'undefined' && query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
@@ -54,7 +54,7 @@
                         <div class="main-menu stellarnav m-0 p-0">
                             <ul class="menu-list mb-0 d-flex flex-column flex-md-row gap-4 list-unstyled fw-medium text-uppercase align-items-center py-3 py-md-0" style="letter-spacing:0.05em">
                                 <li class="menu-item"><a href="<%= _base + '#home' %>"          class="nav-link-item">Home</a></li>
-                                <li class="menu-item"><a href="<%= _base + '#featured-books' %>" class="nav-link-item">Featured</a></li>
+                                <li class="menu-item"><a href="/shop" class="nav-link-item">Shop</a></li>
                                 <li class="menu-item"><a href="<%= _base + '#popular-books' %>"  class="nav-link-item">Popular</a></li>
                                 <li class="menu-item"><a href="<%= _base + '#special-offer' %>"  class="nav-link-item">Offer</a></li>
                                 <li class="menu-item"><a href="<%= _base + '#latest-blog' %>"    class="nav-link-item">Articles</a></li>
@@ -67,7 +67,7 @@
                 <div class="col-auto d-flex align-items-center gap-2 gap-md-3 gap-lg-4 order-2 order-md-3">
 
                     <!-- Desktop Search -->
-                    <form role="search" method="get" action="<%= _base %>"
+                    <form role="search" method="get" action="/shop"
                           id="unifiedSearchForm"
                           class="unified-search-form d-none d-lg-flex m-0"
                           style="width:230px;">

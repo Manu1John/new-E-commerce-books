@@ -1,0 +1,148 @@
+<%- include('../partials/header') %>
+
+<section class="hero-section text-center p-5" style="background-color: #f8f9fa;">
+    <div class="container">
+        <% if (query.search) { %>
+            <h1 class="display-5 fw-bold">Search Results for "<%= query.search %>"</h1>
+            <p class="lead text-muted">Found <%= pagination.totalItems %> products matching your search.</p>
+        <% } else { %>
+            <h1 class="display-5 fw-bold">Shop Our Collection</h1>
+            <p class="lead text-muted">Browse through our vast selection of books.</p>
+        <% } %>
+    </div>
+</section>
+
+<section class="shop-content py-5">
+    <div class="container">
+        <div class="row">
+            
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 mb-4 mb-lg-0">
+                <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-4">Filters</h5>
+                    
+                    <form action="/shop" method="GET" id="filterForm">
+                        <% if (query.search) { %>
+                            <input type="hidden" name="search" value="<%= query.search %>">
+                        <% } %>
+                        
+                        <!-- Categories Filter -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Categories</h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-check custom-radio">
+                                    <input class="form-check-input" type="radio" name="category" id="cat-all" value="" <%= !query.category ? 'checked' : '' %> onchange="this.form.submit()">
+                                    <label class="form-check-label" for="cat-all">All Categories</label>
+                                </div>
+                                <% categories.forEach(cat => { %>
+                                    <div class="form-check custom-radio">
+                                        <input class="form-check-input" type="radio" name="category" id="cat-<%= cat._id %>" value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'checked' : '' %> onchange="this.form.submit()">
+                                        <label class="form-check-label" for="cat-<%= cat._id %>"><%= cat.name %></label>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        </div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <!-- Price Range Filter -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Price Range</h6>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <input type="number" class="form-control form-control-sm" name="minPrice" placeholder="Min" value="<%= query.minPrice || '' %>">
+                                <span>-</span>
+                                <input type="number" class="form-control form-control-sm" name="maxPrice" placeholder="Max" value="<%= query.maxPrice || '' %>">
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-sm w-100 mt-2 rounded-pill">Apply Price</button>
+                        </div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <!-- Clear Filters -->
+                        <% if (query.category || query.minPrice || query.maxPrice || query.sort || query.search) { %>
+                            <a href="/shop" class="btn btn-outline-danger btn-sm w-100 rounded-pill">Clear All Filters</a>
+                        <% } %>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                <!-- Top Bar: Sorting -->
+                <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm">
+                    <span class="text-muted small">Showing <%= products.length > 0 ? ((pagination.currentPage - 1) * 12) + 1 : 0 %>–<%= Math.min(pagination.currentPage * 12, pagination.totalItems) %> of <%= pagination.totalItems %> results</span>
+                    <form action="/shop" method="GET" class="d-flex align-items-center gap-2 m-0">
+                        <% if (query.search) { %><input type="hidden" name="search" value="<%= query.search %>"><% } %>
+                        <% if (query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
+                        <% if (query.minPrice) { %><input type="hidden" name="minPrice" value="<%= query.minPrice %>"><% } %>
+                        <% if (query.maxPrice) { %><input type="hidden" name="maxPrice" value="<%= query.maxPrice %>"><% } %>
+                        
+                        <label for="sort" class="text-nowrap small text-muted m-0 fw-medium">Sort By:</label>
+                        <select name="sort" id="sort" class="form-select form-select-sm border-0 bg-light rounded-pill px-3 py-2" onchange="this.form.submit()" style="width: auto; cursor:pointer;">
+                            <option value="" <%= !query.sort ? 'selected' : '' %>>Latest</option>
+                            <option value="price_asc" <%= query.sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+                            <option value="price_desc" <%= query.sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+                            <option value="az" <%= query.sort === 'az' ? 'selected' : '' %>>Name: A-Z</option>
+                            <option value="za" <%= query.sort === 'za' ? 'selected' : '' %>>Name: Z-A</option>
+                        </select>
+                    </form>
+                </div>
+
+                <!-- Grid -->
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <% if (products && products.length > 0) { %>
+                        <% products.forEach(product => { %>
+                            <div class="col">
+                                <%- include('../partials/product-card', { product: product, user: typeof user !== 'undefined' ? user : null }) %>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="col-12 text-center py-5">
+                            <div class="mb-4">
+                                <i class="fa-solid fa-magnifying-glass" style="font-size: 4rem; color: #dee2e6;"></i>
+                            </div>
+                            <h3 class="fw-bold">No Products Found</h3>
+                            <p class="text-muted mb-4">We couldn't find any products matching your current filters.</p>
+                            <a href="/shop" class="btn btn-dark rounded-pill px-4 py-2">Clear All Filters</a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Pagination -->
+                <% if (pagination.totalPages > 1) { %>
+                    <nav class="mt-5 d-flex justify-content-center">
+                        <ul class="pagination pagination-sm gap-2 m-0">
+                            <% if (pagination.hasPreviousPage) { %>
+                                <li class="page-item">
+                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center text-dark border-0 shadow-sm" href="<%= buildPageUrl('page', pagination.currentPage - 1) %>" style="width: 35px; height: 35px;">
+                                        <i class="icon icon-arrow-left"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                                <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm <%= i === pagination.currentPage ? 'bg-dark text-white' : 'text-dark bg-white' %>" href="<%= buildPageUrl('page', i) %>" style="width: 35px; height: 35px;"><%= i %></a>
+                                </li>
+                            <% } %>
+
+                            <% if (pagination.hasNextPage) { %>
+                                <li class="page-item">
+                                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center text-dark border-0 shadow-sm" href="<%= buildPageUrl('page', pagination.currentPage + 1) %>" style="width: 35px; height: 35px;">
+                                        <i class="icon icon-arrow-right"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- product-card styles loaded via product-card.css -->
+
+<!-- addToCart and toggleWishlist provided by /js/product-card.js via header partial -->
+
+<%- include('../partials/footer') %>
